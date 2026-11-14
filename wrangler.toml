@@ -1,11 +1,13 @@
-name = "joynexa-api"
+name = "joynexa"
 main = "src/index.js"
 compatibility_date = "2026-11-14"
 
 [[d1_databases]]
 binding = "DB"
 database_name = "joynexa-db"
-database_id = "REPLACE_WITH_D1_DATABASE_ID"
+database_id = "e57dcdd4-69b5-4bce-8a5a-d705c44b2a91"
 
-[vars]
-APP_ORIGIN = "https://REPLACE-WITH-YOUR-PAGES-DOMAIN"
+[assets]
+directory = "./public"
+binding = "ASSETS"
+run_worker_first = ["/api/*"]
