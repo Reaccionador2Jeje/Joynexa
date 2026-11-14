@@ -1,0 +1,23 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#090b18"><meta name="description" content="Panel privado de administración y moderación de Joynexa.">
+<title>Joynexa Admin</title><link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="admin.css"><script src="admin.js" defer></script>
+</head>
+<body>
+<header><a class="brand" href="/">✦ joynexa <span>/ admin</span></a><div class="header-actions"><span id="session-label">Comprobando sesión…</span><button id="logout" class="button secondary" hidden>Cerrar sesión</button></div></header>
+<main>
+<section class="intro"><div class="eyebrow">ATDEV · CONTROL CENTER</div><h1>Joynexa <span>Admin.</span></h1><p>Revisa los juegos enviados por la comunidad antes de publicarlos. Solo las cuentas con rol de administrador pueden moderar.</p></section>
+<section id="auth-panel" class="panel" hidden><h2>Iniciar sesión</h2><p>Usa tu cuenta Joynexa ID con permisos administrativos.</p><form id="login-form"><label for="username">Nombre de usuario</label><input id="username" name="username" minlength="3" maxlength="20" required autocomplete="username"><label for="password">Contraseña</label><input id="password" name="password" type="password" minlength="10" required autocomplete="current-password"><button class="button primary">Iniciar sesión</button></form><p id="login-message" class="message" role="status"></p></section>
+<section id="setup-panel" class="panel" hidden><div class="eyebrow">CONFIGURACIÓN INICIAL</div><h2>Activar primer administrador</h2><p>La clave debe configurarse primero como secreto <code>ADMIN_SETUP_KEY</code> en Cloudflare. Solo se permite crear el primer administrador una vez.</p><form id="setup-form"><label for="setup-key">Clave de configuración</label><input id="setup-key" type="password" autocomplete="off" required minlength="32"><button class="button primary">Activar mi cuenta como administrador</button></form><p id="setup-message" class="message" role="status"></p></section>
+<section id="denied-panel" class="panel" hidden><h2>Acceso restringido</h2><p id="denied-message">Esta cuenta no tiene permisos de administrador.</p><a class="button secondary" href="/">Volver a Joynexa</a></section>
+<section id="admin-panel" hidden>
+<div class="toolbar"><div><div class="eyebrow">MODERACIÓN</div><h2>Envíos pendientes</h2></div><button id="refresh" class="button secondary">↻ Actualizar</button></div>
+<div id="summary" class="summary">Cargando envíos…</div><div id="submissions" class="submissions"></div>
+</section>
+</main>
+<footer><a href="/">Joynexa</a><span>Herramientas internas · AtDev</span></footer>
+</body></html>
