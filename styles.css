@@ -12,3 +12,5 @@ dialog #auth-message,dialog #submit-message{min-height:16px;color:#9fe4df;font-s
 dialog .outline{margin-top:8px}
 .play-link{font-size:10px;color:#a9e7e5;white-space:nowrap}
 @media(max-width:640px){#user-chip{font-size:10px;padding:7px}.header{gap:8px}}
+
+#user-chip{font:700 11px "DM Sans",sans-serif;background:transparent;color:#b8adff;padding:8px 12px;border:1px solid #ffffff22;border-radius:9px;cursor:pointer}
