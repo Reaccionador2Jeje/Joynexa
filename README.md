@@ -43,7 +43,7 @@ npx wrangler deploy
 
 También puedes conectar el repositorio a Cloudflare Workers Builds para automatizar los despliegues desde main. No subas tokens ni secretos al repositorio.
 
-## Seguridad y publicación
+## Activar el primer administrador\n\n1. Genera una clave aleatoria en tu terminal: `openssl rand -hex 32`.\n2. Configúrala como secreto del Worker: `npx wrangler secret put ADMIN_SETUP_KEY` y pega la clave cuando Wrangler la solicite. También puedes crear el secreto desde la configuración del Worker en Cloudflare.\n3. Despliega el Worker y crea/inicia sesión con tu cuenta normal de Joynexa ID.\n4. Abre `/admin.html`, introduce la clave una sola vez y activa esa cuenta como administrador.\n5. Después de confirmar que el panel funciona, elimina el secreto: `npx wrangler secret delete ADMIN_SETUP_KEY`. El primer administrador seguirá teniendo acceso; el endpoint de configuración queda bloqueado cuando ya existe un administrador.\n\n**No guardes la clave en GitHub, archivos del proyecto ni capturas públicas.** El endpoint solo permite configurar el primer administrador y las rutas de moderación verifican el rol en el servidor.\n\n## Seguridad y publicación
 
 Joynexa está pensado para una comunidad que incluye menores. Antes de abrir el registro al público se necesitan revisión legal y de privacidad, controles de edad y consentimiento apropiados, recuperación de cuentas, limitación de intentos, protección antiabuso y pruebas de seguridad. No hay chat público ni mensajes privados.
 
