@@ -90,7 +90,7 @@ async function handle(request,env) {
   if(title.length<2||title.length>60||description.length>500) return json({error:"Revisa el título y la descripción."},400,headers);
   if(!/^https:\/\//i.test(launchUrl)||launchUrl.length>500) return json({error:"El enlace debe comenzar con https://."},400,headers);
   if(!["adventure","arcade","puzzle","strategy","other"].includes(category)) return json({error:"Categoría no válida."},400,headers);
-  const id=randomId(16),slug=title.toLowerCase().normalize("NFKD").replace(/[\\u0300-\\u036f]/g,"").replace(/[^a-z0-9]+/g,"-").replace(/^-|-$/g,"").slice(0,45)+"-"+id.slice(0,6);
+  const id=randomId(16),slug=title.toLowerCase().normalize("NFKD").replace(/[\u0300-\u036f]/g,"").replace(/[^a-z0-9]+/g,"-").replace(/^-|-$/g,"").slice(0,45)+"-"+id.slice(0,6);
   await env.DB.prepare("INSERT INTO games (id,slug,title,description,category,launch_url,developer_name,status) VALUES (?,?,?,?,?,?,?,'pending')").bind(id,slug,title,description,category,launchUrl,user.username).run();
   await env.DB.prepare("INSERT INTO moderation_events (id,game_id,action) VALUES (?,?,'submitted')").bind(randomId(16),id).run();
   return json({ok:true,message:"Juego recibido. Quedó pendiente de revisión."},201,headers);
@@ -107,7 +107,7 @@ async function handle(request,env) {
   if(Number(admins?.total||0)>0) return json({error:"La configuración inicial ya fue utilizada."},409,headers);
   const supplied=request.headers.get("x-admin-setup-key")||"";
   if(!await sameSecret(supplied,env.ADMIN_SETUP_KEY)) return json({error:"Clave de configuración incorrecta."},403,headers);
-  const result=await env.DB.prepare("UPDATE users SET role='admin' WHERE id=? AND role='player' AND status='active'").bind(user.id).run();
+  const result=await env.DB.prepare("UPDATE users SET role='admin' WHERE id=? AND role='player' AND status='active' AND NOT EXISTS (SELECT 1 FROM users AS admins WHERE admins.role='admin' AND admins.status='active')").bind(user.id).run();
   if(!result.meta?.changes) return json({error:"No se pudo asignar el rol de administrador."},409,headers);
   return json({ok:true,message:"Administrador inicial configurado. Guarda la clave fuera del repositorio."},200,headers);
  }
