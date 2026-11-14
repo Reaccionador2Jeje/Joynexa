@@ -86,6 +86,6 @@ async function handle(request,env) {
   await env.DB.prepare("INSERT INTO moderation_events (id,game_id,action) VALUES (?,?,'submitted')").bind(randomId(16),id).run();
   return json({ok:true,message:"Juego recibido. Quedó pendiente de revisión."},201,headers);
  }
- return json({error:"Ruta no encontrada."},404,headers);
+ return env.ASSETS.fetch(request);
 }
 export default {async fetch(request,env) { try { return await handle(request,env); } catch { return json({error:"Error interno del servicio."},500); } }};
