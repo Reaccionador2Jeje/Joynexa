@@ -1,23 +1,29 @@
-const search=document.getElementById("search");
-const cards=[...document.querySelectorAll(".game")];
-const filters=[...document.querySelectorAll("[data-filter]")];
-const empty=document.getElementById("empty");
-let category="all",toastTimer;
+const API_BASE=window.JOYNEXA_API_URL||"";
+const api=async(path,options={})=>{const response=await fetch(API_BASE+"/api"+path,{credentials:"include",headers:{"content-type":"application/json",...(options.headers||{})},...options});const data=await response.json().catch(()=>({error:"Respuesta no válida del servidor."}));if(!response.ok)throw new Error(data.error||"No se pudo completar la solicitud.");return data};
+const search=document.getElementById("search"),cards=[...document.querySelectorAll(".game")],filters=[...document.querySelectorAll("[data-filter]")],empty=document.getElementById("empty");
+let category="all",toastTimer,authMode="login",currentUser=null;
 function applyFilters(){const q=search.value.trim().toLocaleLowerCase("es");let count=0;cards.forEach(card=>{const ok=(category==="all"||card.dataset.kind===category)&&card.dataset.name.toLocaleLowerCase("es").includes(q);card.hidden=!ok;if(ok)count++});empty.hidden=count!==0;document.getElementById("games-grid").hidden=count===0}
 search.addEventListener("input",applyFilters);
 filters.forEach(btn=>btn.addEventListener("click",()=>{category=btn.dataset.filter;filters.forEach(b=>b.classList.toggle("chosen",b===btn));applyFilters()}));
 document.querySelectorAll("[data-jump]").forEach(btn=>btn.addEventListener("click",()=>{category=btn.dataset.jump;filters.forEach(b=>b.classList.toggle("chosen",b.dataset.filter===category));search.value="";applyFilters();document.getElementById("games").scrollIntoView({behavior:"smooth"})}));
-const nav=document.getElementById("nav"),menu=document.getElementById("menu");
-menu.addEventListener("click",()=>nav.classList.toggle("open"));
-nav.querySelectorAll("a").forEach(a=>a.addEventListener("click",()=>nav.classList.remove("open")));
-const dialog=document.getElementById("account");
-document.querySelectorAll("[data-account]").forEach(b=>b.addEventListener("click",()=>dialog.showModal()));
-document.getElementById("close").addEventListener("click",()=>dialog.close());
-document.getElementById("ok").addEventListener("click",()=>dialog.close());
-dialog.addEventListener("click",e=>{if(e.target===dialog)dialog.close()});
-const toast=document.getElementById("toast");
-function notify(message){toast.textContent=message;toast.classList.add("show");clearTimeout(toastTimer);toastTimer=setTimeout(()=>toast.classList.remove("show"),2500)}
+const nav=document.getElementById("nav"),menu=document.getElementById("menu");menu.addEventListener("click",()=>nav.classList.toggle("open"));nav.querySelectorAll("a").forEach(a=>a.addEventListener("click",()=>nav.classList.remove("open")));
+const dialog=document.getElementById("account"),authForm=document.getElementById("auth-form"),authMessage=document.getElementById("auth-message"),authTitle=document.getElementById("account-title"),authNote=document.getElementById("account-note"),authSubmit=document.getElementById("auth-submit"),switchAuth=document.getElementById("switch-auth"),logout=document.getElementById("logout"),userChip=document.getElementById("user-chip");
+function setAuthMode(mode){authMode=mode;authTitle.innerHTML=mode==="register"?'Crea tu <span>Joynexa ID.</span>':'Tu cuenta <span>gaming.</span>';authNote.textContent=mode==="register"?"Elige un nombre de usuario y una contraseña. No uses tu contraseña de otros servicios.":"Inicia sesión para acceder a las funciones de tu cuenta.";authSubmit.textContent=mode==="register"?"Crear cuenta":"Iniciar sesión";switchAuth.textContent=mode==="register"?"¿Ya tienes cuenta? Inicia sesión":"¿No tienes cuenta? Crear una";document.getElementById("auth-password").autocomplete=mode==="register"?"new-password":"current-password";authMessage.textContent=""}
+function openAccount(mode="login"){setAuthMode(mode);authForm.hidden=!!currentUser;logout.hidden=!currentUser;switchAuth.hidden=!!currentUser;authNote.textContent=currentUser?"Sesión iniciada como "+currentUser.username+".":authNote.textContent;authMessage.textContent="";dialog.showModal()}
+document.querySelectorAll("[data-account]").forEach(b=>b.addEventListener("click",()=>openAccount(b.dataset.account)));
+document.getElementById("close").addEventListener("click",()=>dialog.close());dialog.addEventListener("click",e=>{if(e.target===dialog)dialog.close()});
+switchAuth.addEventListener("click",()=>setAuthMode(authMode==="login"?"register":"login"));
+authForm.addEventListener("submit",async e=>{e.preventDefault();const form=new FormData(authForm),payload={username:form.get("username"),password:form.get("password")};authSubmit.disabled=true;authMessage.textContent="Conectando…";try{const result=await api(authMode==="register"?"/register":"/login",{method:"POST",body:JSON.stringify(payload)});currentUser=result.user;updateUserUI();authForm.reset();openAccount("login");authMessage.textContent="¡Hola, "+currentUser.username+"! Tu sesión está activa."}catch(err){authMessage.textContent=err.message}finally{authSubmit.disabled=false}});
+function updateUserUI(){userChip.hidden=!currentUser;if(currentUser){userChip.textContent="✦ "+currentUser.username;userChip.title="Sesión iniciada";}document.querySelectorAll("[data-account]").forEach(b=>b.hidden=!!currentUser)}
+logout.addEventListener("click",async()=>{try{await api("/logout",{method:"POST",body:"{}"})}catch{}currentUser=null;updateUserUI();dialog.close();notify("Sesión cerrada.")});
+const submitDialog=document.getElementById("submit-dialog"),submitForm=document.getElementById("submit-form"),submitMessage=document.getElementById("submit-message");
+document.getElementById("show-submit").addEventListener("click",()=>{if(!currentUser){openAccount("login");authMessage.textContent="Inicia sesión para enviar un juego.";return}submitMessage.textContent="";submitDialog.showModal()});
+document.getElementById("submit-close").addEventListener("click",()=>submitDialog.close());submitDialog.addEventListener("click",e=>{if(e.target===submitDialog)submitDialog.close()});
+submitForm.addEventListener("submit",async e=>{e.preventDefault();const f=new FormData(submitForm),payload=Object.fromEntries(f.entries());try{const result=await api("/submit-game",{method:"POST",body:JSON.stringify(payload)});submitMessage.textContent=result.message;submitForm.reset()}catch(err){submitMessage.textContent=err.message}});
+const toast=document.getElementById("toast");function notify(message){toast.textContent=message;toast.classList.add("show");clearTimeout(toastTimer);toastTimer=setTimeout(()=>toast.classList.remove("show"),2500)}
 cards.forEach(card=>{card.addEventListener("click",()=>notify(card.dataset.name+" todavía no está publicado."));card.setAttribute("tabindex","0");card.addEventListener("keydown",e=>{if(e.key==="Enter"||e.key===" "){e.preventDefault();notify(card.dataset.name+" todavía no está publicado.")}})});
-document.getElementById("year").textContent=new Date().getFullYear();
-document.addEventListener("keydown",e=>{if((e.ctrlKey||e.metaKey)&&e.key.toLowerCase()==="k"){e.preventDefault();search.focus()}});
-filters.forEach(b=>b.setAttribute("aria-pressed",String(b.dataset.filter==="all")));
+document.getElementById("year").textContent=new Date().getFullYear();document.addEventListener("keydown",e=>{if((e.ctrlKey||e.metaKey)&&e.key.toLowerCase()==="k"){e.preventDefault();search.focus()}});filters.forEach(b=>b.setAttribute("aria-pressed",String(b.dataset.filter==="all")));
+async function initialize(){try{const data=await api("/games");if(data.games?.length){const grid=document.getElementById("games-grid");grid.innerHTML=data.games.map(g=>'<article class="game live-game" data-kind="'+({adventure:"aventura",arcade:"arcade",puzzle:"puzzle",strategy:"estrategia"}[g.category]||"other")+'" data-name="'+escapeHtml(g.title)+'"><div class="cover neon"><span>✦</span><strong>'+escapeHtml(g.title)+'</strong></div><div class="game-meta"><div><b>'+escapeHtml(g.title)+'</b><small>'+escapeHtml(g.category)+" · "+escapeHtml(g.developer_name)+'</small></div><a class="play-link" href="'+safeUrl(g.launch_url)+'" target="_blank" rel="noopener noreferrer">Jugar ↗</a></div></article>').join("");cards.splice(0,cards.length,...grid.querySelectorAll(".game"));applyFilters()}}catch{}try{const me=await api("/me");currentUser=me.user;updateUserUI()}catch{}}
+function escapeHtml(value){return String(value||"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]))}
+function safeUrl(value){try{const u=new URL(value);return u.protocol==="https:"?u.href:"#"}catch{return "#"}}
+initialize();
