@@ -2,54 +2,60 @@
 
 **The Gaming Universe** — una superplataforma gaming de AtDev para descubrir videojuegos, explorar comunidades y conectar experiencias de juego desde un único sitio web.
 
-> Estado: primera base funcional en desarrollo (0.1.0-alpha).
+> Estado: base funcional 0.1.0-alpha en desarrollo.
 
-## Estructura
+## Arquitectura
 
-- Sitio único responsive: HTML, CSS y JavaScript nativo.
-- API: Cloudflare Workers en src/index.js.
-- Base de datos: Cloudflare D1 con migración inicial en migrations/0001_initial.sql.
-- Configuración de despliegue: wrangler.toml.
+- Un solo sitio web responsive, servido con Cloudflare Workers Static Assets.
+- API en Cloudflare Workers: src/index.js.
+- Base de datos Cloudflare D1: joynexa-db.
+- Configuración de despliegue en wrangler.toml.
+- Código fuente del frontend en la raíz y copia de publicación en public/.
 
-## Funciones disponibles en esta versión
+## Funciones implementadas
 
 - Inicio, navegación móvil, búsqueda y filtros del catálogo.
-- Joynexa ID: registro, inicio y cierre de sesión mediante API.
-- Contraseñas protegidas con PBKDF2-SHA-256 y salt individual.
+- Joynexa ID: registro, inicio, cierre de sesión y consulta de sesión mediante API.
+- Contraseñas con PBKDF2-SHA-256 y salt individual.
 - Sesiones con cookies HttpOnly, Secure y SameSite=Lax.
-- Catálogo API que solo devuelve juegos aprobados.
+- Catálogo API que solo muestra juegos aprobados.
 - Formulario para enviar juegos a una cola privada de revisión.
-- Tablas preparadas para favoritos, logros y moderación.
+- Esquema D1 preparado para logros, favoritos y moderación.
+- Workflow de GitHub Actions para revisar sintaxis JavaScript.
 
-Las tarjetas de ejemplo no son juegos publicados. Los juegos enviados no se ejecutan ni se publican automáticamente.
+Las tarjetas de muestra no son juegos publicados. Los envíos no se publican ni ejecutan automáticamente.
 
-## Configuración local y Cloudflare
+## Base de datos
 
-1. Instala Node.js y Wrangler en un entorno de desarrollo.
-2. Crea una base D1 llamada joynexa-db.
-3. Copia el ID de D1 en wrangler.toml, reemplazando el valor de ejemplo.
-4. Ejecuta: npx wrangler d1 migrations apply joynexa-db --remote
-5. Configura APP_ORIGIN con el origen exacto del sitio publicado.
-6. Despliega la API: npx wrangler deploy
-7. Publica el frontend con Cloudflare Pages conectado a este repositorio.
+La base D1 joynexa-db ya fue creada en la cuenta Cloudflare conectada y su esquema inicial fue aplicado. El identificador está configurado en wrangler.toml.
 
-Si frontend y API se publican en dominios distintos, configura window.JOYNEXA_API_URL antes de cargar app.js para apuntar al origen de la API. Para evitar problemas de cookies entre sitios, se recomienda usar un dominio propio y enrutar la API bajo el mismo sitio.
+Para volver a aplicar migraciones desde un entorno de desarrollo con Wrangler:
 
-Consulta docs/PLATFORM_STATUS.md para conocer límites y tareas pendientes.
+npx wrangler d1 migrations apply joynexa-db --remote
+
+## Despliegue
+
+El proyecto está configurado para servir frontend y API desde el mismo Worker, manteniendo las cookies de sesión en el mismo origen.
+
+Con Wrangler instalado y autenticado en la cuenta Cloudflare:
+
+npx wrangler deploy
+
+También puedes conectar el repositorio a Cloudflare Workers Builds para automatizar los despliegues desde main. No subas tokens ni secretos al repositorio.
 
 ## Seguridad y publicación
 
-Joynexa está pensado para una comunidad que incluye menores. Antes de abrir el registro al público se necesitan revisión legal y de privacidad, controles de edad/consentimiento apropiados, recuperación de cuentas, limitación de intentos, protección antiabuso y revisión de seguridad. No hay chat público ni mensajes privados.
+Joynexa está pensado para una comunidad que incluye menores. Antes de abrir el registro al público se necesitan revisión legal y de privacidad, controles de edad y consentimiento apropiados, recuperación de cuentas, limitación de intentos, protección antiabuso y pruebas de seguridad. No hay chat público ni mensajes privados.
 
-Los enlaces de juegos son envíos pendientes. Antes de alojar o incrustar contenido externo se requieren revisión de licencias, seguridad, aislamiento de origen y políticas de sandbox.
+Los juegos enviados permanecen pendientes. Antes de alojar o incrustar contenido externo se requieren revisión de licencias, contenido, aislamiento de origen y políticas de sandbox.
 
 ## Próximas etapas
 
-1. Panel seguro de moderación y publicación.
-2. SDK de juegos para logros y guardados compatibles.
-3. Favoritos sincronizados y perfil ampliado.
+1. Panel de moderación seguro para revisar y aprobar juegos.
+2. SDK para logros y guardados en juegos compatibles.
+3. Favoritos sincronizados y perfiles ampliados.
 4. Eventos y funciones sociales con controles de seguridad.
-5. Revisión de accesibilidad, privacidad y pruebas automatizadas.
+5. Pruebas automatizadas, accesibilidad y revisión de privacidad.
 
 ## Filosofía
 
