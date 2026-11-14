@@ -1,0 +1,45 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#090b18"><meta name="description" content="Joynexa — The Gaming Universe. Descubre juegos, explora mundos y conecta con la comunidad gamer.">
+<title>Joynexa — The Gaming Universe</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="styles.css"><script src="app.js" defer></script>
+</head>
+<body>
+<header class="header"><a class="brand" href="#home"><span>✦</span> joynexa</a><button class="menu" id="menu" aria-label="Abrir menú">☰</button>
+<nav id="nav"><a href="#home">Inicio</a><a href="#games">Juegos</a><a href="#services">Servicios</a><a href="#developers">Desarrolladores</a></nav>
+<div class="actions"><button class="ghost" data-account>Iniciar sesión</button><button class="primary" data-account>Crear cuenta ↗</button></div></header>
+<main>
+<section class="hero wrap" id="home"><div class="hero-copy"><div class="eyebrow"><i></i> TU PRÓXIMO UNIVERSO TE ESPERA</div><h1>Un universo.<br><span>Miles de formas</span><br>de jugar.</h1><p>Descubre juegos, encuentra tu comunidad y vive nuevas experiencias. Todo tu mundo gamer, en un solo lugar.</p><div class="hero-buttons"><a class="primary big" href="#games">Explorar juegos →</a><a class="outline big" href="#services">Conocer Joynexa</a></div><div class="proof"><span>🎮　🪐　✨</span><div><b>Un lugar para cada jugador.</b><small>Creado para descubrir y compartir.</small></div></div></div>
+<div class="universe-art" aria-label="Ilustración de un planeta fantástico"><div class="orbit orbit-a"></div><div class="orbit orbit-b"></div><div class="planet">✦</div><div class="moon moon-a"></div><div class="moon moon-b"></div><div class="float f-a">◈ <b>Tu aventura</b><small>comienza aquí</small></div><div class="float f-b">✧ <b>Joynexa universe</b><small>Play · Connect · Discover</small></div></div>
+<div class="scroll">✦　DESCUBRE MÁS</div></section>
+<section class="wrap section" id="games"><div class="section-head"><div><label>EL CATÁLOGO</label><h2>Encuentra tu próxima <span>aventura.</span></h2></div><a href="#categories">Ver categorías →</a></div>
+<div class="toolbar"><label class="search">⌕ <input id="search" placeholder="Busca un juego..." type="search"><kbd>Ctrl K</kbd></label><div class="filters" id="filters"><button class="chosen" data-filter="all">Todos</button><button data-filter="aventura">Aventura</button><button data-filter="arcade">Arcade</button><button data-filter="puzzle">Puzzle</button><button data-filter="estrategia">Estrategia</button></div></div>
+<div class="games" id="games-grid">
+<article class="game" data-kind="arcade" data-name="Neon Rush"><div class="cover neon"><b class="tag">DESTACADO</b><span>◉</span><strong>NEON<br>RUSH</strong></div><div class="game-meta"><div><b>Neon Rush</b><small>Arcade · Velocidad</small></div><em>Próximamente</em></div></article>
+<article class="game" data-kind="aventura" data-name="Skybound"><div class="cover sky"><span>☁</span><strong>SKY<br>BOUND</strong></div><div class="game-meta"><div><b>Skybound</b><small>Aventura · Exploración</small></div><em>Próximamente</em></div></article>
+<article class="game" data-kind="puzzle" data-name="Prism Path"><div class="cover prism"><span>◇</span><strong>PRISM<br>PATH</strong></div><div class="game-meta"><div><b>Prism Path</b><small>Puzzle · Casual</small></div><em>Próximamente</em></div></article>
+<article class="game" data-kind="estrategia" data-name="Tiny Tactics"><div class="cover tactics"><span>♜</span><strong>TINY<br>TACTICS</strong></div><div class="game-meta"><div><b>Tiny Tactics</b><small>Estrategia · Táctico</small></div><em>Próximamente</em></div></article>
+<article class="game" data-kind="arcade" data-name="Orbit Breaker"><div class="cover orbit-cover"><span>🪐</span><strong>ORBIT<br>BREAKER</strong></div><div class="game-meta"><div><b>Orbit Breaker</b><small>Arcade · Espacio</small></div><em>Próximamente</em></div></article>
+<article class="game" data-kind="aventura" data-name="Mosswood"><div class="cover moss"><span>✿</span><strong>MOSS<br>WOOD</strong></div><div class="game-meta"><div><b>Mosswood</b><small>Aventura · Naturaleza</small></div><em>Próximamente</em></div></article>
+</div><p class="empty" id="empty" hidden>No encontramos juegos con esa búsqueda.</p><p class="notice">✧　Este catálogo es una demostración. Los juegos se incorporarán después de su revisión y publicación.</p></section>
+<section class="wrap section" id="categories"><div class="section-head"><div><label>EXPLORA A TU MANERA</label><h2>¿Qué te gustaría <span>jugar hoy?</span></h2></div></div><div class="categories">
+<button data-jump="aventura">⚔ <b>Aventura</b><small>Descubre nuevos mundos</small><i>↗</i></button><button data-jump="arcade">✹ <b>Arcade</b><small>Acción rápida y diversión</small><i>↗</i></button><button data-jump="puzzle">▦ <b>Puzzle</b><small>Desafía tus ideas</small><i>↗</i></button><button data-jump="estrategia">♟ <b>Estrategia</b><small>Piensa tu siguiente jugada</small><i>↗</i></button></div></section>
+<section class="services" id="services"><div class="wrap section"><div class="section-head"><div><label>MUCHO MÁS QUE JUEGOS</label><h2>Tu universo <span>gaming.</span></h2><p>Joynexa conecta las experiencias que hacen especial jugar.</p></div></div><div class="service-grid">
+<article><i>▶</i><h3>Joynexa Play</h3><p>Explora juegos de distintos creadores y encuentra tu siguiente favorito.</p><small>EN DESARROLLO</small></article>
+<article><i>◎</i><h3>Joynexa ID</h3><p>Una identidad para tu perfil, preferencias y recorrido por la plataforma.</p><small>PLANIFICADO</small></article>
+<article><i>✧</i><h3>Achievements</h3><p>Logros, XP y desafíos para celebrar tus avances en juegos compatibles.</p><small>PLANIFICADO</small></article>
+<article><i>⌘</i><h3>Joynexa Social</h3><p>Una comunidad positiva para descubrir creadores y compartir intereses.</p><small>PLANIFICADO</small></article>
+<article><i>☁</i><h3>Joynexa Cloud</h3><p>Sincronización de progreso para juegos que integren el soporte necesario.</p><small>PLANIFICADO</small></article>
+<article><i>✺</i><h3>Joynexa Events</h3><p>Eventos, actividades y desafíos comunitarios para jugar juntos.</p><small>PLANIFICADO</small></article>
+</div></div></section>
+<section class="wrap developer" id="developers"><div><label>HECHO PARA CREAR</label><h2>Tu juego merece<br>un <span>universo.</span></h2><p>Comparte tu creación, llega a nuevos jugadores y forma parte de algo más grande. Las publicaciones estarán sujetas a revisión.</p><a class="primary big" href="https://github.com/Reaccionador2Jeje/Joynexa/issues/new">Proponer una idea ↗</a></div><div class="code"><div>●　●　●</div><p>01　const <b>yourGame</b> = createWorld();</p><p>02　yourGame.<i>share</i>();</p><p>03　✦ Welcome to Joynexa</p></div></section>
+<section class="closing wrap"><div>✦</div><label>YOUR WORLD. YOUR GAMES.</label><h2>El juego recién <span>comienza.</span></h2><a href="#home">Volver arriba ↑</a></section>
+</main>
+<footer><a class="brand" href="#home"><span>✦</span> joynexa</a><p>The Gaming Universe · Un proyecto de <b>AtDev</b></p><a href="https://github.com/Reaccionador2Jeje/Joynexa">GitHub ↗</a><small>© <span id="year"></span> AtDev. Joynexa está en desarrollo.</small></footer>
+<dialog id="account"><button class="close" id="close">×</button><div>✦</div><label>JOYNEXA ID</label><h2>Tu identidad está <span>por llegar.</span></h2><p>Estamos construyendo Joynexa ID. Por ahora puedes explorar la plataforma sin registrarte.</p><button class="primary" id="ok">¡Entendido!</button></dialog>
+<div class="toast" id="toast"></div>
+</body></html>
