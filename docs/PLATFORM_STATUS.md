@@ -1,25 +1,28 @@
 # Joynexa platform status
 
-## Implemented in this repository
-- Responsive single-site frontend.
-- Cloudflare Worker API: health, approved game catalog, account registration/login/logout/current session, and game submission queue.
+## Implemented
+- Single-site responsive frontend.
+- Cloudflare Worker API for health, approved game catalog, Joynexa ID registration/login/logout/session lookup, and private game submissions.
+- D1 database joynexa-db created in the connected Cloudflare account and initialized with the initial schema.
 - D1 schema for users, sessions, games, achievements, favorites, and moderation history.
-- Passwords use PBKDF2-SHA-256 with per-user salts. Random session tokens are generated and only their SHA-256 hashes are stored.
-- Game submissions remain private and pending until reviewed. There is no public chat or direct messaging.
+- Passwords use PBKDF2-SHA-256 with per-user salts; session tokens are random and only their SHA-256 hashes are stored.
+- Submitted games remain pending and are not exposed in the public catalog.
+- GitHub Actions syntax validation workflow.
+- Workers Static Assets configuration serves the website and API from one origin.
 
-## Not production-ready yet
-- Joynexa ID needs account recovery, abuse/rate-limit protections, privacy policy, age-appropriate consent review, and security testing before public launch.
-- Moderation needs an authenticated administrator workflow. Never approve arbitrary submitted game URLs automatically.
-- Achievements and cloud saves require a game SDK and per-game integration. The schema is only a foundation.
-- Social, groups, events, developer analytics, and a full launcher/player are future modules.
-- Do not embed untrusted third-party games until origin isolation, content review, licensing checks, and sandbox policies are implemented.
+## Not production-ready
+- Account recovery, rate limiting, anti-abuse controls, legal/privacy review, age-appropriate consent and security testing are required before public registration.
+- There is no admin moderation dashboard yet; submissions cannot be approved from the public site.
+- Achievements and cloud saves need a game SDK and game-by-game integration.
+- Social, groups, events and developer analytics remain future modules.
+- External games are not embedded automatically. Review licensing, content, origin isolation and sandbox policy before launching them.
+- The first catalog cards are placeholders until approved games exist.
 
-## Cloudflare setup
-1. Create a D1 database named joynexa-db.
-2. Copy its database ID into wrangler.toml.
-3. Apply the D1 migration with Wrangler.
-4. Set APP_ORIGIN to the exact deployed frontend origin.
-5. Deploy the Worker with Wrangler.
-6. Configure the frontend API URL after deployment.
+## Deploy
+The repository is configured to serve the frontend and API from one Cloudflare Worker using Workers Static Assets. The D1 database is already created and its schema applied. Its ID is configured in wrangler.toml.
 
-The repository intentionally contains no passwords, API tokens, or Cloudflare secrets.
+From a development environment with Wrangler installed and authenticated, run:
+
+1. npx wrangler deploy
+
+Connect the GitHub repository to Cloudflare Workers Builds to automate future deployments from main. Do not commit API tokens or secrets.
