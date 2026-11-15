@@ -1,6 +1,6 @@
 {
   "name": "@joynexa/accounts-api",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "private": true,
   "type": "module",
   "engines": { "node": ">=22" },
@@ -9,6 +9,7 @@
     "build": "tsc -p tsconfig.json",
     "start": "node dist/server.js",
     "migrate": "tsx src/migrate.ts",
+    "import:legacy": "tsx src/import-legacy.ts",
     "typecheck": "tsc --noEmit -p tsconfig.json"
   },
   "dependencies": {
