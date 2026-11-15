@@ -1,0 +1,36 @@
+services:
+  accounts-db:
+    image: postgres:17-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: joynexa
+      POSTGRES_USER: joynexa
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-joynexa_local_dev}
+    volumes:
+      - joynexa-postgres:/var/lib/postgresql/data
+    ports:
+      - "127.0.0.1:5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U joynexa -d joynexa"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  accounts-api:
+    build:
+      context: ./server
+    restart: unless-stopped
+    environment:
+      NODE_ENV: production
+      PORT: 3001
+      DATABASE_URL: postgresql://joynexa:${POSTGRES_PASSWORD:-joynexa_local_dev}@accounts-db:5432/joynexa
+      FRONTEND_ORIGIN: ${FRONTEND_ORIGIN:-http://localhost:8788}
+      SESSION_TTL_SECONDS: 1209600
+    ports:
+      - "127.0.0.1:3001:3001"
+    depends_on:
+      accounts-db:
+        condition: service_healthy
+
+volumes:
+  joynexa-postgres:
