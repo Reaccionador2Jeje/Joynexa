@@ -173,6 +173,7 @@ Joynexa está pensado para una comunidad que incluye menores. Antes de abrirlo a
 ## Joynexa Achievements + Game SDK
 
 - Colección privada de logros del jugador y puntos acumulados.
+- Cliente Node.js de servidor en `sdk/` para otorgar logros sin exponer claves al juego cliente.
 - Los desarrolladores de juegos aprobados pueden definir logros y generar una clave privada de servidor.
 - Las claves se almacenan como hashes en D1 y solo se muestran al generarse.
 - El endpoint de entrega es idempotente: no duplica un logro ya obtenido.
