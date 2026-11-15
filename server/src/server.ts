@@ -278,18 +278,33 @@ app.post("/api/admin/bootstrap", {
     return reply.code(403).send({ error: "Clave de configuración incorrecta." });
   }
 
-  const result = await pool.query(
-    `UPDATE users SET role = 'admin'
-      WHERE id = $1 AND role = 'player' AND status = 'active'
-        AND NOT EXISTS (
-          SELECT 1 FROM users WHERE role = 'admin' AND status = 'active'
-        )`,
-    [user.id]
-  );
-  if (result.rowCount !== 1) {
-    return reply.code(409).send({ error: "La configuración inicial ya fue utilizada o la cuenta no puede recibir el rol." });
+  const client = await pool.connect();
+  try {
+    await client.query("BEGIN");
+    await client.query("SELECT pg_advisory_xact_lock(74190211)");
+    const admins = await client.query(
+      "SELECT id FROM users WHERE role = 'admin' AND status = 'active' LIMIT 1"
+    );
+    if (admins.rowCount) {
+      await client.query("ROLLBACK");
+      return reply.code(409).send({ error: "La configuración inicial ya fue utilizada." });
+    }
+    const result = await client.query(
+      "UPDATE users SET role = 'admin' WHERE id = $1 AND role = 'player' AND status = 'active'",
+      [user.id]
+    );
+    if (result.rowCount !== 1) {
+      await client.query("ROLLBACK");
+      return reply.code(409).send({ error: "La cuenta no puede recibir el rol de administrador." });
+    }
+    await client.query("COMMIT");
+    return reply.send({ ok: true, message: "Administrador inicial configurado." });
+  } catch (error) {
+    await client.query("ROLLBACK");
+    throw error;
+  } finally {
+    client.release();
   }
-  return reply.send({ ok: true, message: "Administrador inicial configurado." });
 });
 
 app.setErrorHandler((error, request, reply) => {
