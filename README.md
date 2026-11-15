@@ -16,6 +16,15 @@
 
 El frontend conserva las mismas rutas `/api/register`, `/api/login`, `/api/logout` y `/api/me`. Cuando se configura `ACCOUNTS_API_URL`, el Worker las reenvía al backend Node.js. Sin esa variable, la API heredada D1 sigue funcionando como respaldo.
 
+## Joynexa Play integrado
+
+- Reproductor dentro del sitio para juegos externos expresamente habilitados para iframe.
+- Sesiones de juego autenticadas y XP por tiempo activo, con límite diario de 120 XP.
+- Los juegos que bloqueen iframe mantienen la opción de abrir su página original.
+- Los logros de juego se conceden mediante el Game SDK desde un backend confiable; nunca exponer claves privadas en el navegador.
+
+Revisa [la arquitectura de Joynexa Play](docs/JOYNEXA_PLAY.md).
+
 ## Catálogo gaming
 
 - La vista inicial prioriza experiencias completas y deja los minijuegos clásicos en «Todo el catálogo».
