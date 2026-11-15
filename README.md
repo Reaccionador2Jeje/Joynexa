@@ -179,7 +179,7 @@ No conectes el sitio público a un backend sin TLS, sin secretos de producción 
 - Las contraseñas no se guardan en texto plano.
 - Los tokens de sesión son aleatorios; PostgreSQL almacena sus hashes.
 - Las cookies de sesión son HttpOnly, SameSite=Lax y Secure en producción.
-- Las rutas de escritura verifican el origen cuando se envía la cabecera Origin.
+- Las rutas de escritura requieren una cabecera `Origin` que coincida exactamente con uno de los orígenes permitidos del frontend; las solicitudes sin `Origin` también se rechazan.
 - Hay límites de solicitudes, validación de entradas y respuestas de error sin detalles internos.
 - No se importan sesiones antiguas.
 - Aún faltan recuperación de cuentas, verificación de correo, MFA, herramientas de moderación de perfiles y pruebas de seguridad adicionales.
