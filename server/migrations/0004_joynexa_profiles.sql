@@ -9,6 +9,8 @@ CREATE TABLE IF NOT EXISTS joynexa.profiles (
   updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
+ALTER TABLE joynexa.profiles ENABLE ROW LEVEL SECURITY;
+
 INSERT INTO joynexa.profiles (user_id, display_name)
 SELECT id, username FROM joynexa.users
 ON CONFLICT (user_id) DO NOTHING;
