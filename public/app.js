@@ -71,7 +71,13 @@ async function loadMyGames(){
 const achievementsList=document.getElementById("achievements-list");
 const achievementsMessage=document.getElementById("achievements-message");
 const achievementTotal=document.getElementById("achievement-total");
-document.getElementById("refresh-achievements").addEventListener("click",loadAchievements);
+document.getElementById("refresh-achievements").addEventListener("click",()=>{loadAchievements();loadXP()});
+async function loadXP(){
+ const total=document.getElementById("xp-total"),daily=document.getElementById("xp-daily");
+ if(!currentUser){total.textContent="0 XP";daily.textContent="0 / 120";return}
+ try{const data=await api("/xp/me");total.textContent=Number(data.xp||0).toLocaleString("es-CL")+" XP";daily.textContent=Number(data.dailyXp||0)+" / "+Number(data.dailyCap||120)}
+ catch(error){total.textContent="—";daily.textContent="No disponible"}
+}
 async function loadAchievements(){
  if(!currentUser){achievementsList.innerHTML='<p class="session-empty">Inicia sesión para consultar tus logros.</p>';achievementTotal.textContent="0 puntos";return}
  achievementsMessage.textContent="";
@@ -145,7 +151,7 @@ async function openEmbeddedGame(slug){
    activePlaySession=session.sessionId;playStatus.textContent="Sesión Joynexa activa · 1 XP por minuto jugado · límite diario 120 XP.";
    playHeartbeat=setInterval(async()=>{
     if(!activePlaySession)return;
-    try{const result=await api("/play/"+encodeURIComponent(slug)+"/heartbeat",{method:"POST",body:JSON.stringify({sessionId:activePlaySession})});if(result.earnedXp)playXp.textContent="XP: +"+result.earnedXp+" · Total "+result.totalXp;if(result.dailyXp>=120)playStatus.textContent="Has alcanzado el límite diario de XP."; }catch{}
+    try{const result=await api("/play/"+encodeURIComponent(slug)+"/heartbeat",{method:"POST",body:JSON.stringify({sessionId:activePlaySession})});if(result.earnedXp){playXp.textContent="XP: +"+result.earnedXp+" · Total "+result.totalXp;loadXP()}if(result.dailyXp>=120)playStatus.textContent="Has alcanzado el límite diario de XP."; }catch{}
    },60000);
   }
  }catch(error){playStatus.textContent="Modo invitado: "+error.message}
@@ -199,7 +205,7 @@ async function initialize(){
   const me=await api("/me");
   currentUser=me.user;
   updateUserUI();
-  if(currentUser){loadProfile();loadFavorites();loadAchievements()}
+  if(currentUser){loadProfile();loadFavorites();loadAchievements();loadXP()}
  }catch{}
  const publicUsername=new URLSearchParams(location.search).get("profile");
  if(publicUsername)openPublicProfile(publicUsername);
