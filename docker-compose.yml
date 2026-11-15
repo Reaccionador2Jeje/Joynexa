@@ -26,6 +26,7 @@ services:
       DATABASE_URL: postgresql://joynexa:${POSTGRES_PASSWORD:-joynexa_local_dev}@accounts-db:5432/joynexa
       FRONTEND_ORIGIN: ${FRONTEND_ORIGIN:-http://localhost:8787}
       SESSION_TTL_SECONDS: 1209600
+      ADMIN_SETUP_KEY: ${ADMIN_SETUP_KEY:-}
     ports:
       - "127.0.0.1:3001:3001"
     depends_on:
