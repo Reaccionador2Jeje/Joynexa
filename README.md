@@ -201,7 +201,7 @@ Revisa el SQL y confirma el entorno antes de ejecutarlo. La migración crea tabl
 
 ## CI
 
-GitHub Actions comprueba sintaxis JavaScript, tipos TypeScript, compilación de la API y construcción de la imagen Docker.
+GitHub Actions comprueba sintaxis JavaScript, tipos TypeScript, compilación de la API y construcción de la imagen Docker. El workflow `Joynexa Game SDK` ejecuta `npm test` con Node.js 22 cuando cambian los archivos del SDK.
 
 ## Filosofía
 
