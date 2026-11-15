@@ -131,6 +131,7 @@ async function requireSameOrigin(request: FastifyRequest, reply: FastifyReply): 
   const origin = request.headers.origin;
   if (origin && !FRONTEND_ORIGINS.includes(origin)) {
     reply.code(403).send({ error: "Origen no permitido." });
+    return;
   }
 }
 
