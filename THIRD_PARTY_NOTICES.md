@@ -39,5 +39,8 @@ Joynexa adds these as outbound links only. Each project keeps its own code, asse
 | Paradise Isle | https://appleweiping.github.io/ | Paradise Isle contributors · see upstream project |
 | Business Tycoon | https://tycoon.teamday.ai/ | Business Tycoon contributors · see upstream project |
 | HyperVox | https://capercube.com/hypervox/ | CaperCube · MIT |
+| FreeRCT | https://freerct.net/play/play | FreeRCT contributors · GPL-2.0 |
+| OpenRoads | https://openroadsgame.com/ | Daniel Church · MIT |
+| Minilens | https://kobuge-games.github.io/minilens/ml | KOBUGE Games · GPL-3.0 |
 
 Before redistributing any code, assets, screenshots or audio, verify the exact license of that individual project and its dependencies.
