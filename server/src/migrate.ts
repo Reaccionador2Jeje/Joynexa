@@ -11,8 +11,9 @@ const pool = new Pool({ connectionString, max: 2 });
 const client = await pool.connect();
 
 try {
+  await client.query("CREATE SCHEMA IF NOT EXISTS joynexa");
   await client.query(`
-    CREATE TABLE IF NOT EXISTS schema_migrations (
+    CREATE TABLE IF NOT EXISTS joynexa.schema_migrations (
       name TEXT PRIMARY KEY,
       applied_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
     )
@@ -25,7 +26,7 @@ try {
 
   for (const migrationName of migrations) {
     const existing = await client.query(
-      "SELECT name FROM schema_migrations WHERE name = $1",
+      "SELECT name FROM joynexa.schema_migrations WHERE name = $1",
       [migrationName]
     );
     if ((existing.rowCount ?? 0) > 0) {
@@ -37,7 +38,7 @@ try {
     await client.query("BEGIN");
     try {
       await client.query(sql);
-      await client.query("INSERT INTO schema_migrations (name) VALUES ($1)", [migrationName]);
+      await client.query("INSERT INTO joynexa.schema_migrations (name) VALUES ($1)", [migrationName]);
       await client.query("COMMIT");
       console.log(`Applied migration: ${migrationName}`);
     } catch (error) {
