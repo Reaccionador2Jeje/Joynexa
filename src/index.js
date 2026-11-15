@@ -69,7 +69,7 @@ async function proxyAccounts(request,env) {
   upstream=await fetch(target,init);
  } catch(error) {
   const requestId=crypto.randomUUID();
-  console.error("[Joynexa] Accounts API unavailable:",path,requestId,error?.stack||error);
+  console.error("[Joynexa] Accounts API unavailable:",target.pathname,requestId,error?.stack||error);
   return json({error:"El backend de cuentas no está disponible. Comprueba que Node.js esté desplegado y que ACCOUNTS_API_URL sea correcto.",requestId},503);
  }
  const responseHeaders=new Headers(upstream.headers);
