@@ -134,7 +134,9 @@ async function verifyPassword(user: StoredUser, password: string): Promise<boole
 async function requireSameOrigin(request: FastifyRequest, reply: FastifyReply): Promise<void> {
   if (!["POST", "PUT", "PATCH", "DELETE"].includes(request.method)) return;
   const origin = request.headers.origin;
-  if (origin && !FRONTEND_ORIGINS.includes(origin)) {
+  // Browser session mutations must carry an explicit allowed Origin. Rejecting
+  // a missing Origin closes the gap left by checking only mismatched headers.
+  if (!origin || !FRONTEND_ORIGINS.includes(origin)) {
     reply.code(403).send({ error: "Origen no permitido." });
     return;
   }
