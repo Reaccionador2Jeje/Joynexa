@@ -190,7 +190,7 @@ Guía de integración: [docs/GAME_SDK.md](docs/GAME_SDK.md).
 
 ### Aplicar migración D1
 
-Antes de usar esta etapa en producción, aplica la migración nueva al binding `joynexa-db`:
+Antes de usar esta etapa en producción, aplica `migrations/0004_joynexa_achievements.sql` al binding `joynexa-db`. Esta migración crea las definiciones de logros, las claves de servidor y los premios de jugadores; los Joynexa ID se guardan como texto y no dependen de la tabla heredada `users`:
 
 ```bash
 npx wrangler d1 migrations apply joynexa-db --remote
