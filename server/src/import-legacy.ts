@@ -21,14 +21,14 @@ type LegacyUser = {
 
 function extractRows(value: unknown): LegacyUser[] {
   if (Array.isArray(value)) {
-    if (value.length > 0 && value.every((item) =>
+    if (value.length === 0) return [];
+    if (value.every((item) =>
       item && typeof item === "object" && "id" in item && "username" in item
     )) return value as LegacyUser[];
     for (const item of value) {
-      try {
-        const rows = extractRows(item);
-        if (rows.length) return rows;
-      } catch { /* Try the next nested result. */ }
+      if (item && typeof item === "object" && ("results" in item || "result" in item)) {
+        return extractRows(item);
+      }
     }
   }
   if (value && typeof value === "object") {
