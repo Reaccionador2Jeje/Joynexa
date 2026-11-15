@@ -72,6 +72,27 @@ try {
   assert.equal(login.response.status, 200);
   assert.ok(login.cookie);
 
+  const sessions = await call("/api/sessions", { cookie: login.cookie });
+  assert.equal(sessions.response.status, 200);
+  assert.equal(sessions.data.sessions.length, 2);
+  const currentSession = sessions.data.sessions.find((session) => session.is_current);
+  const oldSession = sessions.data.sessions.find((session) => !session.is_current);
+  assert.ok(currentSession?.id, "session list should identify the current session");
+  assert.ok(oldSession?.id, "session list should include the earlier registration session");
+  assert.ok(currentSession.user_agent === null || typeof currentSession.user_agent === "string");
+
+  const revokeOld = await call("/api/sessions/" + oldSession.id, {
+    method: "DELETE",
+    cookie: login.cookie,
+    headers: { origin }
+  });
+  assert.equal(revokeOld.response.status, 200);
+  assert.equal(revokeOld.data.revokedCurrent, false);
+  const oldSessionMe = await call("/api/me", { cookie: registered.cookie });
+  assert.equal(oldSessionMe.data.user, null);
+  const currentSessionMe = await call("/api/me", { cookie: login.cookie });
+  assert.equal(currentSessionMe.data.user.username, username);
+
   const setupStatus = await call("/api/admin/setup-status");
   assert.equal(setupStatus.data.setupAvailable, true);
 
@@ -112,6 +133,16 @@ try {
   );
   assert.match(upgraded.rows[0].password_hash, /^\$argon2id\$/);
   assert.equal(upgraded.rows[0].password_salt, null);
+
+  const finalSessions = await call("/api/sessions", { cookie: login.cookie });
+  const activeSession = finalSessions.data.sessions.find((session) => session.is_current);
+  const revokeCurrent = await call("/api/sessions/" + activeSession.id, {
+    method: "DELETE", cookie: login.cookie, headers: { origin }
+  });
+  assert.equal(revokeCurrent.response.status, 200);
+  assert.equal(revokeCurrent.data.revokedCurrent, true);
+  const revokedMe = await call("/api/me", { cookie: login.cookie });
+  assert.equal(revokedMe.data.user, null);
 
   console.log("Accounts API integration checks passed.");
 } finally {
