@@ -37,3 +37,53 @@ jobs:
         run: npm run build
       - name: Build Docker image
         run: docker build -t joynexa-accounts-api:ci .
+
+  integration:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:17-alpine
+        env:
+          POSTGRES_DB: joynexa
+          POSTGRES_USER: joynexa
+          POSTGRES_PASSWORD: ci_password
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U joynexa -d joynexa"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+    defaults:
+      run:
+        working-directory: server
+    env:
+      DATABASE_URL: postgresql://joynexa:ci_password@localhost:5432/joynexa
+      FRONTEND_ORIGIN: http://localhost:8787
+      ADMIN_SETUP_KEY: ci-bootstrap-secret-key-that-is-long-enough
+      NODE_ENV: development
+      PORT: 3001
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Install dependencies
+        run: npm install --no-audit --no-fund
+      - name: Build API
+        run: npm run build
+      - name: Apply PostgreSQL migrations
+        run: npm run migrate
+      - name: Start API
+        run: |
+          npm start > /tmp/joynexa-accounts.log 2>&1 &
+          for attempt in $(seq 1 30); do
+            if curl --silent --fail http://127.0.0.1:3001/health; then
+              exit 0
+            fi
+            sleep 1
+          done
+          cat /tmp/joynexa-accounts.log
+          exit 1
+      - name: Test registration, sessions, admin bootstrap and legacy password upgrade
+        run: node scripts/smoke-test.mjs
