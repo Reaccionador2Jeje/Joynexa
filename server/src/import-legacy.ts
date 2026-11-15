@@ -19,25 +19,28 @@ type LegacyUser = {
   status?: string;
 };
 
-function extractRows(value: unknown): unknown[] {
+function extractRows(value: unknown): LegacyUser[] {
   if (Array.isArray(value)) {
+    if (value.length > 0 && value.every((item) =>
+      item && typeof item === "object" && "id" in item && "username" in item
+    )) return value as LegacyUser[];
     for (const item of value) {
-      if (item && typeof item === "object" && Array.isArray((item as { results?: unknown }).results)) {
-        return (item as { results: unknown[] }).results;
-      }
+      try {
+        const rows = extractRows(item);
+        if (rows.length) return rows;
+      } catch { /* Try the next nested result. */ }
     }
-    return value;
   }
   if (value && typeof value === "object") {
-    const record = value as { results?: unknown[]; result?: unknown[] };
-    if (Array.isArray(record.results)) return record.results;
-    if (Array.isArray(record.result)) return extractRows(record.result);
+    const record = value as { results?: unknown; result?: unknown };
+    if (record.results !== undefined) return extractRows(record.results);
+    if (record.result !== undefined) return extractRows(record.result);
   }
-  throw new Error("Unrecognized export format. Expected an array of D1 user rows.");
+  throw new Error("Unrecognized export format. Expected D1 user rows with id and username fields.");
 }
 
 const raw = JSON.parse(await readFile(inputPath, "utf8")) as unknown;
-const rows = extractRows(raw) as LegacyUser[];
+const rows = extractRows(raw);
 const pool = new Pool({ connectionString: process.env.DATABASE_URL, max: 2 });
 let imported = 0;
 let skipped = 0;
