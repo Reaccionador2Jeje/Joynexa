@@ -172,7 +172,7 @@ async function handle(request,env) {
    return json({ok:true},200,headers);
   }
   const elapsed=now-Number(session.last_ping_at);
-  if(elapsed<35) return json({ok:true,earnedXp:0,totalXp:null,nextHeartbeatIn:Math.max(1,45-elapsed)},200,headers);
+  if(elapsed<55) return json({ok:true,earnedXp:0,totalXp:null,nextHeartbeatIn:Math.max(1,55-elapsed)},200,headers);
   if(elapsed>100) {
    await env.DB.prepare("UPDATE joynexa_play_sessions SET last_ping_at=? WHERE id=? AND user_id=? AND last_ping_at=? AND ended_at IS NULL").bind(now,sessionId,user.id,session.last_ping_at).run();
    return json({ok:true,earnedXp:0,reason:"heartbeat_late"},200,headers);
@@ -184,16 +184,18 @@ async function handle(request,env) {
   const updated=await env.DB.prepare("UPDATE joynexa_play_sessions SET last_ping_at=?,earned_xp=earned_xp+? WHERE id=? AND user_id=? AND last_ping_at=? AND ended_at IS NULL").bind(now,earnedXp,sessionId,user.id,session.last_ping_at).run();
   if(!updated.meta?.changes) return json({error:"La sesión ya recibió esta actualización."},409,headers);
   if(earnedXp) await env.DB.prepare("INSERT INTO joynexa_xp_ledger (id,user_id,game_id,session_id,xp,reason,day_key) VALUES (?,?,?,?,?,'playtime',?)").bind(randomId(16),user.id,game.id,sessionId,earnedXp,today).run();
-  const total=await env.DB.prepare("SELECT COALESCE(SUM(xp),0) AS total FROM joynexa_xp_ledger WHERE user_id=?").bind(user.id).first();
-  return json({ok:true,earnedXp,totalXp:Number(total?.total||0),dailyXp:Number(daily?.total||0)+earnedXp,dailyCap:120},200,headers);
+  const ledgerTotal=await env.DB.prepare("SELECT COALESCE(SUM(xp),0) AS total FROM joynexa_xp_ledger WHERE user_id=?").bind(user.id).first();
+  const achievementTotal=await env.DB.prepare("SELECT COALESCE(SUM(a.points),0) AS total FROM joynexa_user_achievements ua JOIN joynexa_achievement_defs a ON a.id=ua.achievement_id WHERE ua.user_id=?").bind(user.id).first();
+  return json({ok:true,earnedXp,totalXp:Number(ledgerTotal?.total||0)+Number(achievementTotal?.total||0),dailyXp:Number(daily?.total||0)+earnedXp,dailyCap:120},200,headers);
  }
  if(path==="/api/xp/me"&&request.method==="GET") {
   const user=await currentUser(request,env);
   if(!user) return json({error:"Inicia sesión para consultar tu XP."},401,headers);
   const total=await env.DB.prepare("SELECT COALESCE(SUM(xp),0) AS total FROM joynexa_xp_ledger WHERE user_id=?").bind(user.id).first();
+  const achievementTotal=await env.DB.prepare("SELECT COALESCE(SUM(a.points),0) AS total FROM joynexa_user_achievements ua JOIN joynexa_achievement_defs a ON a.id=ua.achievement_id WHERE ua.user_id=?").bind(user.id).first();
   const today=Math.floor(Date.now()/86400000);
   const daily=await env.DB.prepare("SELECT COALESCE(SUM(xp),0) AS total FROM joynexa_xp_ledger WHERE user_id=? AND day_key=?").bind(user.id,today).first();
-  return json({xp:Number(total?.total||0),dailyXp:Number(daily?.total||0),dailyCap:120},200,headers);
+  return json({xp:Number(total?.total||0)+Number(achievementTotal?.total||0),dailyXp:Number(daily?.total||0),dailyCap:120},200,headers);
  }
 
  // Joynexa Achievements: universal IDs are stored as text (not FK to legacy D1 users).
