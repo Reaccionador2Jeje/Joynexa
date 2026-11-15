@@ -26,7 +26,7 @@ El frontend conserva las mismas rutas `/api/register`, `/api/login`, `/api/logou
 ## Funciones
 
 - Catálogo de juegos publicados tras moderación, con favoritos personales almacenados mediante el Joynexa ID universal.
-- Catálogo con 140 títulos clásicos y una selección destacada de experiencias más completas: simulación, carreras 3D, sandbox voxel, gestión y construcción. Joynexa enlaza a los alojamientos originales y conserva la atribución; no copia ni redistribuye sus archivos.
+- Catálogo con 140 títulos clásicos y 17 experiencias destacadas más completas: simulación, carreras 3D, sandbox voxel, gestión, construcción y plataformas. Joynexa enlaza a los alojamientos originales y conserva la atribución; no copia ni redistribuye sus archivos.
 - Joynexa ID: registro, inicio, cierre y consulta de sesión.
 - Perfiles Joynexa ID: nombre visible, biografía breve, avatares predeterminados y publicación opcional con privacidad activada por defecto.
 - Migración de cuentas D1 preservando IDs, nombres, roles y hashes de contraseña.
