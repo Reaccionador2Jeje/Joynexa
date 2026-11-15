@@ -47,7 +47,7 @@ async function loadProfile(){
   const p=data.profile;
   document.getElementById("profile-display-name").value=p.displayName||currentUser.username;
   document.getElementById("profile-bio").value=p.bio||"";
-  document.getElementById("profile-avatar").value=p.avatarKey||"star";
+  document.getElementById("profile-avatar").value=p.avatarKey||"star";\n  document.querySelector("#account-profile .profile-avatar").textContent=avatarSymbols[p.avatarKey]||"✦";
   document.getElementById("profile-public").checked=!!p.isPublic;
   shareProfileButton.disabled=!p.isPublic;
   profileMessage.textContent=p.isPublic?"Tu perfil está publicado.":"Tu perfil es privado.";
@@ -66,7 +66,7 @@ profileForm.addEventListener("submit",async event=>{
  button.disabled=true;profileMessage.textContent="Guardando…";
  try{
   const result=await api("/profile/me",{method:"PUT",body:JSON.stringify(payload)});
-  shareProfileButton.disabled=!result.profile.isPublic;
+  shareProfileButton.disabled=!result.profile.isPublic;\n  document.querySelector("#account-profile .profile-avatar").textContent=avatarSymbols[result.profile.avatarKey]||"✦";
   profileMessage.textContent=result.profile.isPublic?"Perfil guardado y publicado.":"Perfil guardado como privado.";
   notify("Perfil Joynexa actualizado.");
  }catch(error){profileMessage.textContent=error.message}
