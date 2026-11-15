@@ -22,7 +22,7 @@ function applyFilters(){
   return '<article class="game live-game '+(g.catalog_tier==="featured"?"featured-game":"")+'" data-kind="'+escapeHtml(g.category)+'" data-name="'+escapeHtml(g.title)+'">'+
    '<div class="cover '+cover+'"><span>'+icon+'</span><strong>'+escapeHtml(g.title)+'</strong></div>'+
    '<div class="game-meta"><div><b>'+escapeHtml(g.title)+'</b><small>'+label+' · '+escapeHtml(g.developer_name||"Comunidad")+'</small></div>'+
-   '<a class="play-link" href="'+safeUrl(g.launch_url)+'" target="_blank" rel="noopener noreferrer">Jugar ↗</a>'+
+   (g.embed_enabled&&g.embed_url?'<button class="play-link play-inside" type="button" data-play-slug="'+escapeHtml(g.slug)+'">Jugar aquí ▶</button>':'<a class="play-link" href="'+safeUrl(g.launch_url)+'" target="_blank" rel="noopener noreferrer">Jugar ↗</a>')+
    '<button class="favorite-toggle" type="button" data-favorite-slug="'+escapeHtml(g.slug)+'" aria-pressed="false" title="Guardar en favoritos">♡</button></div>'+
    '<p class="game-description">'+escapeHtml(g.description||"Juego para navegador.")+'</p></article>';
  }).join("");
@@ -121,6 +121,46 @@ function updateFavoriteButtons(){
   button.title=active?"Quitar de favoritos":"Guardar en favoritos";
  });
 }
+
+const playDialog=document.getElementById("play-dialog"),playFrame=document.getElementById("play-frame"),playTitle=document.getElementById("play-title"),playStatus=document.getElementById("play-status"),playXp=document.getElementById("play-xp"),playOpenExternal=document.getElementById("play-open-external");
+let activePlaySession=null,playHeartbeat=null,playGame=null;
+async function stopPlaySession(){
+ if(playHeartbeat){clearInterval(playHeartbeat);playHeartbeat=null}
+ if(activePlaySession&&currentUser){
+  try{await api("/play/"+encodeURIComponent(playGame.slug)+"/end",{method:"POST",body:JSON.stringify({sessionId:activePlaySession})})}catch{}
+ }
+ activePlaySession=null;playGame=null;
+ playFrame.src="about:blank";
+}
+async function openEmbeddedGame(slug){
+ const game=catalogGames.find(item=>item.slug===slug);
+ if(!game||!game.embed_enabled||!game.embed_url)return;
+ let embed;
+ try{embed=new URL(game.embed_url);if(embed.protocol!=="https:")throw new Error()}catch{notify("Este juego no tiene un enlace integrado válido.");return}
+ playGame=game;playTitle.textContent=game.title;playStatus.textContent=currentUser?"Preparando sesión Joynexa…":"Puedes jugar, pero inicia sesión para guardar XP.";
+ playXp.textContent="XP: —";playOpenExternal.href=safeUrl(game.launch_url);
+ try{
+  if(currentUser){
+   const session=await api("/play/"+encodeURIComponent(slug)+"/start",{method:"POST",body:"{}"});
+   activePlaySession=session.sessionId;playStatus.textContent="Sesión Joynexa activa · 1 XP por minuto jugado · límite diario 120 XP.";
+   playHeartbeat=setInterval(async()=>{
+    if(!activePlaySession)return;
+    try{const result=await api("/play/"+encodeURIComponent(slug)+"/heartbeat",{method:"POST",body:JSON.stringify({sessionId:activePlaySession})});if(result.earnedXp)playXp.textContent="XP: +"+result.earnedXp+" · Total "+result.totalXp;if(result.dailyXp>=120)playStatus.textContent="Has alcanzado el límite diario de XP."; }catch{}
+   },60000);
+  }
+ }catch(error){playStatus.textContent="Modo invitado: "+error.message}
+ playFrame.src=embed.href;
+ if(!playDialog.open)playDialog.showModal();
+}
+document.getElementById("games-grid").addEventListener("click",event=>{
+ const button=event.target.closest("[data-play-slug]");
+ if(button){event.preventDefault();openEmbeddedGame(button.dataset.playSlug)}
+});
+document.getElementById("play-close").addEventListener("click",async()=>{await stopPlaySession();if(playDialog.open)playDialog.close()});
+playDialog.addEventListener("cancel",()=>{stopPlaySession()});
+playDialog.addEventListener("close",()=>{stopPlaySession()});
+document.getElementById("play-fullscreen").addEventListener("click",()=>{if(playFrame.requestFullscreen)playFrame.requestFullscreen().catch(()=>notify("El navegador no permitió pantalla completa."))});
+
 document.getElementById("games-grid").addEventListener("click",async event=>{
  const button=event.target.closest("[data-favorite-slug]");
  if(!button)return;
