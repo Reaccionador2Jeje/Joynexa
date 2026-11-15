@@ -17,6 +17,11 @@ server/.env.*
 # Wrangler local variables
 .dev.vars
 
+# Private database exports and backups
+legacy-users.json
+*.dump
+*.sql.gz
+
 # Logs and OS files
 *.log
 .DS_Store
