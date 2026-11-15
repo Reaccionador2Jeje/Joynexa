@@ -16,10 +16,17 @@
 
 El frontend conserva las mismas rutas `/api/register`, `/api/login`, `/api/logout` y `/api/me`. Cuando se configura `ACCOUNTS_API_URL`, el Worker las reenvía al backend Node.js. Sin esa variable, la API heredada D1 sigue funcionando como respaldo.
 
+## Catálogo gaming
+
+- La vista inicial prioriza experiencias completas y deja los minijuegos clásicos en «Todo el catálogo».
+- Catálogo paginado de 36 juegos por página, preparado para miles de registros.
+- Búsqueda por título, descripción, género y creador.
+- Géneros ampliados: simulación, carreras, sandbox, estrategia, aventura, arcade y puzzle.
+
 ## Funciones
 
 - Catálogo de juegos publicados tras moderación, con favoritos personales almacenados mediante el Joynexa ID universal.
-- Catálogo inicial de 140 juegos HTML5 externos de dos proyectos con licencia MIT; Joynexa enlaza a sus alojamientos originales y conserva la atribución.
+- Catálogo con 140 títulos clásicos y una selección destacada de experiencias más completas: simulación, carreras 3D, sandbox voxel, gestión y construcción. Joynexa enlaza a los alojamientos originales y conserva la atribución; no copia ni redistribuye sus archivos.
 - Joynexa ID: registro, inicio, cierre y consulta de sesión.
 - Perfiles Joynexa ID: nombre visible, biografía breve, avatares predeterminados y publicación opcional con privacidad activada por defecto.
 - Migración de cuentas D1 preservando IDs, nombres, roles y hashes de contraseña.
