@@ -62,7 +62,7 @@ try {
 
     try {
       const result = await pool.query(
-        `INSERT INTO users (id, username, password_hash, password_salt, role, status)
+        `INSERT INTO joynexa.users (id, username, password_hash, password_salt, role, status)
          VALUES ($1, $2, $3, $4, $5, $6)
          ON CONFLICT (id) DO NOTHING`,
         [row.id, row.username, row.password_hash, row.password_salt, role, status]
