@@ -1,0 +1,26 @@
+name: Joynexa Game SDK
+
+on:
+  push:
+    paths:
+      - "sdk/**"
+      - ".github/workflows/sdk.yml"
+  pull_request:
+    paths:
+      - "sdk/**"
+      - ".github/workflows/sdk.yml"
+  workflow_dispatch:
+
+jobs:
+  sdk-tests:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      - name: Set up Node.js 22
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Run Game SDK tests
+        working-directory: sdk
+        run: npm test
