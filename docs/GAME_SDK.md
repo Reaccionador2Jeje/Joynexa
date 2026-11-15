@@ -69,3 +69,37 @@ The response includes the achievement title, game, description, earned date, poi
 - Achievement definitions and keys are limited to the owner of an approved game.
 - The developer backend is trusted to decide when a player has met an achievement condition. Joynexa verifies the game credential and prevents duplicates, but cannot independently verify arbitrary game logic.
 - Do not put private credentials in client-side code. For browser-only games, call your own backend endpoint and have that backend call Joynexa.
+
+## 5. Node.js Game SDK helper
+
+The repository includes a small Node.js 22 helper in `sdk/`. It calls the server endpoint above and keeps the private key on the game backend.
+
+```js
+import { JoynexaGameClient } from "./sdk/index.js";
+
+const joynexa = new JoynexaGameClient({
+  baseUrl: process.env.JOYNEXA_API_URL,
+  gameSlug: "my-approved-game",
+  apiKey: process.env.JOYNEXA_GAME_KEY
+});
+
+const result = await joynexa.awardAchievement({
+  userId: player.joynexaId,
+  code: "first_win"
+});
+
+if (result.awarded) {
+  console.log("Logro registrado.");
+} else if (result.duplicate) {
+  console.log("El jugador ya tenía este logro.");
+}
+```
+
+Run the SDK's tests from the repository root:
+
+```bash
+cd sdk
+npm test
+```
+
+The helper requires HTTPS except for localhost development, rejects invalid player IDs and achievement codes before sending a request, and does not follow redirects with the authorization header. Configure `JOYNEXA_API_URL` and `JOYNEXA_GAME_KEY` as private environment variables on the game server. Do not expose either value to the game client.
