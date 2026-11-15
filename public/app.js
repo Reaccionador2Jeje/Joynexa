@@ -32,7 +32,7 @@ async function loadMyGames(){
   myGamesList.innerHTML=data.games.map(game=>'<article class="my-game-item"><div class="my-game-info"><b>'+escapeHtml(game.title)+'</b><small>'+escapeHtml(game.category)+' · '+escapeHtml(dateLabel(game.created_at))+'</small></div><span class="submission-status status-'+escapeHtml(game.status)+'">'+escapeHtml(submissionStatus(game.status))+'</span></article>').join("");
  }catch(error){myGamesList.innerHTML='<p class="session-empty">No se pudieron cargar tus envíos.</p>';myGamesMessage.textContent=error.message}
 }
-\nconst sessionsList=document.getElementById("sessions-list"),sessionsMessage=document.getElementById("sessions-message");
+const sessionsList=document.getElementById("sessions-list"),sessionsMessage=document.getElementById("sessions-message");
 document.getElementById("refresh-sessions").addEventListener("click",loadSessions);
 function deviceName(ua){const value=String(ua||"");if(/Android/i.test(value))return /Mobile/i.test(value)?"Android · móvil":"Android · dispositivo";if(/iPhone|iPad/i.test(value))return "Apple · iOS";if(/Windows/i.test(value))return "Windows · navegador";if(/Macintosh|Mac OS/i.test(value))return "Mac · navegador";if(/Linux/i.test(value))return "Linux · navegador";return "Navegador o dispositivo";}
 function dateLabel(value){const date=new Date(value);return Number.isNaN(date.getTime())?"Fecha no disponible":new Intl.DateTimeFormat("es-CL",{dateStyle:"medium",timeStyle:"short"}).format(date);}
