@@ -2,6 +2,7 @@ const API_BASE=window.JOYNEXA_API_URL||"";
 const api=async(path,options={})=>{const response=await fetch(API_BASE+"/api"+path,{credentials:"include",headers:{"content-type":"application/json",...(options.headers||{})},...options});const data=await response.json().catch(()=>({error:"Respuesta no válida del servidor."}));if(!response.ok){const error=new Error(data.error||"No se pudo completar la solicitud.");error.requestId=data.requestId||null;throw error}return data};
 const search=document.getElementById("search"),cards=[...document.querySelectorAll(".game")],filters=[...document.querySelectorAll("[data-filter]")],empty=document.getElementById("empty");
 let category="all",toastTimer,authMode="login",currentUser=null;
+const favoriteSlugs=new Set();
 function applyFilters(){const q=search.value.trim().toLocaleLowerCase("es");let count=0;cards.forEach(card=>{const ok=(category==="all"||card.dataset.kind===category)&&card.dataset.name.toLocaleLowerCase("es").includes(q);card.hidden=!ok;if(ok)count++});empty.hidden=count!==0;document.getElementById("games-grid").hidden=count===0}
 search.addEventListener("input",applyFilters);
 filters.forEach(btn=>btn.addEventListener("click",()=>{category=btn.dataset.filter;filters.forEach(b=>b.classList.toggle("chosen",b===btn));applyFilters()}));
@@ -10,7 +11,7 @@ const nav=document.getElementById("nav"),menu=document.getElementById("menu");me
 const dialog=document.getElementById("account"),authForm=document.getElementById("auth-form"),authMessage=document.getElementById("auth-message"),authTitle=document.getElementById("account-title"),authNote=document.getElementById("account-note"),authSubmit=document.getElementById("auth-submit"),switchAuth=document.getElementById("switch-auth"),logout=document.getElementById("logout"),userChip=document.getElementById("user-chip");
 const accountProfile=document.getElementById("account-profile"),profileUsername=document.getElementById("profile-username"),profileRole=document.getElementById("profile-role"),accountId=document.getElementById("account-id");
 function setAuthMode(mode){authMode=mode;authTitle.innerHTML=mode==="register"?'Crea tu <span>Joynexa ID.</span>':'Tu cuenta <span>gaming.</span>';authNote.textContent=mode==="register"?"Elige un nombre de usuario y una contraseña. No uses tu contraseña de otros servicios.":"Inicia sesión para acceder a las funciones de tu cuenta.";authSubmit.textContent=mode==="register"?"Crear cuenta":"Iniciar sesión";switchAuth.textContent=mode==="register"?"¿Ya tienes cuenta? Inicia sesión":"¿No tienes cuenta? Crear una";document.getElementById("auth-password").autocomplete=mode==="register"?"new-password":"current-password";authMessage.textContent=""}
-function openAccount(mode="login"){setAuthMode(mode);authForm.hidden=!!currentUser;logout.hidden=!currentUser;switchAuth.hidden=!!currentUser;accountProfile.hidden=!currentUser;if(currentUser){profileUsername.textContent=currentUser.username;profileRole.textContent=({player:"Jugador",developer:"Desarrollador",moderator:"Moderador",admin:"Administrador"}[currentUser.role]||"Cuenta Joynexa");accountId.textContent=currentUser.id;authNote.textContent="Sesión iniciada. Tu identidad está lista para Joynexa."}else{authNote.textContent="Inicia sesión para acceder a las funciones de tu cuenta."}authMessage.textContent="";dialog.showModal();if(currentUser){loadSessions();loadProfile();loadMyGames()}}
+function openAccount(mode="login"){setAuthMode(mode);authForm.hidden=!!currentUser;logout.hidden=!currentUser;switchAuth.hidden=!!currentUser;accountProfile.hidden=!currentUser;if(currentUser){profileUsername.textContent=currentUser.username;profileRole.textContent=({player:"Jugador",developer:"Desarrollador",moderator:"Moderador",admin:"Administrador"}[currentUser.role]||"Cuenta Joynexa");accountId.textContent=currentUser.id;authNote.textContent="Sesión iniciada. Tu identidad está lista para Joynexa."}else{authNote.textContent="Inicia sesión para acceder a las funciones de tu cuenta."}authMessage.textContent="";dialog.showModal();if(currentUser){loadSessions();loadProfile();loadMyGames();loadFavorites()}}
 document.querySelectorAll("[data-account]").forEach(b=>b.addEventListener("click",()=>openAccount(b.dataset.account)));userChip.addEventListener("click",()=>openAccount("login"));
 document.getElementById("close").addEventListener("click",()=>dialog.close());dialog.addEventListener("click",e=>{if(e.target===dialog)dialog.close()});
 switchAuth.addEventListener("click",()=>setAuthMode(authMode==="login"?"register":"login"));
@@ -45,10 +46,51 @@ const submitDialog=document.getElementById("submit-dialog"),submitForm=document.
 document.getElementById("show-submit").addEventListener("click",()=>{if(!currentUser){openAccount("login");authMessage.textContent="Inicia sesión para enviar un juego.";return}submitMessage.textContent="";submitDialog.showModal()});
 document.getElementById("submit-close").addEventListener("click",()=>submitDialog.close());submitDialog.addEventListener("click",e=>{if(e.target===submitDialog)submitDialog.close()});
 submitForm.addEventListener("submit",async e=>{e.preventDefault();const f=new FormData(submitForm),payload=Object.fromEntries(f.entries());try{const result=await api("/submit-game",{method:"POST",body:JSON.stringify(payload)});submitMessage.textContent=result.message;submitForm.reset();loadMyGames()}catch(err){submitMessage.textContent=err.message}});
+
+const favoritesList=document.getElementById("favorites-list");
+const favoritesMessage=document.getElementById("favorites-message");
+document.getElementById("refresh-favorites").addEventListener("click",loadFavorites);
+async function loadFavorites(){
+ if(!currentUser){favoritesList.innerHTML='<p class="session-empty">Inicia sesión para ver tus favoritos.</p>';return}
+ favoritesMessage.textContent="";
+ try{
+  const data=await api("/favorites");
+  favoriteSlugs.clear();
+  for(const game of data.games||[])favoriteSlugs.add(game.slug);
+  updateFavoriteButtons();
+  if(!data.games?.length){favoritesList.innerHTML='<p class="session-empty">Todavía no has guardado juegos.</p>';return}
+  favoritesList.innerHTML=data.games.map(game=>'<article class="favorite-item"><div><b>'+escapeHtml(game.title)+'</b><small>'+escapeHtml(game.category)+'</small></div><a href="'+safeUrl(game.launch_url)+'" target="_blank" rel="noopener noreferrer">Jugar ↗</a></article>').join("");
+ }catch(error){favoritesMessage.textContent=error.message}
+}
+function updateFavoriteButtons(){
+ document.querySelectorAll("[data-favorite-slug]").forEach(button=>{
+  const active=favoriteSlugs.has(button.dataset.favoriteSlug);
+  button.setAttribute("aria-pressed",String(active));
+  button.textContent=active?"★":"♡";
+  button.title=active?"Quitar de favoritos":"Guardar en favoritos";
+ });
+}
+document.getElementById("games-grid").addEventListener("click",async event=>{
+ const button=event.target.closest("[data-favorite-slug]");
+ if(!button)return;
+ event.preventDefault();event.stopPropagation();
+ if(!currentUser){openAccount("login");authMessage.textContent="Inicia sesión para guardar favoritos.";return}
+ const slug=button.dataset.favoriteSlug;
+ button.disabled=true;
+ try{
+  const active=favoriteSlugs.has(slug);
+  await api("/favorites/"+encodeURIComponent(slug),{method:active?"DELETE":"POST"});
+  if(active)favoriteSlugs.delete(slug);else favoriteSlugs.add(slug);
+  updateFavoriteButtons();
+  await loadFavorites();
+ }catch(error){favoritesMessage.textContent=error.message}
+ finally{button.disabled=false}
+});
+
 const toast=document.getElementById("toast");function notify(message){toast.textContent=message;toast.classList.add("show");clearTimeout(toastTimer);toastTimer=setTimeout(()=>toast.classList.remove("show"),2500)}
 cards.forEach(card=>{card.addEventListener("click",()=>notify(card.dataset.name+" todavía no está publicado."));card.setAttribute("tabindex","0");card.addEventListener("keydown",e=>{if(e.key==="Enter"||e.key===" "){e.preventDefault();notify(card.dataset.name+" todavía no está publicado.")}})});
 document.getElementById("year").textContent=new Date().getFullYear();document.addEventListener("keydown",e=>{if((e.ctrlKey||e.metaKey)&&e.key.toLowerCase()==="k"){e.preventDefault();search.focus()}});filters.forEach(b=>b.setAttribute("aria-pressed",String(b.dataset.filter==="all")));
-async function initialize(){try{const data=await api("/games");if(data.games?.length){const grid=document.getElementById("games-grid");grid.innerHTML=data.games.map(g=>'<article class="game live-game" data-kind="'+({adventure:"aventura",arcade:"arcade",puzzle:"puzzle",strategy:"estrategia"}[g.category]||"other")+'" data-name="'+escapeHtml(g.title)+'"><div class="cover neon"><span>✦</span><strong>'+escapeHtml(g.title)+'</strong></div><div class="game-meta"><div><b>'+escapeHtml(g.title)+'</b><small>'+escapeHtml(g.category)+" · "+escapeHtml(g.developer_name)+'</small></div><a class="play-link" href="'+safeUrl(g.launch_url)+'" target="_blank" rel="noopener noreferrer">Jugar ↗</a></div></article>').join("");cards.splice(0,cards.length,...grid.querySelectorAll(".game"));applyFilters()}}catch{}try{const me=await api("/me");currentUser=me.user;updateUserUI();if(currentUser)loadProfile()}catch{}const publicUsername=new URLSearchParams(location.search).get("profile");if(publicUsername)openPublicProfile(publicUsername)}
+async function initialize(){try{const data=await api("/games");if(data.games?.length){const grid=document.getElementById("games-grid");grid.innerHTML=data.games.map(g=>'<article class="game live-game" data-kind="'+({adventure:"aventura",arcade:"arcade",puzzle:"puzzle",strategy:"estrategia"}[g.category]||"other")+'" data-name="'+escapeHtml(g.title)+'"><div class="cover neon"><span>✦</span><strong>'+escapeHtml(g.title)+'</strong></div><div class="game-meta"><div><b>'+escapeHtml(g.title)+'</b><small>'+escapeHtml(g.category)+" · "+escapeHtml(g.developer_name)+'</small></div><a class="play-link" href="'+safeUrl(g.launch_url)+'" target="_blank" rel="noopener noreferrer">Jugar ↗</a><button class="favorite-toggle" type="button" data-favorite-slug="'+escapeHtml(g.slug)+'" aria-pressed="false" title="Guardar en favoritos">♡</button></div></article>').join("");cards.splice(0,cards.length,...grid.querySelectorAll(".game"));applyFilters()}}catch{}try{const me=await api("/me");currentUser=me.user;updateUserUI();if(currentUser)loadProfile()}catch{}const publicUsername=new URLSearchParams(location.search).get("profile");if(publicUsername)openPublicProfile(publicUsername)}
 function escapeHtml(value){return String(value||"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]))}
 function safeUrl(value){try{const u=new URL(value);return u.protocol==="https:"?u.href:"#"}catch{return "#"}}
 
