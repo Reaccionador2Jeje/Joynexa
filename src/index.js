@@ -95,7 +95,7 @@ async function handle(request,env) {
   return json({ok:true,service:"joynexa-api",version:"0.3.0-alpha",accountsBackend:accounts},200,headers);
  }
  if(path==="/api/games"&&request.method==="GET") {
-  const result=await env.DB.prepare("SELECT id,slug,title,description,category,launch_url,thumbnail_url,developer_name FROM games WHERE status='approved' ORDER BY created_at DESC LIMIT 100").all();
+  const result=await env.DB.prepare("SELECT id,slug,title,description,category,launch_url,thumbnail_url,developer_name FROM games WHERE status='approved' ORDER BY created_at DESC LIMIT 300").all();
   return json({games:result.results||[]},200,headers);
  }
  if(path==="/api/register"&&request.method==="POST") {
