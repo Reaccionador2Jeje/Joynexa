@@ -56,6 +56,12 @@ try {
   });
   assert.equal(badOrigin.response.status, 403);
 
+  const missingOrigin = await fetch(base + "/api/logout", {
+    method: "POST",
+    headers: { cookie: registered.cookie }
+  });
+  assert.equal(missingOrigin.status, 403, "state-changing requests must include an allowed Origin");
+
   const logout = await call("/api/logout", {
     method: "POST",
     body: {},
