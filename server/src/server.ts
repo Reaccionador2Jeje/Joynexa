@@ -309,7 +309,6 @@ function profilePayload(row: any, includePrivacy = false) {
     displayName: row.display_name,
     bio: row.bio,
     avatarKey: row.avatar_key,
-    joinedAt: row.created_at,
     ...(includePrivacy ? { isPublic: row.is_public } : {})
   };
 }
@@ -350,7 +349,6 @@ app.put("/api/profile/me", async (request, reply) => {
       bio: result.rows[0].bio,
       avatarKey: result.rows[0].avatar_key,
       isPublic: result.rows[0].is_public,
-      joinedAt: result.rows[0].created_at
     }
   });
 });
