@@ -14,3 +14,6 @@ dialog .outline{margin-top:8px}
 @media(max-width:640px){#user-chip{font-size:10px;padding:7px}.header{gap:8px}}
 
 #user-chip{font:700 11px "DM Sans",sans-serif;background:transparent;color:#b8adff;padding:8px 12px;border:1px solid #ffffff22;border-radius:9px;cursor:pointer}
+
+/* Joynexa ID profile panel */
+.account-profile{margin:18px 0 8px;padding:18px;border:1px solid #ffffff1c;border-radius:12px;background:#0d1123;text-align:left}.profile-avatar{width:42px;height:42px;display:grid;place-items:center;border-radius:12px;background:#8d7aff22;color:#75e2e5;font-size:23px;margin-bottom:10px}.profile-details b,.profile-details small{display:block}.profile-details b{font-size:14px}.profile-details small{margin-top:4px;color:#9ba3bd;font-size:10px}.account-profile label{display:block;margin-top:18px;font-size:9px}.account-profile code{display:block;overflow-wrap:anywhere;margin-top:7px;padding:10px;border-radius:7px;background:#080b18;color:#9fe4df;font-size:10px}.copy-id{width:100%;margin-top:12px}
