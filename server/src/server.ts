@@ -289,9 +289,12 @@ app.delete("/api/sessions/:id", async (request, reply) => {
 });
 
 
+const containsContactDetails = (value: string) =>
+  !/(https?:\\/\\/|www\\.|[\\w.+-]+@[\\w.-]+\\.[a-z]{2,}|(?:\\+?\\d[\\s().-]*){8,})/i.test(value);
+
 const profileSchema = z.object({
-  displayName: z.string().trim().min(1).max(32),
-  bio: z.string().trim().max(160),
+  displayName: z.string().trim().min(1).max(32).refine(containsContactDetails, "No incluyas enlaces ni datos de contacto."),
+  bio: z.string().trim().max(160).refine(containsContactDetails, "No incluyas enlaces ni datos de contacto."),
   avatarKey: z.enum(["star", "planet", "comet", "controller", "pixel", "fox", "robot", "gem"]),
   isPublic: z.boolean()
 });
