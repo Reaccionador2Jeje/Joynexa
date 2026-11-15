@@ -14,6 +14,9 @@ server/.env
 server/.env.*
 !server/.env.example
 
+# Wrangler local variables
+.dev.vars
+
 # Logs and OS files
 *.log
 .DS_Store
