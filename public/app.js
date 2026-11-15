@@ -151,7 +151,7 @@ async function openEmbeddedGame(slug){
    const session=await api("/play/"+encodeURIComponent(slug)+"/start",{method:"POST",body:"{}"});
    activePlaySession=session.sessionId;playStatus.textContent="Sesión Joynexa activa · XP por tiempo de juego · límite diario 120 XP. Si no carga, prueba Abrir externo.";
    playHeartbeat=setInterval(async()=>{
-    if(!activePlaySession)return;
+    if(!activePlaySession||document.visibilityState!=="visible"||!document.hasFocus())return;
     try{const result=await api("/play/"+encodeURIComponent(slug)+"/heartbeat",{method:"POST",body:JSON.stringify({sessionId:activePlaySession})});if(Number.isFinite(result.totalXp))playXp.textContent="XP total: "+result.totalXp;if(result.earnedXp)loadXP();if(result.dailyXp>=120)playStatus.textContent="Has alcanzado el límite diario de XP."; }catch{}
    },60000);
   }
