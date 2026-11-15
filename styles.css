@@ -21,3 +21,20 @@ dialog .outline{margin-top:8px}
 /* Joynexa account session manager */
 .session-manager{margin-top:20px;padding-top:18px;border-top:1px solid #ffffff18;text-align:left}.session-heading{display:flex;align-items:center;justify-content:space-between;gap:12px}.session-heading h3{margin:6px 0 0;font:600 17px "Space Grotesk",sans-serif}.session-heading label{font-size:9px}.refresh-sessions{padding:8px 10px;font-size:10px}.session-help,.session-empty{font-size:10px!important;color:#9299b3!important}.sessions-list{display:grid;gap:9px;margin-top:12px}.session-item{display:grid;grid-template-columns:32px minmax(0,1fr) auto;align-items:center;gap:9px;padding:11px;background:#090d20;border:1px solid #ffffff15;border-radius:9px}.session-icon{width:30px;height:30px;display:grid;place-items:center;border-radius:8px;background:#8d7aff22;color:#b9a8ff;font-size:20px}.session-info{min-width:0}.session-info b,.session-info small{display:block}.session-info b{font-size:10px;line-height:1.6}.session-info small{font-size:9px;color:#8991ad;margin-top:3px}.current-session{display:inline-block;margin-left:4px;color:#8ee3da;font-size:7px;letter-spacing:.5px}.revoke-session{padding:7px 8px;font-size:9px}.revoke-session:disabled{opacity:.5}.session-manager #sessions-message{font-size:10px;color:#ffb3b3}
 @media(max-width:430px){.session-item{grid-template-columns:28px minmax(0,1fr)}.session-item .revoke-session{grid-column:2;justify-self:start}}
+
+/* Joynexa ID profile editor and public profile */
+.profile-editor{display:grid;gap:8px;margin-top:18px;padding-top:15px;border-top:1px solid #ffffff18;text-align:left}
+.profile-editor label{font-size:9px;margin-top:6px}
+.profile-editor button{margin-top:8px}
+.profile-editor #profile-message{min-height:16px;margin:2px 0;color:#9fe4df;font-size:10px}
+.profile-privacy{display:flex!important;align-items:center;gap:8px;color:#dce0f4!important;letter-spacing:0!important;font-size:10px!important}
+.profile-privacy input{width:auto;margin:0;accent-color:#9b83ff}
+.profile-privacy-note{margin:0!important;font-size:9px!important;color:#9299b3!important}
+#share-profile{width:100%;margin-top:8px}
+#share-profile:disabled{opacity:.45;cursor:not-allowed}
+.public-avatar{width:76px;height:76px;margin:5px auto 14px;display:grid;place-items:center;border-radius:22px;background:#8d7aff25;color:#79e1e5;font-size:40px}
+#public-profile-dialog{text-align:center}
+#public-profile-dialog h2{margin:12px 0 4px}
+.public-username{color:#a99aff!important;font-size:11px!important}
+.public-bio{min-height:24px;overflow-wrap:anywhere}
+.public-profile-note{font-size:9px!important;color:#7f89a5!important}
