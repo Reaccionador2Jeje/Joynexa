@@ -18,7 +18,7 @@ El frontend conserva las mismas rutas `/api/register`, `/api/login`, `/api/logou
 
 ## Funciones
 
-- Catálogo de juegos publicados tras moderación.
+- Catálogo de juegos publicados tras moderación, con favoritos personales.
 - Joynexa ID: registro, inicio, cierre y consulta de sesión.
 - Perfiles Joynexa ID: nombre visible, biografía breve, avatares predeterminados y publicación opcional con privacidad activada por defecto.
 - Migración de cuentas D1 preservando IDs, nombres, roles y hashes de contraseña.
