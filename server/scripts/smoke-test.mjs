@@ -72,6 +72,13 @@ try {
   assert.equal(login.response.status, 200);
   assert.ok(login.cookie);
 
+  const secondLogin = await call("/api/login", {
+    method: "POST",
+    body: { username, password }
+  });
+  assert.equal(secondLogin.response.status, 200);
+  assert.ok(secondLogin.cookie);
+
   const sessions = await call("/api/sessions", { cookie: login.cookie });
   assert.equal(sessions.response.status, 200);
   assert.equal(sessions.data.sessions.length, 2);
