@@ -154,6 +154,10 @@ app.register(rateLimit, {
   timeWindow: "1 minute"
 });
 app.addHook("preHandler", requireSameOrigin);
+app.addHook("onSend", async (request, reply, payload) => {
+  if (request.url.startsWith("/api/")) reply.header("cache-control", "no-store");
+  return payload;
+});
 
 app.get("/health", async (_request, reply) => {
   await pool.query("SELECT 1");
