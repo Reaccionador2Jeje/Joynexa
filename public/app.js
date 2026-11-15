@@ -1,12 +1,46 @@
 const API_BASE=window.JOYNEXA_API_URL||"";
 const api=async(path,options={})=>{const response=await fetch(API_BASE+"/api"+path,{credentials:"include",headers:{"content-type":"application/json",...(options.headers||{})},...options});const data=await response.json().catch(()=>({error:"Respuesta no válida del servidor."}));if(!response.ok){const error=new Error(data.error||"No se pudo completar la solicitud.");error.requestId=data.requestId||null;throw error}return data};
-const search=document.getElementById("search"),cards=[...document.querySelectorAll(".game")],filters=[...document.querySelectorAll("[data-filter]")],empty=document.getElementById("empty");
-let category="all",toastTimer,authMode="login",currentUser=null;
+const search=document.getElementById("search"),cards=[],filters=[...document.querySelectorAll("[data-filter]")],tierFilters=[...document.querySelectorAll("[data-tier-filter]")],empty=document.getElementById("empty");
+let category="all",catalogTier="featured",catalogGames=[],currentPage=1,toastTimer,authMode="login",currentUser=null;
+const PAGE_SIZE=36;
 const favoriteSlugs=new Set();
-function applyFilters(){const q=search.value.trim().toLocaleLowerCase("es");let count=0;cards.forEach(card=>{const ok=(category==="all"||card.dataset.kind===category)&&card.dataset.name.toLocaleLowerCase("es").includes(q);card.hidden=!ok;if(ok)count++});empty.hidden=count!==0;document.getElementById("games-grid").hidden=count===0;const label=document.getElementById("catalog-count");if(label)label.textContent=count+" juegos disponibles";}
-search.addEventListener("input",applyFilters);
-filters.forEach(btn=>btn.addEventListener("click",()=>{category=btn.dataset.filter;filters.forEach(b=>b.classList.toggle("chosen",b===btn));applyFilters()}));
-document.querySelectorAll("[data-jump]").forEach(btn=>btn.addEventListener("click",()=>{category=btn.dataset.jump;filters.forEach(b=>b.classList.toggle("chosen",b.dataset.filter===category));search.value="";applyFilters();document.getElementById("games").scrollIntoView({behavior:"smooth"})}));
+function applyFilters(){
+ const q=search.value.trim().toLocaleLowerCase("es");
+ const filtered=catalogGames.filter(g=>{
+  const haystack=[g.title,g.description,g.category,g.developer_name].join(" ").toLocaleLowerCase("es");
+  return (catalogTier==="all"||g.catalog_tier==="featured")&&(category==="all"||g.category===category)&&(!q||haystack.includes(q));
+ });
+ const pages=Math.max(1,Math.ceil(filtered.length/PAGE_SIZE));
+ currentPage=Math.min(currentPage,pages);
+ const visible=filtered.slice((currentPage-1)*PAGE_SIZE,currentPage*PAGE_SIZE);
+ const labels={adventure:"Aventura",arcade:"Arcade",puzzle:"Puzzle",strategy:"Estrategia",simulation:"Simulación",racing:"Carreras",sandbox:"Sandbox",other:"Otros"};
+ const icons={adventure:"🧭",arcade:"🕹️",puzzle:"🧩",strategy:"♟️",simulation:"🏙️",racing:"🏎️",sandbox:"🧱",other:"🎮"};
+ const covers={adventure:"cover-adventure",arcade:"cover-arcade",puzzle:"cover-puzzle",strategy:"cover-strategy",simulation:"cover-simulation",racing:"cover-racing",sandbox:"cover-sandbox",other:"cover-other"};
+ const grid=document.getElementById("games-grid");
+ grid.innerHTML=visible.map(g=>{
+  const label=labels[g.category]||"Otros",icon=icons[g.category]||"🎮",cover=covers[g.category]||"cover-other";
+  return '<article class="game live-game '+(g.catalog_tier==="featured"?"featured-game":"")+'" data-kind="'+escapeHtml(g.category)+'" data-name="'+escapeHtml(g.title)+'">'+
+   '<div class="cover '+cover+'"><span>'+icon+'</span><strong>'+escapeHtml(g.title)+'</strong></div>'+
+   '<div class="game-meta"><div><b>'+escapeHtml(g.title)+'</b><small>'+label+' · '+escapeHtml(g.developer_name||"Comunidad")+'</small></div>'+
+   '<a class="play-link" href="'+safeUrl(g.launch_url)+'" target="_blank" rel="noopener noreferrer">Jugar ↗</a>'+
+   '<button class="favorite-toggle" type="button" data-favorite-slug="'+escapeHtml(g.slug)+'" aria-pressed="false" title="Guardar en favoritos">♡</button></div>'+
+   '<p class="game-description">'+escapeHtml(g.description||"Juego para navegador.")+'</p></article>';
+ }).join("");
+ cards.splice(0,cards.length,...grid.querySelectorAll(".game"));
+ grid.hidden=visible.length===0;
+ empty.hidden=filtered.length!==0;
+ empty.textContent=catalogGames.length?"No encontramos experiencias con esos filtros.":"Todavía no hay juegos publicados.";
+ const countLabel=document.getElementById("catalog-count");
+ if(countLabel)countLabel.textContent=filtered.length+" experiencias · "+catalogGames.length+" juegos en total";
+ const pagination=document.getElementById("catalog-pagination");
+ pagination.innerHTML=pages>1?'<button type="button" data-page="prev" '+(currentPage===1?'disabled':'')+'>← Anterior</button><span>Página '+currentPage+' de '+pages+'</span><button type="button" data-page="next" '+(currentPage===pages?'disabled':'')+'>Siguiente →</button>':"";
+ pagination.querySelectorAll("[data-page]").forEach(button=>button.addEventListener("click",()=>{currentPage+=button.dataset.page==="next"?1:-1;applyFilters();document.getElementById("games").scrollIntoView({behavior:"smooth"})}));
+ updateFavoriteButtons();
+}
+search.addEventListener("input",()=>{currentPage=1;applyFilters()});
+filters.forEach(btn=>btn.addEventListener("click",()=>{category=btn.dataset.filter;currentPage=1;filters.forEach(b=>b.classList.toggle("chosen",b===btn));applyFilters()}));
+tierFilters.forEach(btn=>btn.addEventListener("click",()=>{catalogTier=btn.dataset.tierFilter;currentPage=1;tierFilters.forEach(b=>b.classList.toggle("chosen",b===btn));applyFilters()}));
+document.querySelectorAll("[data-jump]").forEach(btn=>btn.addEventListener("click",()=>{category=btn.dataset.jump;currentPage=1;filters.forEach(b=>b.classList.toggle("chosen",b.dataset.filter===category));search.value="";applyFilters();document.getElementById("games").scrollIntoView({behavior:"smooth"})}));
 const nav=document.getElementById("nav"),menu=document.getElementById("menu");menu.addEventListener("click",()=>nav.classList.toggle("open"));nav.querySelectorAll("a").forEach(a=>a.addEventListener("click",()=>nav.classList.remove("open")));
 const dialog=document.getElementById("account"),authForm=document.getElementById("auth-form"),authMessage=document.getElementById("auth-message"),authTitle=document.getElementById("account-title"),authNote=document.getElementById("account-note"),authSubmit=document.getElementById("auth-submit"),switchAuth=document.getElementById("switch-auth"),logout=document.getElementById("logout"),userChip=document.getElementById("user-chip");
 const accountProfile=document.getElementById("account-profile"),profileUsername=document.getElementById("profile-username"),profileRole=document.getElementById("profile-role"),accountId=document.getElementById("account-id");
@@ -108,36 +142,17 @@ const toast=document.getElementById("toast");function notify(message){toast.text
 
 document.getElementById("year").textContent=new Date().getFullYear();document.addEventListener("keydown",e=>{if((e.ctrlKey||e.metaKey)&&e.key.toLowerCase()==="k"){e.preventDefault();search.focus()}});filters.forEach(b=>b.setAttribute("aria-pressed",String(b.dataset.filter==="all")));
 async function initialize(){
- const grid=document.getElementById("games-grid");
- const countLabel=document.getElementById("catalog-count");
  try{
   const data=await api("/games");
-  const games=Array.isArray(data.games)?data.games:[];
-  const labels={adventure:"Aventura",arcade:"Arcade",puzzle:"Puzzle",strategy:"Clásicos",other:"Casual"};
-  const icons={adventure:"🏃",arcade:"🕹️",puzzle:"🧩",strategy:"♟️",other:"🎈"};
-  const filtersByCategory={adventure:"aventura",arcade:"arcade",puzzle:"puzzle",strategy:"estrategia",other:"other"};
-  const covers={adventure:"cover-adventure",arcade:"cover-arcade",puzzle:"cover-puzzle",strategy:"cover-strategy",other:"cover-other"};
-  grid.innerHTML=games.map(g=>{
-   const kind=filtersByCategory[g.category]||"other";
-   const categoryLabel=labels[g.category]||"Otros";
-   const icon=icons[g.category]||"🎮";
-   const cover=covers[g.category]||"cover-other";
-   return '<article class="game live-game" data-kind="'+kind+'" data-name="'+escapeHtml(g.title)+'">'+
-    '<div class="cover '+cover+'"><span>'+icon+'</span><strong>'+escapeHtml(g.title)+'</strong></div>'+
-    '<div class="game-meta"><div><b>'+escapeHtml(g.title)+'</b><small>'+categoryLabel+' · '+escapeHtml(g.developer_name||"Comunidad")+'</small></div>'+
-    '<a class="play-link" href="'+safeUrl(g.launch_url)+'" target="_blank" rel="noopener noreferrer">Jugar ↗</a>'+
-    '<button class="favorite-toggle" type="button" data-favorite-slug="'+escapeHtml(g.slug)+'" aria-pressed="false" title="Guardar en favoritos">♡</button></div>'+
-    '<p class="game-description">'+escapeHtml(g.description||"Juego HTML5 para navegador.")+'</p></article>';
-  }).join("");
-  cards.splice(0,cards.length,...grid.querySelectorAll(".game"));
-  empty.textContent=games.length?"No encontramos juegos con esa búsqueda.":"Todavía no hay juegos publicados.";
-  if(countLabel)countLabel.textContent=games.length+" juegos en el catálogo";
+  catalogGames=Array.isArray(data.games)?data.games:[];
+  catalogGames.sort((a,b)=>(a.catalog_tier==="featured"?0:1)-(b.catalog_tier==="featured"?0:1)||String(a.title).localeCompare(String(b.title),"es"));
   applyFilters();
  }catch(error){
-  grid.innerHTML="";
+  document.getElementById("games-grid").innerHTML="";
   cards.splice(0,cards.length);
   empty.hidden=false;
   empty.textContent="No se pudo cargar el catálogo. Inténtalo de nuevo más tarde.";
+  const countLabel=document.getElementById("catalog-count");
   if(countLabel)countLabel.textContent="Catálogo no disponible";
  }
  try{
