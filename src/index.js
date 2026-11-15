@@ -95,7 +95,7 @@ async function handle(request,env) {
   return json({ok:true,service:"joynexa-api",version:"0.3.0-alpha",accountsBackend:accounts},200,headers);
  }
  if(path==="/api/games"&&request.method==="GET") {
-  const result=await env.DB.prepare("SELECT id,slug,title,description,category,launch_url,thumbnail_url,developer_name,catalog_tier FROM games WHERE status='approved' AND lower(category) NOT IN ('shooter','fighting') AND NOT (lower(title || ' ' || description) LIKE '%weapon%' OR lower(title || ' ' || description) LIKE '%firearm%' OR lower(title || ' ' || description) LIKE '%sniper%' OR lower(title || ' ' || description) LIKE '%rifle%' OR lower(title || ' ' || description) LIKE '%pistol%' OR lower(title || ' ' || description) LIKE '%knife%' OR lower(title || ' ' || description) LIKE '%mafia%' OR lower(title || ' ' || description) LIKE '%combat%' OR lower(title || ' ' || description) LIKE '%shoot%') ORDER BY CASE catalog_tier WHEN 'featured' THEN 0 ELSE 1 END,created_at DESC LIMIT 3000").all();
+  const result=await env.DB.prepare("SELECT id,slug,title,description,category,launch_url,thumbnail_url,developer_name,catalog_tier,embed_url,embed_enabled FROM games WHERE status='approved' AND lower(category) NOT IN ('shooter','fighting') AND NOT (lower(title || ' ' || description) LIKE '%weapon%' OR lower(title || ' ' || description) LIKE '%firearm%' OR lower(title || ' ' || description) LIKE '%sniper%' OR lower(title || ' ' || description) LIKE '%rifle%' OR lower(title || ' ' || description) LIKE '%pistol%' OR lower(title || ' ' || description) LIKE '%knife%' OR lower(title || ' ' || description) LIKE '%mafia%' OR lower(title || ' ' || description) LIKE '%combat%' OR lower(title || ' ' || description) LIKE '%shoot%') ORDER BY CASE catalog_tier WHEN 'featured' THEN 0 ELSE 1 END,created_at DESC LIMIT 3000").all();
   return json({games:result.results||[]},200,headers);
  }
  if(path==="/api/register"&&request.method==="POST") {
@@ -148,6 +148,53 @@ async function handle(request,env) {
   return json({games:result.results||[]},200,headers);
  }
 
+
+
+ // Joynexa Play: signed-in play sessions and capped playtime XP.
+ if(/^\/api\/play\/[a-z0-9-]{1,80}\/(start|heartbeat|end)$/i.test(path)&&request.method==="POST") {
+  const user=await currentUser(request,env);
+  if(!user) return json({error:"Inicia sesión para guardar XP y progreso."},401,headers);
+  const parts=path.split("/"),slug=parts[3],action=parts[4];
+  const game=await env.DB.prepare("SELECT id,slug,title,embed_url,embed_enabled FROM games WHERE slug=? AND status='approved'").bind(slug).first();
+  if(!game) return json({error:"Juego no disponible."},404,headers);
+  if(action==="start") {
+   const sessionId=randomId(16),now=Math.floor(Date.now()/1000);
+   await env.DB.prepare("INSERT INTO joynexa_play_sessions (id,user_id,game_id,started_at,last_ping_at) VALUES (?,?,?,?,?)").bind(sessionId,user.id,game.id,now,now).run();
+   return json({ok:true,sessionId,game:{slug:game.slug,title:game.title,embedUrl:game.embed_enabled?game.embed_url:null}},201,headers);
+  }
+  const body=await request.json().catch(()=>null),sessionId=String(body?.sessionId||"");
+  if(!/^[a-f0-9]{32}$/.test(sessionId)) return json({error:"Sesión de juego no válida."},400,headers);
+  const session=await env.DB.prepare("SELECT id,last_ping_at,ended_at FROM joynexa_play_sessions WHERE id=? AND user_id=? AND game_id=?").bind(sessionId,user.id,game.id).first();
+  if(!session||session.ended_at) return json({error:"La sesión de juego terminó o no existe."},404,headers);
+  const now=Math.floor(Date.now()/1000);
+  if(action==="end") {
+   await env.DB.prepare("UPDATE joynexa_play_sessions SET ended_at=? WHERE id=? AND user_id=? AND ended_at IS NULL").bind(now,sessionId,user.id).run();
+   return json({ok:true},200,headers);
+  }
+  const elapsed=now-Number(session.last_ping_at);
+  if(elapsed<35) return json({ok:true,earnedXp:0,totalXp:null,nextHeartbeatIn:Math.max(1,45-elapsed)},200,headers);
+  if(elapsed>100) {
+   await env.DB.prepare("UPDATE joynexa_play_sessions SET last_ping_at=? WHERE id=? AND user_id=? AND last_ping_at=? AND ended_at IS NULL").bind(now,sessionId,user.id,session.last_ping_at).run();
+   return json({ok:true,earnedXp:0,reason:"heartbeat_late"},200,headers);
+  }
+  const today=Math.floor(now/86400);
+  const daily=await env.DB.prepare("SELECT COALESCE(SUM(xp),0) AS total FROM joynexa_xp_ledger WHERE user_id=? AND day_key=?").bind(user.id,today).first();
+  const remaining=Math.max(0,120-Number(daily?.total||0));
+  const earnedXp=Math.min(1,remaining);
+  const updated=await env.DB.prepare("UPDATE joynexa_play_sessions SET last_ping_at=?,earned_xp=earned_xp+? WHERE id=? AND user_id=? AND last_ping_at=? AND ended_at IS NULL").bind(now,earnedXp,sessionId,user.id,session.last_ping_at).run();
+  if(!updated.meta?.changes) return json({error:"La sesión ya recibió esta actualización."},409,headers);
+  if(earnedXp) await env.DB.prepare("INSERT INTO joynexa_xp_ledger (id,user_id,game_id,session_id,xp,reason,day_key) VALUES (?,?,?,?,?,'playtime',?)").bind(randomId(16),user.id,game.id,sessionId,earnedXp,today).run();
+  const total=await env.DB.prepare("SELECT COALESCE(SUM(xp),0) AS total FROM joynexa_xp_ledger WHERE user_id=?").bind(user.id).first();
+  return json({ok:true,earnedXp,totalXp:Number(total?.total||0),dailyXp:Number(daily?.total||0)+earnedXp,dailyCap:120},200,headers);
+ }
+ if(path==="/api/xp/me"&&request.method==="GET") {
+  const user=await currentUser(request,env);
+  if(!user) return json({error:"Inicia sesión para consultar tu XP."},401,headers);
+  const total=await env.DB.prepare("SELECT COALESCE(SUM(xp),0) AS total FROM joynexa_xp_ledger WHERE user_id=?").bind(user.id).first();
+  const today=Math.floor(Date.now()/86400000);
+  const daily=await env.DB.prepare("SELECT COALESCE(SUM(xp),0) AS total FROM joynexa_xp_ledger WHERE user_id=? AND day_key=?").bind(user.id,today).first();
+  return json({xp:Number(total?.total||0),dailyXp:Number(daily?.total||0),dailyCap:120},200,headers);
+ }
 
  // Joynexa Achievements: universal IDs are stored as text (not FK to legacy D1 users).
  if(path==="/api/achievements/me"&&request.method==="GET") {
