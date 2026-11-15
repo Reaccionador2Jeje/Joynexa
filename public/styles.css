@@ -95,3 +95,16 @@ dialog .outline{margin-top:8px}
 .catalog-pagination{display:flex;align-items:center;justify-content:center;gap:14px;margin:24px auto 8px;color:#aeb3c9;font-size:12px}
 .catalog-pagination button:disabled{opacity:.35;cursor:not-allowed}
 @media(max-width:600px){.tier-filters button,.filters button{font-size:11px;padding:8px 10px}.catalog-pagination{gap:8px}}
+
+/* Joynexa Play embedded player */
+.play-dialog{width:min(1200px,96vw);height:min(850px,94vh);max-width:none;max-height:none;padding:0;border:1px solid #ffffff2a;border-radius:16px;background:#090b18;color:#f5f6ff;overflow:hidden}
+.play-dialog::backdrop{background:#03040bcc;backdrop-filter:blur(7px)}
+.play-topbar{min-height:88px;padding:14px 18px;display:flex;align-items:center;justify-content:space-between;gap:12px;border-bottom:1px solid #ffffff18}
+.play-topbar h2{font-size:20px;letter-spacing:-.7px;margin:5px 0}
+.play-topbar p{margin:0;color:#9da4bd;font-size:11px}
+.play-actions{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.play-actions #play-xp{font-size:12px;color:#75e4d5;font-weight:800}
+.play-dialog iframe{display:block;width:100%;height:calc(100% - 88px);border:0;background:#080a14}
+.play-dialog .close{position:static;width:36px;height:36px;flex:0 0 36px}
+.play-inside{font:inherit;cursor:pointer}
+@media(max-width:700px){.play-dialog{width:100vw;height:100dvh;max-height:none;border-radius:0}.play-topbar{align-items:flex-start;flex-direction:column}.play-actions{width:100%}.play-dialog iframe{height:calc(100% - 145px)}}
