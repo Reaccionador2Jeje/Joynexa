@@ -16,7 +16,7 @@ Walletie is planned as the shared virtual-credit service for optional AtDev ecos
 2. Preserve existing Joynexa account IDs and Walletie balances through an explicit mapping; never link accounts by email alone.
 3. Add a Walletie balance/history view only after the authenticated API call works end to end.
 4. Define optional virtual items with server-owned SKUs and prices.
-5. Grant any future reward only from trusted Joynexa backend code after validating the game or achievement event.
+5. Grant any future reward only from trusted Joynexa backend code after validating the game or achievement event, using AtDev Cloud's `POST /internal/v1/walletie/grants` bridge. Never call Walletie's internal grant route from browser code.
 6. Use a unique idempotency key for each reward event and purchase.
 
 ## Security rules
@@ -28,4 +28,4 @@ Walletie is planned as the shared virtual-credit service for optional AtDev ecos
 
 ## Current state
 
-This document describes the planned integration contract. Joynexa is not yet connected to Walletie.
+The AtDev Cloud-to-Walletie trusted grant bridge is implemented, but Joynexa is not yet connected to it. The missing pieces are verified account linking, a trusted Joynexa backend caller, product-specific reward validation, and end-to-end tests. Existing XP remains unchanged.
