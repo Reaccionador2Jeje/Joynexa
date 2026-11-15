@@ -16,6 +16,7 @@ jobs:
         run: |
           node --check app.js
           node --check public/app.js
+          node --check public/play.js
           node --check public/admin.js
           node --check src/index.js
 
