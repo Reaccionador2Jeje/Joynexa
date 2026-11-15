@@ -134,7 +134,7 @@ El repositorio incluye `render.yaml` para crear el servicio `joynexa-accounts` e
 1. En Render, crea un Blueprint desde este repositorio y revisa que solo vaya a crear el servicio web `joynexa-accounts`.
 2. Cuando Render solicite las variables privadas, añade:
    - `DATABASE_URL`: URI PostgreSQL del **Session pooler** de Supabase para el proyecto Atdev OS Hub. Usa la cadena de conexión desde Project Settings → Database; no la pegues en GitHub ni en el chat.
-   - `ADMIN_SETUP_KEY`: secreto aleatorio de al menos 32 caracteres. Guárdalo de forma privada; solo se necesita si no se importó ninguna cuenta administradora.
+   - `ADMIN_SETUP_KEY` se genera automáticamente por Render. Solo se necesita para configurar el primer administrador si no se importó ninguna cuenta administradora.
 3. Espera a que el despliegue termine y comprueba `https://<servicio>.onrender.com/health`. Debe responder con `ok: true`.
 4. En Cloudflare, configura `ACCOUNTS_API_URL` con el origen HTTPS del servicio (por ejemplo, `https://<servicio>.onrender.com`) y vuelve a desplegar el Worker.
 5. Comprueba `/api/health` en el sitio Joynexa: `accountsBackend` debe indicar `connected`.
