@@ -170,6 +170,34 @@ No conectes el sitio público a un backend sin TLS, sin secretos de producción 
 
 Joynexa está pensado para una comunidad que incluye menores. Antes de abrirlo al público se requieren políticas de privacidad, controles de seguridad y moderación, y revisión legal apropiada.
 
+## Joynexa Achievements + Game SDK
+
+- Colección privada de logros del jugador y puntos acumulados.
+- Los desarrolladores de juegos aprobados pueden definir logros y generar una clave privada de servidor.
+- Las claves se almacenan como hashes en D1 y solo se muestran al generarse.
+- El endpoint de entrega es idempotente: no duplica un logro ya obtenido.
+- Los IDs de cuenta son texto universal y no dependen de la tabla heredada de usuarios D1.
+
+Rutas principales:
+- `GET /api/achievements/me`
+- `POST /api/developer/games/:slug/achievements`
+- `POST /api/developer/games/:slug/sdk-key`
+- `POST /api/sdk/games/:slug/achievements/:code`
+
+Guía de integración: [docs/GAME_SDK.md](docs/GAME_SDK.md).
+
+**Importante:** la clave del SDK solo se usa desde un backend privado. Nunca debe incluirse en JavaScript del navegador ni en una aplicación distribuida al usuario. El backend del juego es responsable de comprobar que se cumplieron las condiciones del logro.
+
+### Aplicar migración D1
+
+Antes de usar esta etapa en producción, aplica la migración nueva al binding `joynexa-db`:
+
+```bash
+npx wrangler d1 migrations apply joynexa-db --remote
+```
+
+Revisa el SQL y confirma el entorno antes de ejecutarlo. La migración crea tablas nuevas y no elimina las tablas anteriores. El despliegue del Worker y la aplicación de migraciones son pasos separados.
+
 ## CI
 
 GitHub Actions comprueba sintaxis JavaScript, tipos TypeScript, compilación de la API y construcción de la imagen Docker.
