@@ -1,5 +1,5 @@
 import assert from "node:assert/strict";
-import { createHash, pbkdf2Sync, randomBytes } from "node:crypto";
+import { pbkdf2Sync, randomBytes } from "node:crypto";
 import pg from "pg";
 
 const base = process.env.TEST_API_URL ?? "http://127.0.0.1:3001";
