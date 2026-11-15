@@ -165,7 +165,7 @@ No conectes el sitio público a un backend sin TLS, sin secretos de producción 
 - Las rutas de escritura verifican el origen cuando se envía la cabecera Origin.
 - Hay límites de solicitudes, validación de entradas y respuestas de error sin detalles internos.
 - No se importan sesiones antiguas.
-- Aún faltan recuperación de cuentas, verificación de correo, MFA, gestión de sesiones y pruebas de seguridad adicionales.
+- Aún faltan recuperación de cuentas, verificación de correo, MFA, herramientas de moderación de perfiles y pruebas de seguridad adicionales.
 - No habilitar mensajes privados ni chat público hasta implementar moderación y protección apropiadas.
 
 Joynexa está pensado para una comunidad que incluye menores. Antes de abrirlo al público se requieren políticas de privacidad, controles de seguridad y moderación, y revisión legal apropiada.
