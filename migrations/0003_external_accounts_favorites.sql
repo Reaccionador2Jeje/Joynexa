@@ -7,5 +7,8 @@ CREATE TABLE IF NOT EXISTS joynexa_favorites (
   PRIMARY KEY (user_id, game_id)
 );
 
+INSERT OR IGNORE INTO joynexa_favorites (user_id, game_id, created_at)
+SELECT user_id, game_id, created_at FROM favorites;
+
 CREATE INDEX IF NOT EXISTS joynexa_favorites_user_created_idx
   ON joynexa_favorites (user_id, created_at DESC);
