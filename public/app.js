@@ -96,9 +96,9 @@ function deviceName(ua){const value=String(ua||"");if(/Android/i.test(value))ret
 function dateLabel(value){const date=new Date(value);return Number.isNaN(date.getTime())?"Fecha no disponible":new Intl.DateTimeFormat("es-CL",{dateStyle:"medium",timeStyle:"short"}).format(date);}
 async function loadSessions(){if(!currentUser)return;sessionsMessage.textContent="";sessionsList.innerHTML='<p class="session-empty">Cargando sesiones…</p>';try{const data=await api("/sessions");if(!data.sessions?.length){sessionsList.innerHTML='<p class="session-empty">No hay sesiones activas.</p>';return}sessionsList.innerHTML=data.sessions.map(session=>'<article class="session-item"><div class="session-icon">⌁</div><div class="session-info"><b>'+escapeHtml(deviceName(session.user_agent))+(session.is_current?' <span class="current-session">ESTE DISPOSITIVO</span>':'')+'</b><small>Inicio: '+escapeHtml(dateLabel(session.created_at))+'</small><small>Expira: '+escapeHtml(dateLabel(session.expires_at))+'</small></div><button class="outline revoke-session" type="button" data-session-id="'+escapeHtml(session.id)+'">'+(session.is_current?"Cerrar esta sesión":"Revocar")+'</button></article>').join("");sessionsList.querySelectorAll("[data-session-id]").forEach(button=>button.addEventListener("click",()=>revokeSession(button.dataset.sessionId,button)))}catch(error){sessionsList.innerHTML='<p class="session-empty">No se pudieron cargar las sesiones.</p>';sessionsMessage.textContent=error.message}}
 async function revokeSession(id,button){if(!id)return;button.disabled=true;try{const result=await api("/sessions/"+encodeURIComponent(id),{method:"DELETE"});if(result.revokedCurrent){currentUser=null;updateUserUI();dialog.close();notify("Sesión cerrada correctamente.");return}notify("Sesión revocada.");await loadSessions()}catch(error){sessionsMessage.textContent=error.message;button.disabled=false}}
-authForm.addEventListener("submit",async e=>{e.preventDefault();const form=new FormData(authForm),payload={username:form.get("username"),password:form.get("password")};authSubmit.disabled=true;authMessage.textContent="Conectando…";try{const result=await api(authMode==="register"?"/register":"/login",{method:"POST",body:JSON.stringify(payload)});currentUser=result.user;updateUserUI();authForm.reset();openAccount("login");authMessage.textContent="¡Hola, "+currentUser.username+"! Tu sesión está activa."}catch(err){authMessage.textContent=err.message+(err.requestId?" (ID: "+err.requestId+")":"")}finally{authSubmit.disabled=false}});
+authForm.addEventListener("submit",async e=>{e.preventDefault();const form=new FormData(authForm),payload={username:form.get("username"),password:form.get("password")};authSubmit.disabled=true;authMessage.textContent="Conectando…";try{const result=await api(authMode==="register"?"/register":"/login",{method:"POST",body:JSON.stringify(payload)});currentUser=result.user;updateUserUI();loadXP();loadAchievements();loadFavorites();authForm.reset();openAccount("login");authMessage.textContent="¡Hola, "+currentUser.username+"! Tu sesión está activa."}catch(err){authMessage.textContent=err.message+(err.requestId?" (ID: "+err.requestId+")":"")}finally{authSubmit.disabled=false}});
 function updateUserUI(){userChip.hidden=!currentUser;if(currentUser){userChip.textContent="✦ "+currentUser.username;userChip.title="Sesión iniciada";}const adminLink=document.getElementById("admin-link");if(adminLink)adminLink.hidden=!currentUser||currentUser.role!=="admin";if(!currentUser){favoriteSlugs.clear();updateFavoriteButtons()}document.querySelectorAll("[data-account]").forEach(b=>b.hidden=!!currentUser)}
-logout.addEventListener("click",async()=>{try{await api("/logout",{method:"POST",body:"{}"})}catch{}currentUser=null;updateUserUI();dialog.close();notify("Sesión cerrada.")});
+logout.addEventListener("click",async()=>{try{await api("/logout",{method:"POST",body:"{}"})}catch{}currentUser=null;updateUserUI();loadXP();loadAchievements();loadFavorites();dialog.close();notify("Sesión cerrada.")});
 const submitDialog=document.getElementById("submit-dialog"),submitForm=document.getElementById("submit-form"),submitMessage=document.getElementById("submit-message");
 document.getElementById("show-submit").addEventListener("click",()=>{if(!currentUser){openAccount("login");authMessage.textContent="Inicia sesión para enviar un juego.";return}submitMessage.textContent="";submitDialog.showModal()});
 document.getElementById("submit-close").addEventListener("click",()=>submitDialog.close());submitDialog.addEventListener("click",e=>{if(e.target===submitDialog)submitDialog.close()});
@@ -132,11 +132,12 @@ const playDialog=document.getElementById("play-dialog"),playFrame=document.getEl
 let activePlaySession=null,playHeartbeat=null,playGame=null;
 async function stopPlaySession(){
  if(playHeartbeat){clearInterval(playHeartbeat);playHeartbeat=null}
- if(activePlaySession&&currentUser){
-  try{await api("/play/"+encodeURIComponent(playGame.slug)+"/end",{method:"POST",body:JSON.stringify({sessionId:activePlaySession})})}catch{}
- }
+ const sessionId=activePlaySession,slug=playGame?.slug;
  activePlaySession=null;playGame=null;
  playFrame.src="about:blank";
+ if(sessionId&&slug&&currentUser){
+  try{await api("/play/"+encodeURIComponent(slug)+"/end",{method:"POST",body:JSON.stringify({sessionId})})}catch{}
+ }
 }
 async function openEmbeddedGame(slug){
  const game=catalogGames.find(item=>item.slug===slug);
@@ -148,7 +149,7 @@ async function openEmbeddedGame(slug){
  try{
   if(currentUser){
    const session=await api("/play/"+encodeURIComponent(slug)+"/start",{method:"POST",body:"{}"});
-   activePlaySession=session.sessionId;playStatus.textContent="Sesión Joynexa activa · 1 XP por minuto jugado · límite diario 120 XP.";
+   activePlaySession=session.sessionId;playStatus.textContent="Sesión Joynexa activa · XP por tiempo de juego · límite diario 120 XP. Si no carga, prueba Abrir externo.";
    playHeartbeat=setInterval(async()=>{
     if(!activePlaySession)return;
     try{const result=await api("/play/"+encodeURIComponent(slug)+"/heartbeat",{method:"POST",body:JSON.stringify({sessionId:activePlaySession})});if(result.earnedXp){playXp.textContent="XP: +"+result.earnedXp+" · Total "+result.totalXp;loadXP()}if(result.dailyXp>=120)playStatus.textContent="Has alcanzado el límite diario de XP."; }catch{}
