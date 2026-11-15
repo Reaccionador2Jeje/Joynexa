@@ -32,6 +32,8 @@ function normalizeApiOrigin(value) {
 }
 
 export class JoynexaGameClient {
+  #apiKey;
+
   constructor({ baseUrl, gameSlug, apiKey, fetchImpl = globalThis.fetch, timeoutMs = 10000 } = {}) {
     if (typeof baseUrl !== "string" || !baseUrl.trim()) {
       throw new TypeError("Falta baseUrl.");
@@ -51,7 +53,7 @@ export class JoynexaGameClient {
 
     this.baseUrl = normalizeApiOrigin(baseUrl);
     this.gameSlug = gameSlug;
-    this.apiKey = apiKey;
+    this.#apiKey = apiKey;
     this.fetchImpl = fetchImpl;
     this.timeoutMs = timeoutMs;
   }
@@ -72,7 +74,7 @@ export class JoynexaGameClient {
       response = await this.fetchImpl(url, {
         method: "POST",
         headers: {
-          authorization: "Bearer " + this.apiKey,
+          authorization: "Bearer " + this.#apiKey,
           "content-type": "application/json",
           accept: "application/json"
         },
