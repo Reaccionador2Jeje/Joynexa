@@ -152,7 +152,7 @@ app.register(cookie);
 app.register(cors, {
   origin: FRONTEND_ORIGINS,
   credentials: true,
-  methods: ["GET", "POST", "DELETE", "OPTIONS"],
+  methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
   allowedHeaders: ["content-type", "x-admin-setup-key"]
 });
 app.register(rateLimit, {
