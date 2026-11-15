@@ -10,12 +10,29 @@ const nav=document.getElementById("nav"),menu=document.getElementById("menu");me
 const dialog=document.getElementById("account"),authForm=document.getElementById("auth-form"),authMessage=document.getElementById("auth-message"),authTitle=document.getElementById("account-title"),authNote=document.getElementById("account-note"),authSubmit=document.getElementById("auth-submit"),switchAuth=document.getElementById("switch-auth"),logout=document.getElementById("logout"),userChip=document.getElementById("user-chip");
 const accountProfile=document.getElementById("account-profile"),profileUsername=document.getElementById("profile-username"),profileRole=document.getElementById("profile-role"),accountId=document.getElementById("account-id");
 function setAuthMode(mode){authMode=mode;authTitle.innerHTML=mode==="register"?'Crea tu <span>Joynexa ID.</span>':'Tu cuenta <span>gaming.</span>';authNote.textContent=mode==="register"?"Elige un nombre de usuario y una contraseña. No uses tu contraseña de otros servicios.":"Inicia sesión para acceder a las funciones de tu cuenta.";authSubmit.textContent=mode==="register"?"Crear cuenta":"Iniciar sesión";switchAuth.textContent=mode==="register"?"¿Ya tienes cuenta? Inicia sesión":"¿No tienes cuenta? Crear una";document.getElementById("auth-password").autocomplete=mode==="register"?"new-password":"current-password";authMessage.textContent=""}
-function openAccount(mode="login"){setAuthMode(mode);authForm.hidden=!!currentUser;logout.hidden=!currentUser;switchAuth.hidden=!!currentUser;accountProfile.hidden=!currentUser;if(currentUser){profileUsername.textContent=currentUser.username;profileRole.textContent=({player:"Jugador",developer:"Desarrollador",moderator:"Moderador",admin:"Administrador"}[currentUser.role]||"Cuenta Joynexa");accountId.textContent=currentUser.id;authNote.textContent="Sesión iniciada. Tu identidad está lista para Joynexa."}else{authNote.textContent="Inicia sesión para acceder a las funciones de tu cuenta."}authMessage.textContent="";dialog.showModal();if(currentUser){loadSessions();loadProfile()}}
+function openAccount(mode="login"){setAuthMode(mode);authForm.hidden=!!currentUser;logout.hidden=!currentUser;switchAuth.hidden=!!currentUser;accountProfile.hidden=!currentUser;if(currentUser){profileUsername.textContent=currentUser.username;profileRole.textContent=({player:"Jugador",developer:"Desarrollador",moderator:"Moderador",admin:"Administrador"}[currentUser.role]||"Cuenta Joynexa");accountId.textContent=currentUser.id;authNote.textContent="Sesión iniciada. Tu identidad está lista para Joynexa."}else{authNote.textContent="Inicia sesión para acceder a las funciones de tu cuenta."}authMessage.textContent="";dialog.showModal();if(currentUser){loadSessions();loadProfile();loadMyGames()}}
 document.querySelectorAll("[data-account]").forEach(b=>b.addEventListener("click",()=>openAccount(b.dataset.account)));userChip.addEventListener("click",()=>openAccount("login"));
 document.getElementById("close").addEventListener("click",()=>dialog.close());dialog.addEventListener("click",e=>{if(e.target===dialog)dialog.close()});
 switchAuth.addEventListener("click",()=>setAuthMode(authMode==="login"?"register":"login"));
 document.getElementById("copy-account-id").addEventListener("click",async()=>{if(!currentUser)return;try{await navigator.clipboard.writeText(currentUser.id);notify("Joynexa ID copiado.")}catch{authMessage.textContent="No se pudo copiar automáticamente. Selecciona y copia tu ID."}});
-const sessionsList=document.getElementById("sessions-list"),sessionsMessage=document.getElementById("sessions-message");
+
+const myGamesList=document.getElementById("my-games-list");
+const myGamesMessage=document.getElementById("my-games-message");
+document.getElementById("refresh-my-games").addEventListener("click",loadMyGames);
+function submissionStatus(status){
+ return ({pending:"En revisión",approved:"Aprobado",rejected:"No aprobado"})[status]||"Estado desconocido";
+}
+async function loadMyGames(){
+ if(!currentUser){myGamesList.innerHTML='<p class="session-empty">Inicia sesión para consultar tus envíos.</p>';return}
+ myGamesMessage.textContent="";
+ myGamesList.innerHTML='<p class="session-empty">Cargando envíos…</p>';
+ try{
+  const data=await api("/my-games");
+  if(!data.games?.length){myGamesList.innerHTML='<p class="session-empty">Todavía no has enviado juegos.</p>';return}
+  myGamesList.innerHTML=data.games.map(game=>'<article class="my-game-item"><div class="my-game-info"><b>'+escapeHtml(game.title)+'</b><small>'+escapeHtml(game.category)+' · '+escapeHtml(dateLabel(game.created_at))+'</small></div><span class="submission-status status-'+escapeHtml(game.status)+'">'+escapeHtml(submissionStatus(game.status))+'</span></article>').join("");
+ }catch(error){myGamesList.innerHTML='<p class="session-empty">No se pudieron cargar tus envíos.</p>';myGamesMessage.textContent=error.message}
+}
+\nconst sessionsList=document.getElementById("sessions-list"),sessionsMessage=document.getElementById("sessions-message");
 document.getElementById("refresh-sessions").addEventListener("click",loadSessions);
 function deviceName(ua){const value=String(ua||"");if(/Android/i.test(value))return /Mobile/i.test(value)?"Android · móvil":"Android · dispositivo";if(/iPhone|iPad/i.test(value))return "Apple · iOS";if(/Windows/i.test(value))return "Windows · navegador";if(/Macintosh|Mac OS/i.test(value))return "Mac · navegador";if(/Linux/i.test(value))return "Linux · navegador";return "Navegador o dispositivo";}
 function dateLabel(value){const date=new Date(value);return Number.isNaN(date.getTime())?"Fecha no disponible":new Intl.DateTimeFormat("es-CL",{dateStyle:"medium",timeStyle:"short"}).format(date);}
@@ -27,7 +44,7 @@ logout.addEventListener("click",async()=>{try{await api("/logout",{method:"POST"
 const submitDialog=document.getElementById("submit-dialog"),submitForm=document.getElementById("submit-form"),submitMessage=document.getElementById("submit-message");
 document.getElementById("show-submit").addEventListener("click",()=>{if(!currentUser){openAccount("login");authMessage.textContent="Inicia sesión para enviar un juego.";return}submitMessage.textContent="";submitDialog.showModal()});
 document.getElementById("submit-close").addEventListener("click",()=>submitDialog.close());submitDialog.addEventListener("click",e=>{if(e.target===submitDialog)submitDialog.close()});
-submitForm.addEventListener("submit",async e=>{e.preventDefault();const f=new FormData(submitForm),payload=Object.fromEntries(f.entries());try{const result=await api("/submit-game",{method:"POST",body:JSON.stringify(payload)});submitMessage.textContent=result.message;submitForm.reset()}catch(err){submitMessage.textContent=err.message}});
+submitForm.addEventListener("submit",async e=>{e.preventDefault();const f=new FormData(submitForm),payload=Object.fromEntries(f.entries());try{const result=await api("/submit-game",{method:"POST",body:JSON.stringify(payload)});submitMessage.textContent=result.message;submitForm.reset();loadMyGames()}catch(err){submitMessage.textContent=err.message}});
 const toast=document.getElementById("toast");function notify(message){toast.textContent=message;toast.classList.add("show");clearTimeout(toastTimer);toastTimer=setTimeout(()=>toast.classList.remove("show"),2500)}
 cards.forEach(card=>{card.addEventListener("click",()=>notify(card.dataset.name+" todavía no está publicado."));card.setAttribute("tabindex","0");card.addEventListener("keydown",e=>{if(e.key==="Enter"||e.key===" "){e.preventDefault();notify(card.dataset.name+" todavía no está publicado.")}})});
 document.getElementById("year").textContent=new Date().getFullYear();document.addEventListener("keydown",e=>{if((e.ctrlKey||e.metaKey)&&e.key.toLowerCase()==="k"){e.preventDefault();search.focus()}});filters.forEach(b=>b.setAttribute("aria-pressed",String(b.dataset.filter==="all")));
@@ -101,4 +118,5 @@ async function openPublicProfile(username){
   message.textContent=error.message;
  }
 }
-\ninitialize();
+
+initialize();
