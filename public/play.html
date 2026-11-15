@@ -1,0 +1,70 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#090b18">
+<meta name="description" content="Joynexa Play: descubre juegos de la comunidad y juega desde tu navegador.">
+<title>Joynexa Play — Descubre y juega</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/play.css">
+<script src="/play.js" defer></script>
+</head>
+<body>
+<header class="play-header">
+  <a class="brand" href="/"><span>✦</span> joynexa</a>
+  <nav><a href="/">Inicio</a><a class="active" href="/play.html">Play</a><a href="/#developers">Desarrolladores</a></nav>
+  <div class="header-account"><span id="account-status">Modo invitado</span><a class="account-link" href="/">Cuenta Joynexa ↗</a></div>
+</header>
+<main>
+  <section class="play-hero">
+    <div class="hero-copy">
+      <div class="eyebrow"><i></i> JOYNEXA PLAY</div>
+      <h1>Tu próxima partida<br><span>empieza aquí.</span></h1>
+      <p>Explora experiencias creadas por distintos desarrolladores. Encuentra tu favorito y juega desde Joynexa cuando esté disponible.</p>
+      <a class="hero-cta" href="#catalog">Explorar catálogo <span>↓</span></a>
+      <div class="hero-stats"><div><b id="total-games">—</b><small>JUEGOS PUBLICADOS</small></div><div><b id="total-categories">—</b><small>CATEGORÍAS</small></div><div><b id="player-xp">—</b><small>TU XP TOTAL</small></div></div>
+    </div>
+    <div class="hero-art" aria-hidden="true"><div class="planet-ring"></div><div class="planet-core">✦</div><div class="orb orb-one">🎮</div><div class="orb orb-two">✧</div><div class="art-label">PLAY · DISCOVER · REPEAT</div></div>
+  </section>
+  <section class="catalog-section" id="catalog">
+    <div class="section-heading"><div><label>EL UNIVERSO DE JUEGOS</label><h2>Explora el <span>catálogo.</span></h2><p>Juegos publicados después de pasar la revisión de Joynexa.</p></div><div class="catalog-count" id="catalog-count">Cargando catálogo…</div></div>
+    <div class="catalog-tools">
+      <label class="search-box"><span>⌕</span><input id="search" type="search" placeholder="Buscar juegos, géneros o creadores…" autocomplete="off"><kbd>/</kbd></label>
+      <div class="category-list" id="categories">
+        <button class="selected" data-category="all">Todos</button>
+        <button data-category="adventure">Aventura</button>
+        <button data-category="arcade">Arcade</button>
+        <button data-category="puzzle">Puzzle</button>
+        <button data-category="strategy">Estrategia</button>
+        <button data-category="simulation">Simulación</button>
+        <button data-category="racing">Carreras</button>
+        <button data-category="sandbox">Sandbox</button>
+        <button data-category="other">Otros</button>
+      </div>
+    </div>
+    <div class="featured-strip" id="featured-strip" hidden></div>
+    <div class="game-grid" id="game-grid" aria-live="polite"><div class="loading-card">Preparando el catálogo…</div></div>
+    <div class="empty-state" id="empty-state" hidden><span>✧</span><h3>No encontramos ese juego.</h3><p>Prueba con otro título, creador o categoría.</p><button id="clear-search" type="button">Limpiar filtros</button></div>
+    <div class="catalog-footer"><span id="result-count"></span><button id="load-more" type="button" hidden>Cargar más juegos ↓</button></div>
+  </section>
+  <section class="publish-banner">
+    <div><label>¿ERES DESARROLLADOR?</label><h2>Tu creación puede llegar<br>a nuevos jugadores.</h2><p>Envía tu juego desde Joynexa. Cada publicación pasa por una revisión antes de aparecer en Play.</p></div>
+    <a href="/#developers">Publicar un juego ↗</a>
+  </section>
+</main>
+<footer><a class="brand" href="/"><span>✦</span> joynexa</a><span>Joynexa Play · Parte de The Gaming Universe</span><a href="/">Volver a Joynexa ↗</a><small>Los juegos pertenecen a sus respectivos creadores. Joynexa respeta sus enlaces y atribuciones.</small></footer>
+
+<dialog id="game-dialog" class="game-dialog">
+  <button class="dialog-close" id="detail-close" type="button" aria-label="Cerrar">×</button>
+  <div id="game-detail"></div>
+</dialog>
+<dialog id="player-dialog" class="player-dialog">
+  <div class="player-topbar"><div><label>JOYNEXA PLAY</label><h2 id="player-title">Preparando juego…</h2><p id="player-status" role="status">Conectando con la experiencia.</p></div><div class="player-actions"><span id="player-xp">XP: —</span><button id="fullscreen" type="button">⛶ Pantalla completa</button><a id="external-link" href="#" target="_blank" rel="noopener noreferrer">Abrir original ↗</a><button id="player-close" class="player-close" type="button" aria-label="Cerrar juego">×</button></div></div>
+  <iframe id="game-frame" title="Juego de Joynexa" sandbox="allow-scripts allow-same-origin allow-forms allow-pointer-lock allow-modals allow-popups" allow="fullscreen; gamepad; autoplay" referrerpolicy="no-referrer"></iframe>
+</dialog>
+<div class="toast" id="toast" role="status"></div>
+</body>
+</html>
