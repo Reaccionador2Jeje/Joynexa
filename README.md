@@ -23,7 +23,7 @@ El frontend conserva las mismas rutas `/api/register`, `/api/login`, `/api/logou
 - Perfiles Joynexa ID: nombre visible, biografía breve, avatares predeterminados y publicación opcional con privacidad activada por defecto.
 - Migración de cuentas D1 preservando IDs, nombres, roles y hashes de contraseña.
 - Conversión progresiva de hashes PBKDF2 a Argon2id tras un inicio de sesión correcto.
-- Envíos de juegos a una cola de revisión.
+- Envíos de juegos a una cola de revisión con historial privado de estados para cada desarrollador.
 - Panel de administración con comprobación de permisos en servidor.
 - Sesiones con cookies HttpOnly y tokens almacenados como hashes.
 
