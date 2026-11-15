@@ -44,7 +44,7 @@ El frontend conserva las mismas rutas `/api/register`, `/api/login`, `/api/logou
 
 ### Perfiles Joynexa ID
 
-Los perfiles existentes se crean como privados. Cada usuario puede elegir un nombre visible, una biografía de hasta 160 caracteres y uno de los avatares incluidos. La publicación es voluntaria; los perfiles privados responden como no disponibles a las consultas públicas. No se muestran el correo, el Joynexa ID interno ni datos de sesión.
+Los perfiles existentes se crean como privados. Cada usuario puede elegir un nombre visible, una biografía de hasta 160 caracteres y uno de los avatares incluidos. La publicación es voluntaria; los perfiles privados responden como no disponibles a las consultas públicas. El backend rechaza enlaces y datos de contacto evidentes en el nombre visible y la biografía. No se muestran el correo, el Joynexa ID interno ni datos de sesión.
 
 ### Ejecutar localmente
 
