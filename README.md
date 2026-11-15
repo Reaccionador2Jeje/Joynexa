@@ -9,7 +9,7 @@
 - Frontend y API gateway: Cloudflare Workers Static Assets.
 - Backend de cuentas: Node.js 22 + TypeScript + Fastify.
 - Base de datos de cuentas: PostgreSQL.
-- Persistencia de catálogo y moderación: Cloudflare D1 (por ahora).
+- Persistencia de catálogo, moderación y favoritos: Cloudflare D1 (por ahora).
 - Entorno local: Docker Compose.
 - Contraseñas nuevas: Argon2id.
 - Contraseñas heredadas: PBKDF2-SHA256 verificadas y actualizadas a Argon2id en el primer inicio de sesión correcto.
@@ -18,7 +18,7 @@ El frontend conserva las mismas rutas `/api/register`, `/api/login`, `/api/logou
 
 ## Funciones
 
-- Catálogo de juegos publicados tras moderación, con favoritos personales.
+- Catálogo de juegos publicados tras moderación, con favoritos personales almacenados mediante el Joynexa ID universal.
 - Joynexa ID: registro, inicio, cierre y consulta de sesión.
 - Perfiles Joynexa ID: nombre visible, biografía breve, avatares predeterminados y publicación opcional con privacidad activada por defecto.
 - Migración de cuentas D1 preservando IDs, nombres, roles y hashes de contraseña.
