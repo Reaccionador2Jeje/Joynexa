@@ -19,6 +19,7 @@ El frontend conserva las mismas rutas `/api/register`, `/api/login`, `/api/logou
 ## Funciones
 
 - Catálogo de juegos publicados tras moderación, con favoritos personales almacenados mediante el Joynexa ID universal.
+- Catálogo inicial de 140 juegos HTML5 externos de dos proyectos con licencia MIT; Joynexa enlaza a sus alojamientos originales y conserva la atribución.
 - Joynexa ID: registro, inicio, cierre y consulta de sesión.
 - Perfiles Joynexa ID: nombre visible, biografía breve, avatares predeterminados y publicación opcional con privacidad activada por defecto.
 - Migración de cuentas D1 preservando IDs, nombres, roles y hashes de contraseña.
@@ -191,13 +192,19 @@ Guía de integración: [docs/GAME_SDK.md](docs/GAME_SDK.md).
 
 ### Aplicar migración D1
 
-Antes de usar esta etapa en producción, aplica `migrations/0004_joynexa_achievements.sql` al binding `joynexa-db`. Esta migración crea las definiciones de logros, las claves de servidor y los premios de jugadores; los Joynexa ID se guardan como texto y no dependen de la tabla heredada `users`:
+Aplica las migraciones D1 pendientes al binding `joynexa-db`. La migración `0004` crea las tablas de logros y SDK; `0005` añade 140 juegos HTML5 externos con enlaces a sus sitios originales:
 
 ```bash
 npx wrangler d1 migrations apply joynexa-db --remote
 ```
 
 Revisa el SQL y confirma el entorno antes de ejecutarlo. La migración crea tablas nuevas y no elimina las tablas anteriores. El despliegue del Worker y la aplicación de migraciones son pasos separados.
+
+### Catálogo externo de juegos
+
+El catálogo inicial incluye 140 juegos de dos proyectos con licencia MIT. Los juegos se abren en el alojamiento original de cada autor; Joynexa no copia sus archivos ni los presenta como creaciones propias. Las entradas del catálogo externo se publican directamente; los envíos de la comunidad siguen pasando por moderación.
+
+Consulta [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md) para conocer las fuentes y atribuciones.
 
 ## CI
 
