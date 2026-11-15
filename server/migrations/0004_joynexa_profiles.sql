@@ -9,5 +9,9 @@ CREATE TABLE IF NOT EXISTS joynexa.profiles (
   updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
+INSERT INTO joynexa.profiles (user_id, display_name)
+SELECT id, username FROM joynexa.users
+ON CONFLICT (user_id) DO NOTHING;
+
 CREATE INDEX IF NOT EXISTS profiles_public_username_lookup
   ON joynexa.profiles (is_public, user_id);
