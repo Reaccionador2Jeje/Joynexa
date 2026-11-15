@@ -28,7 +28,7 @@ try {
       "SELECT name FROM schema_migrations WHERE name = $1",
       [migrationName]
     );
-    if (existing.rowCount > 0) {
+    if ((existing.rowCount ?? 0) > 0) {
       console.log(`Already applied: ${migrationName}`);
       continue;
     }
