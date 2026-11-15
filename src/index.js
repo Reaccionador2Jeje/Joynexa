@@ -41,13 +41,37 @@ function sessionCookie(token,maxAge=SESSION_SECONDS) {
 }
 async function currentUser(request,env) {
  const token=cookieValue(request,"jn_session"); if(!token) return null;
+ if(env.ACCOUNTS_API_URL) {
+  const response=await fetch(new URL("/api/me",env.ACCOUNTS_API_URL),{headers:{cookie:request.headers.get("cookie")||""}});
+  if(!response.ok) throw new Error("Accounts API session lookup failed");
+  const data=await response.json();
+  return data.user||null;
+ }
  const row=await env.DB.prepare("SELECT users.id, users.username, users.role FROM sessions JOIN users ON users.id=sessions.user_id WHERE sessions.token_hash=? AND sessions.expires_at>? AND users.status='active'")
  .bind(await digest(token),Math.floor(Date.now()/1000)).first();
  return row||null;
 }
+async function proxyAccounts(request,env) {
+ if(!env.ACCOUNTS_API_URL) return null;
+ const url=new URL(request.url);
+ const target=new URL(url.pathname+url.search,env.ACCOUNTS_API_URL);
+ const headers=new Headers(request.headers);
+ ["host","content-length","connection","cf-connecting-ip","cf-ray","cf-visitor","cf-worker"].forEach(name=>headers.delete(name));
+ const init={method:request.method,headers,redirect:"manual"};
+ if(request.method!=="GET"&&request.method!=="HEAD") init.body=request.body;
+ const upstream=await fetch(target,init);
+ const responseHeaders=new Headers(upstream.headers);
+ responseHeaders.set("cache-control","no-store");
+ return new Response(upstream.body,{status:upstream.status,statusText:upstream.statusText,headers:responseHeaders});
+}
 async function handle(request,env) {
  const url=new URL(request.url),path=url.pathname,origin=request.headers.get("origin"),headers=corsHeaders(origin,env.APP_ORIGIN);
  if(request.method==="OPTIONS") return new Response(null,{status:204,headers:{...headers,"access-control-allow-methods":"GET,POST,DELETE,OPTIONS","access-control-allow-headers":"content-type,x-admin-setup-key"}});
+ const accountProxyPaths=new Set(["/api/register","/api/login","/api/logout","/api/me","/api/admin/setup-status","/api/admin/bootstrap"]);
+ if(accountProxyPaths.has(path)) {
+  const proxied=await proxyAccounts(request,env);
+  if(proxied) return proxied;
+ }
  if(path==="/api/health"&&request.method==="GET") return json({ok:true,service:"joynexa-api",version:"0.2.0-alpha"},200,headers);
  if(path==="/api/games"&&request.method==="GET") {
   const result=await env.DB.prepare("SELECT id,slug,title,description,category,launch_url,thumbnail_url,developer_name FROM games WHERE status='approved' ORDER BY created_at DESC LIMIT 100").all();
