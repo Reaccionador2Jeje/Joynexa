@@ -95,7 +95,7 @@ async function handle(request,env) {
   return json({ok:true,service:"joynexa-api",version:"0.3.0-alpha",accountsBackend:accounts},200,headers);
  }
  if(path==="/api/games"&&request.method==="GET") {
-  const result=await env.DB.prepare("SELECT id,slug,title,description,category,launch_url,thumbnail_url,developer_name,catalog_tier FROM games WHERE status='approved' ORDER BY CASE catalog_tier WHEN 'featured' THEN 0 ELSE 1 END,created_at DESC LIMIT 3000").all();
+  const result=await env.DB.prepare("SELECT id,slug,title,description,category,launch_url,thumbnail_url,developer_name,catalog_tier FROM games WHERE status='approved' AND lower(category) NOT IN ('shooter','fighting') AND NOT (lower(title || ' ' || description) LIKE '%weapon%' OR lower(title || ' ' || description) LIKE '%firearm%' OR lower(title || ' ' || description) LIKE '%sniper%' OR lower(title || ' ' || description) LIKE '%rifle%' OR lower(title || ' ' || description) LIKE '%pistol%' OR lower(title || ' ' || description) LIKE '%knife%' OR lower(title || ' ' || description) LIKE '%mafia%' OR lower(title || ' ' || description) LIKE '%combat%' OR lower(title || ' ' || description) LIKE '%shoot%') ORDER BY CASE catalog_tier WHEN 'featured' THEN 0 ELSE 1 END,created_at DESC LIMIT 3000").all();
   return json({games:result.results||[]},200,headers);
  }
  if(path==="/api/register"&&request.method==="POST") {
