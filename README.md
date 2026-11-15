@@ -127,7 +127,23 @@ El importador conserva el ID original, nombre de usuario, rol, estado y hash PBK
 
 El proxy mantiene las rutas actuales del frontend. También consulta la nueva API para autorizar envíos de juegos y acciones de administración, mientras los juegos y eventos de moderación siguen en D1. Así la migración de cuentas no obliga a migrar todo el catálogo de una vez.
 
-### Despliegue
+### Despliegue del backend en Render (pruebas)
+
+El repositorio incluye `render.yaml` para crear el servicio `joynexa-accounts` en el plan gratuito de Render, región Virginia, cerca de la región de Supabase. Es una configuración de pruebas: el servicio gratuito se duerme tras 15 minutos sin tráfico y puede tardar alrededor de un minuto en despertar. No se recomienda como backend de producción.
+
+1. En Render, crea un Blueprint desde este repositorio y revisa que solo vaya a crear el servicio web `joynexa-accounts`.
+2. Cuando Render solicite las variables privadas, añade:
+   - `DATABASE_URL`: URI PostgreSQL del **Session pooler** de Supabase para el proyecto Atdev OS Hub. Usa la cadena de conexión desde Project Settings → Database; no la pegues en GitHub ni en el chat.
+   - `ADMIN_SETUP_KEY`: secreto aleatorio de al menos 32 caracteres. Guárdalo de forma privada; solo se necesita si no se importó ninguna cuenta administradora.
+3. Espera a que el despliegue termine y comprueba `https://<servicio>.onrender.com/health`. Debe responder con `ok: true`.
+4. En Cloudflare, configura `ACCOUNTS_API_URL` con el origen HTTPS del servicio (por ejemplo, `https://<servicio>.onrender.com`) y vuelve a desplegar el Worker.
+5. Comprueba `/api/health` en el sitio Joynexa: `accountsBackend` debe indicar `connected`.
+
+La API ejecuta las migraciones al iniciar. La conexión debe usar el usuario PostgreSQL propietario de la base, nunca una clave `anon` ni una credencial pública. El secreto `DATABASE_URL` solo vive en las variables privadas de Render.
+
+El plan gratuito de Render es solo para pruebas: duerme tras inactividad y no ofrece garantías de disponibilidad. Supabase conserva los datos de PostgreSQL, pero antes de migrar cuentas reales debes tener copias de seguridad y verificar la importación. No borres la base D1 durante esta etapa.
+
+## Despliegue
 
 El repositorio no despliega por sí solo el backend Node.js. Debes elegir un proveedor que ejecute contenedores Docker y ofrezca una URL HTTPS, configurar PostgreSQL administrado o una base persistente con copias de seguridad, y establecer las variables anteriores.
 
