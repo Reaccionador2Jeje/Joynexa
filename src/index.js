@@ -42,7 +42,10 @@ function sessionCookie(token,maxAge=SESSION_SECONDS) {
 async function currentUser(request,env) {
  const token=cookieValue(request,"jn_session"); if(!token) return null;
  if(env.ACCOUNTS_API_URL) {
-  const response=await fetch(new URL("/api/me",env.ACCOUNTS_API_URL),{headers:{cookie:request.headers.get("cookie")||""}});
+  const sessionHeaders=new Headers({cookie:request.headers.get("cookie")||""});
+  const clientIp=request.headers.get("cf-connecting-ip");
+  if(clientIp) sessionHeaders.set("x-forwarded-for",clientIp);
+  const response=await fetch(new URL("/api/me",env.ACCOUNTS_API_URL),{headers:sessionHeaders});
   if(!response.ok) throw new Error("Accounts API session lookup failed");
   const data=await response.json();
   return data.user||null;
@@ -56,7 +59,9 @@ async function proxyAccounts(request,env) {
  const url=new URL(request.url);
  const target=new URL(url.pathname+url.search,env.ACCOUNTS_API_URL);
  const headers=new Headers(request.headers);
- ["host","content-length","connection","cf-connecting-ip","cf-ray","cf-visitor","cf-worker"].forEach(name=>headers.delete(name));
+ const clientIp=request.headers.get("cf-connecting-ip");
+ ["host","content-length","connection","cf-connecting-ip","cf-ray","cf-visitor","cf-worker","x-forwarded-for","x-real-ip"].forEach(name=>headers.delete(name));
+ if(clientIp) headers.set("x-forwarded-for",clientIp);
  const init={method:request.method,headers,redirect:"manual"};
  if(request.method!=="GET"&&request.method!=="HEAD") init.body=request.body;
  const upstream=await fetch(target,init);
