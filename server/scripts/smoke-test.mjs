@@ -100,6 +100,46 @@ try {
   const currentSessionMe = await call("/api/me", { cookie: login.cookie });
   assert.equal(currentSessionMe.data.user.username, username);
 
+
+  const privateProfile = await call("/api/profile/me", { cookie: login.cookie });
+  assert.equal(privateProfile.response.status, 200);
+  assert.equal(privateProfile.data.profile.username, username);
+  assert.equal(privateProfile.data.profile.isPublic, false);
+  const hiddenProfile = await call("/api/users/" + username + "/profile");
+  assert.equal(hiddenProfile.response.status, 404);
+
+  const publishedProfile = await call("/api/profile/me", {
+    method: "PUT",
+    body: {
+      displayName: "Joynexa Tester",
+      bio: "Testing a safe public profile.",
+      avatarKey: "planet",
+      isPublic: true
+    },
+    cookie: login.cookie
+  });
+  assert.equal(publishedProfile.response.status, 200);
+  assert.equal(publishedProfile.data.profile.isPublic, true);
+  const publicProfile = await call("/api/users/" + username + "/profile");
+  assert.equal(publicProfile.response.status, 200);
+  assert.equal(publicProfile.data.profile.displayName, "Joynexa Tester");
+  assert.equal(publicProfile.data.profile.avatarKey, "planet");
+  assert.equal("isPublic" in publicProfile.data.profile, false);
+
+  const privateAgain = await call("/api/profile/me", {
+    method: "PUT",
+    body: {
+      displayName: "Joynexa Tester",
+      bio: "",
+      avatarKey: "star",
+      isPublic: false
+    },
+    cookie: login.cookie
+  });
+  assert.equal(privateAgain.response.status, 200);
+  const hiddenAgain = await call("/api/users/" + username + "/profile");
+  assert.equal(hiddenAgain.response.status, 404);
+
   const setupStatus = await call("/api/admin/setup-status");
   assert.equal(setupStatus.data.setupAvailable, true);
 
