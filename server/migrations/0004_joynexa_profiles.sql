@@ -1,5 +1,5 @@
 CREATE TABLE IF NOT EXISTS joynexa.profiles (
-  user_id UUID PRIMARY KEY REFERENCES joynexa.users(id) ON DELETE CASCADE,
+  user_id TEXT PRIMARY KEY REFERENCES joynexa.users(id) ON DELETE CASCADE,
   display_name VARCHAR(32) NOT NULL,
   bio VARCHAR(160) NOT NULL DEFAULT '',
   avatar_key VARCHAR(20) NOT NULL DEFAULT 'star'
