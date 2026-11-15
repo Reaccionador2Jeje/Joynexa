@@ -57,6 +57,11 @@ function newSessionToken(): string {
   return randomBytes(32).toString("hex");
 }
 
+function requestUserAgent(request: FastifyRequest): string | null {
+  const value = request.headers["user-agent"];
+  return typeof value === "string" ? value.slice(0, 300) : null;
+}
+
 function setSessionCookie(reply: FastifyReply, token: string): void {
   reply.setCookie(COOKIE_NAME, token, {
     httpOnly: true,
@@ -195,8 +200,8 @@ app.post("/api/register", {
       [id, username, passwordHash]
     );
     await client.query(
-      "INSERT INTO joynexa.sessions (token_hash, user_id, expires_at) VALUES ($1, $2, NOW() + ($3 * INTERVAL '1 second'))",
-      [hashToken(token), id, SESSION_TTL_SECONDS]
+      "INSERT INTO joynexa.sessions (token_hash, user_id, expires_at, user_agent) VALUES ($1, $2, NOW() + ($3 * INTERVAL '1 second'), $4)",
+      [hashToken(token), id, SESSION_TTL_SECONDS, requestUserAgent(request)]
     );
     await client.query("COMMIT");
     setSessionCookie(reply, token);
@@ -235,7 +240,7 @@ app.post("/api/login", {
   const token = newSessionToken();
   await pool.query(
     "INSERT INTO joynexa.sessions (token_hash, user_id, expires_at) VALUES ($1, $2, NOW() + ($3 * INTERVAL '1 second'))",
-    [hashToken(token), user.id, SESSION_TTL_SECONDS]
+    [hashToken(token), user.id, SESSION_TTL_SECONDS, requestUserAgent(request)]
   );
   setSessionCookie(reply, token);
   return reply.send({
@@ -255,6 +260,31 @@ app.post("/api/logout", async (request, reply) => {
 app.get("/api/me", async (request, reply) => {
   const user = await findUserFromSession(request);
   return reply.send({ user });
+});
+
+app.get("/api/sessions", async (request, reply) => {
+  const user = await findUserFromSession(request);
+  if (!user) return reply.code(401).send({ error: "Inicia sesión para consultar tus sesiones." });
+  const token = request.cookies[COOKIE_NAME];
+  const result = await pool.query(
+    "SELECT id::text AS id, created_at, expires_at, user_agent, token_hash = $1 AS is_current FROM joynexa.sessions WHERE user_id = $2 AND expires_at > NOW() ORDER BY created_at DESC LIMIT 25",
+    [hashToken(token!), user.id]
+  );
+  return reply.send({ sessions: result.rows });
+});
+
+app.delete("/api/sessions/:id", async (request, reply) => {
+  const user = await findUserFromSession(request);
+  if (!user) return reply.code(401).send({ error: "Inicia sesión para administrar tus sesiones." });
+  const parsed = z.string().uuid().safeParse((request.params as { id?: string }).id);
+  if (!parsed.success) return reply.code(400).send({ error: "Identificador de sesión no válido." });
+  const token = request.cookies[COOKIE_NAME];
+  const currentHash = token ? hashToken(token) : null;
+  const result = await pool.query("DELETE FROM joynexa.sessions WHERE id = $1 AND user_id = $2 RETURNING token_hash", [parsed.data, user.id]);
+  if (!result.rowCount) return reply.code(404).send({ error: "La sesión ya no existe o no pertenece a tu cuenta." });
+  const revokedCurrent = result.rows[0].token_hash === currentHash;
+  if (revokedCurrent) clearSessionCookie(reply);
+  return reply.send({ ok: true, revokedCurrent });
 });
 
 app.get("/api/admin/setup-status", async (_request, reply) => {
