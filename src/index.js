@@ -64,7 +64,14 @@ async function proxyAccounts(request,env) {
  if(clientIp) headers.set("x-forwarded-for",clientIp);
  const init={method:request.method,headers,redirect:"manual"};
  if(request.method!=="GET"&&request.method!=="HEAD") init.body=request.body;
- const upstream=await fetch(target,init);
+ let upstream;
+ try {
+  upstream=await fetch(target,init);
+ } catch(error) {
+  const requestId=crypto.randomUUID();
+  console.error("[Joynexa] Accounts API unavailable:",path,requestId,error?.stack||error);
+  return json({error:"El backend de cuentas no está disponible. Comprueba que Node.js esté desplegado y que ACCOUNTS_API_URL sea correcto.",requestId},503);
+ }
  const responseHeaders=new Headers(upstream.headers);
  responseHeaders.set("cache-control","no-store");
  return new Response(upstream.body,{status:upstream.status,statusText:upstream.statusText,headers:responseHeaders});
@@ -77,7 +84,16 @@ async function handle(request,env) {
   const proxied=await proxyAccounts(request,env);
   if(proxied) return proxied;
  }
- if(path==="/api/health"&&request.method==="GET") return json({ok:true,service:"joynexa-api",version:"0.2.0-alpha"},200,headers);
+ if(path==="/api/health"&&request.method==="GET") {
+  let accounts="legacy-d1";
+  if(env.ACCOUNTS_API_URL) {
+   try {
+    const response=await fetch(new URL("/health",env.ACCOUNTS_API_URL),{signal:AbortSignal.timeout(4000)});
+    accounts=response.ok?"connected":"unhealthy";
+   } catch { accounts="unreachable"; }
+  }
+  return json({ok:true,service:"joynexa-api",version:"0.3.0-alpha",accountsBackend:accounts},200,headers);
+ }
  if(path==="/api/games"&&request.method==="GET") {
   const result=await env.DB.prepare("SELECT id,slug,title,description,category,launch_url,thumbnail_url,developer_name FROM games WHERE status='approved' ORDER BY created_at DESC LIMIT 100").all();
   return json({games:result.results||[]},200,headers);
