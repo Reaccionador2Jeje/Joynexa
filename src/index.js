@@ -131,7 +131,7 @@ async function handle(request,env) {
  }
 
 
- if(request.method==="GET"&&/^\\/api\\/users\\/[a-zA-Z0-9_]{3,20}\\/games$/i.test(path)) {
+ if(request.method==="GET"&&/^\/api\/users\/[a-zA-Z0-9_]{3,20}\/games$/i.test(path)) {
   const username=path.split("/")[3];
   if(!env.ACCOUNTS_API_URL) return json({error:"Los perfiles públicos no están disponibles."},503,headers);
   let profileResponse;
