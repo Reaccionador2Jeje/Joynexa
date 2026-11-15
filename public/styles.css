@@ -108,3 +108,9 @@ dialog .outline{margin-top:8px}
 .play-dialog .close{position:static;width:36px;height:36px;flex:0 0 36px}
 .play-inside{font:inherit;cursor:pointer}
 @media(max-width:700px){.play-dialog{width:100vw;height:100dvh;max-height:none;border-radius:0}.play-topbar{align-items:flex-start;flex-direction:column}.play-actions{width:100%}.play-dialog iframe{height:calc(100% - 145px)}}
+
+.xp-summary{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin:15px 0}
+.xp-summary>div{padding:14px 16px;border:1px solid #ffffff18;border-radius:12px;background:#ffffff06}
+.xp-summary small,.xp-summary strong{display:block}
+.xp-summary small{font-size:9px;letter-spacing:1.5px;color:#9299b3;font-weight:800}
+.xp-summary strong{font:700 22px "Space Grotesk",sans-serif;color:#79e1d7;margin-top:6px}
