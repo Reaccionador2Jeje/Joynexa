@@ -154,7 +154,7 @@ async function handle(request,env) {
   const user=await currentUser(request,env);
   if(!user) return json({error:"Inicia sesión para consultar tus logros."},401,headers);
   const result=await env.DB.prepare(
-   "SELECT a.code,a.title,a.description,a.points,a.earned_at,g.slug AS game_slug,g.title AS game_title FROM joynexa_user_achievements ua JOIN joynexa_achievement_defs a ON a.id=ua.achievement_id JOIN games g ON g.id=ua.game_id WHERE ua.user_id=? AND g.status='approved' ORDER BY ua.earned_at DESC LIMIT 200"
+   "SELECT a.code,a.title,a.description,a.points,ua.earned_at,g.slug AS game_slug,g.title AS game_title FROM joynexa_user_achievements ua JOIN joynexa_achievement_defs a ON a.id=ua.achievement_id JOIN games g ON g.id=ua.game_id WHERE ua.user_id=? AND g.status='approved' ORDER BY ua.earned_at DESC LIMIT 200"
   ).bind(user.id).all();
   const total=(result.results||[]).reduce((sum,item)=>sum+Number(item.points||0),0);
   return json({achievements:result.results||[],totalPoints:total},200,headers);
