@@ -1,5 +1,5 @@
 import "dotenv/config";
-import { readFile } from "node:fs/promises";
+import { readdir, readFile } from "node:fs/promises";
 import { resolve } from "node:path";
 import pg from "pg";
 
@@ -18,14 +18,22 @@ try {
     )
   `);
 
-  const migrationName = "0001_accounts.sql";
-  const existing = await client.query(
-    "SELECT name FROM schema_migrations WHERE name = $1",
-    [migrationName]
-  );
+  const directory = resolve(process.cwd(), "migrations");
+  const migrations = (await readdir(directory))
+    .filter((name) => /^\\d+_[a-z0-9_-]+\\.sql$/i.test(name))
+    .sort();
 
-  if (existing.rowCount === 0) {
-    const sql = await readFile(resolve(process.cwd(), "migrations", migrationName), "utf8");
+  for (const migrationName of migrations) {
+    const existing = await client.query(
+      "SELECT name FROM schema_migrations WHERE name = $1",
+      [migrationName]
+    );
+    if (existing.rowCount > 0) {
+      console.log(`Already applied: ${migrationName}`);
+      continue;
+    }
+
+    const sql = await readFile(resolve(directory, migrationName), "utf8");
     await client.query("BEGIN");
     try {
       await client.query(sql);
@@ -36,8 +44,6 @@ try {
       await client.query("ROLLBACK");
       throw error;
     }
-  } else {
-    console.log("Database schema is up to date.");
   }
 } finally {
   client.release();
