@@ -222,7 +222,7 @@ app.post("/api/login", {
 
   const result = await pool.query<StoredUser>(
     `SELECT id, username, role, password_hash, password_salt
-       FROM users
+       FROM joynexa.users
       WHERE LOWER(username) = LOWER($1) AND status = 'active'
       LIMIT 1`,
     [parsed.data.username]
