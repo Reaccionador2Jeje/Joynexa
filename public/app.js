@@ -3,7 +3,7 @@ const api=async(path,options={})=>{const response=await fetch(API_BASE+"/api"+pa
 const search=document.getElementById("search"),cards=[...document.querySelectorAll(".game")],filters=[...document.querySelectorAll("[data-filter]")],empty=document.getElementById("empty");
 let category="all",toastTimer,authMode="login",currentUser=null;
 const favoriteSlugs=new Set();
-function applyFilters(){const q=search.value.trim().toLocaleLowerCase("es");let count=0;cards.forEach(card=>{const ok=(category==="all"||card.dataset.kind===category)&&card.dataset.name.toLocaleLowerCase("es").includes(q);card.hidden=!ok;if(ok)count++});empty.hidden=count!==0;document.getElementById("games-grid").hidden=count===0}
+function applyFilters(){const q=search.value.trim().toLocaleLowerCase("es");let count=0;cards.forEach(card=>{const ok=(category==="all"||card.dataset.kind===category)&&card.dataset.name.toLocaleLowerCase("es").includes(q);card.hidden=!ok;if(ok)count++});empty.hidden=count!==0;document.getElementById("games-grid").hidden=count===0;const label=document.getElementById("catalog-count");if(label)label.textContent=count+" juegos disponibles";}
 search.addEventListener("input",applyFilters);
 filters.forEach(btn=>btn.addEventListener("click",()=>{category=btn.dataset.filter;filters.forEach(b=>b.classList.toggle("chosen",b===btn));applyFilters()}));
 document.querySelectorAll("[data-jump]").forEach(btn=>btn.addEventListener("click",()=>{category=btn.dataset.jump;filters.forEach(b=>b.classList.toggle("chosen",b.dataset.filter===category));search.value="";applyFilters();document.getElementById("games").scrollIntoView({behavior:"smooth"})}));
@@ -105,9 +105,50 @@ document.getElementById("games-grid").addEventListener("click",async event=>{
 });
 
 const toast=document.getElementById("toast");function notify(message){toast.textContent=message;toast.classList.add("show");clearTimeout(toastTimer);toastTimer=setTimeout(()=>toast.classList.remove("show"),2500)}
-cards.forEach(card=>{card.addEventListener("click",()=>notify(card.dataset.name+" todavía no está publicado."));card.setAttribute("tabindex","0");card.addEventListener("keydown",e=>{if(e.key==="Enter"||e.key===" "){e.preventDefault();notify(card.dataset.name+" todavía no está publicado.")}})});
+
 document.getElementById("year").textContent=new Date().getFullYear();document.addEventListener("keydown",e=>{if((e.ctrlKey||e.metaKey)&&e.key.toLowerCase()==="k"){e.preventDefault();search.focus()}});filters.forEach(b=>b.setAttribute("aria-pressed",String(b.dataset.filter==="all")));
-async function initialize(){try{const data=await api("/games");if(data.games?.length){const grid=document.getElementById("games-grid");grid.innerHTML=data.games.map(g=>'<article class="game live-game" data-kind="'+({adventure:"aventura",arcade:"arcade",puzzle:"puzzle",strategy:"estrategia"}[g.category]||"other")+'" data-name="'+escapeHtml(g.title)+'"><div class="cover neon"><span>✦</span><strong>'+escapeHtml(g.title)+'</strong></div><div class="game-meta"><div><b>'+escapeHtml(g.title)+'</b><small>'+escapeHtml(g.category)+" · "+escapeHtml(g.developer_name)+'</small></div><a class="play-link" href="'+safeUrl(g.launch_url)+'" target="_blank" rel="noopener noreferrer">Jugar ↗</a><button class="favorite-toggle" type="button" data-favorite-slug="'+escapeHtml(g.slug)+'" aria-pressed="false" title="Guardar en favoritos">♡</button></div></article>').join("");cards.splice(0,cards.length,...grid.querySelectorAll(".game"));applyFilters()}}catch{}try{const me=await api("/me");currentUser=me.user;updateUserUI();if(currentUser){loadProfile();loadFavorites();loadAchievements()}}catch{}const publicUsername=new URLSearchParams(location.search).get("profile");if(publicUsername)openPublicProfile(publicUsername)}
+async function initialize(){
+ const grid=document.getElementById("games-grid");
+ const countLabel=document.getElementById("catalog-count");
+ try{
+  const data=await api("/games");
+  const games=Array.isArray(data.games)?data.games:[];
+  const labels={adventure:"Aventura",arcade:"Arcade",puzzle:"Puzzle",strategy:"Clásicos",other:"Casual"};
+  const icons={adventure:"🏃",arcade:"🕹️",puzzle:"🧩",strategy:"♟️",other:"🎈"};
+  const filtersByCategory={adventure:"aventura",arcade:"arcade",puzzle:"puzzle",strategy:"estrategia",other:"other"};
+  const covers={adventure:"cover-adventure",arcade:"cover-arcade",puzzle:"cover-puzzle",strategy:"cover-strategy",other:"cover-other"};
+  grid.innerHTML=games.map(g=>{
+   const kind=filtersByCategory[g.category]||"other";
+   const categoryLabel=labels[g.category]||"Otros";
+   const icon=icons[g.category]||"🎮";
+   const cover=covers[g.category]||"cover-other";
+   return '<article class="game live-game" data-kind="'+kind+'" data-name="'+escapeHtml(g.title)+'">'+
+    '<div class="cover '+cover+'"><span>'+icon+'</span><strong>'+escapeHtml(g.title)+'</strong></div>'+
+    '<div class="game-meta"><div><b>'+escapeHtml(g.title)+'</b><small>'+categoryLabel+' · '+escapeHtml(g.developer_name||"Comunidad")+'</small></div>'+
+    '<a class="play-link" href="'+safeUrl(g.launch_url)+'" target="_blank" rel="noopener noreferrer">Jugar ↗</a>'+
+    '<button class="favorite-toggle" type="button" data-favorite-slug="'+escapeHtml(g.slug)+'" aria-pressed="false" title="Guardar en favoritos">♡</button></div>'+
+    '<p class="game-description">'+escapeHtml(g.description||"Juego HTML5 para navegador.")+'</p></article>';
+  }).join("");
+  cards.splice(0,cards.length,...grid.querySelectorAll(".game"));
+  empty.textContent=games.length?"No encontramos juegos con esa búsqueda.":"Todavía no hay juegos publicados.";
+  if(countLabel)countLabel.textContent=games.length+" juegos en el catálogo";
+  applyFilters();
+ }catch(error){
+  grid.innerHTML="";
+  cards.splice(0,cards.length);
+  empty.hidden=false;
+  empty.textContent="No se pudo cargar el catálogo. Inténtalo de nuevo más tarde.";
+  if(countLabel)countLabel.textContent="Catálogo no disponible";
+ }
+ try{
+  const me=await api("/me");
+  currentUser=me.user;
+  updateUserUI();
+  if(currentUser){loadProfile();loadFavorites();loadAchievements()}
+ }catch{}
+ const publicUsername=new URLSearchParams(location.search).get("profile");
+ if(publicUsername)openPublicProfile(publicUsername);
+}
 function escapeHtml(value){return String(value||"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]))}
 function safeUrl(value){try{const u=new URL(value);return u.protocol==="https:"?u.href:"#"}catch{return "#"}}
 
