@@ -20,6 +20,7 @@ El frontend conserva las mismas rutas `/api/register`, `/api/login`, `/api/logou
 
 - Catálogo de juegos publicados tras moderación.
 - Joynexa ID: registro, inicio, cierre y consulta de sesión.
+- Perfiles Joynexa ID: nombre visible, biografía breve, avatares predeterminados y publicación opcional con privacidad activada por defecto.
 - Migración de cuentas D1 preservando IDs, nombres, roles y hashes de contraseña.
 - Conversión progresiva de hashes PBKDF2 a Argon2id tras un inicio de sesión correcto.
 - Envíos de juegos a una cola de revisión.
@@ -35,8 +36,15 @@ El frontend conserva las mismas rutas `/api/register`, `/api/login`, `/api/logou
 | POST | `/api/login` | Iniciar sesión |
 | POST | `/api/logout` | Cerrar sesión |
 | GET | `/api/me` | Consultar cuenta actual |
+| GET | `/api/profile/me` | Consultar el perfil propio |
+| PUT | `/api/profile/me` | Editar el perfil propio |
+| GET | `/api/users/:username/profile` | Consultar un perfil público (solo si está publicado) |
 | GET | `/api/admin/setup-status` | Comprobar configuración inicial |
 | POST | `/api/admin/bootstrap` | Activar el primer administrador una sola vez |
+
+### Perfiles Joynexa ID
+
+Los perfiles existentes se crean como privados. Cada usuario puede elegir un nombre visible, una biografía de hasta 160 caracteres y uno de los avatares incluidos. La publicación es voluntaria; los perfiles privados responden como no disponibles a las consultas públicas. No se muestran el correo, el Joynexa ID interno ni datos de sesión.
 
 ### Ejecutar localmente
 
