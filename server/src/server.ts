@@ -203,6 +203,7 @@ app.post("/api/register", {
       "INSERT INTO joynexa.sessions (token_hash, user_id, expires_at, user_agent) VALUES ($1, $2, NOW() + ($3 * INTERVAL '1 second'), $4)",
       [hashToken(token), id, SESSION_TTL_SECONDS, requestUserAgent(request)]
     );
+    await client.query("INSERT INTO joynexa.profiles (user_id, display_name) VALUES ($1, $2)", [id, username]);
     await client.query("COMMIT");
     setSessionCookie(reply, token);
     return reply.code(201).send({ user: created.rows[0] });
@@ -285,6 +286,89 @@ app.delete("/api/sessions/:id", async (request, reply) => {
   const revokedCurrent = result.rows[0].token_hash === currentHash;
   if (revokedCurrent) clearSessionCookie(reply);
   return reply.send({ ok: true, revokedCurrent });
+});
+
+
+const profileSchema = z.object({
+  displayName: z.string().trim().min(1).max(32),
+  bio: z.string().trim().max(160),
+  avatarKey: z.enum(["star", "planet", "comet", "controller", "pixel", "fox", "robot", "gem"]),
+  isPublic: z.boolean()
+});
+
+async function ensureProfile(user: PublicUser) {
+  await pool.query(
+    "INSERT INTO joynexa.profiles (user_id, display_name) VALUES ($1, $2) ON CONFLICT (user_id) DO NOTHING",
+    [user.id, user.username]
+  );
+}
+
+function profilePayload(row: any, includePrivacy = false) {
+  return {
+    username: row.username,
+    displayName: row.display_name,
+    bio: row.bio,
+    avatarKey: row.avatar_key,
+    joinedAt: row.created_at,
+    ...(includePrivacy ? { isPublic: row.is_public } : {})
+  };
+}
+
+app.get("/api/profile/me", async (request, reply) => {
+  const user = await findUserFromSession(request);
+  if (!user) return reply.code(401).send({ error: "Inicia sesión para editar tu perfil." });
+  await ensureProfile(user);
+  const result = await pool.query(
+    `SELECT u.username, p.display_name, p.bio, p.avatar_key, p.is_public, p.created_at
+       FROM joynexa.profiles p
+       JOIN joynexa.users u ON u.id = p.user_id
+      WHERE p.user_id = $1 LIMIT 1`,
+    [user.id]
+  );
+  return reply.send({ profile: profilePayload(result.rows[0], true) });
+});
+
+app.put("/api/profile/me", async (request, reply) => {
+  const user = await findUserFromSession(request);
+  if (!user) return reply.code(401).send({ error: "Inicia sesión para editar tu perfil." });
+  const parsed = profileSchema.safeParse(request.body);
+  if (!parsed.success) return reply.code(400).send({ error: "Revisa el nombre visible, la biografía y el avatar." });
+  await ensureProfile(user);
+  const value = parsed.data;
+  const result = await pool.query(
+    `UPDATE joynexa.profiles
+        SET display_name = $1, bio = $2, avatar_key = $3, is_public = $4, updated_at = NOW()
+      WHERE user_id = $5
+      RETURNING display_name, bio, avatar_key, is_public, created_at`,
+    [value.displayName, value.bio, value.avatarKey, value.isPublic, user.id]
+  );
+  return reply.send({
+    ok: true,
+    profile: {
+      username: user.username,
+      displayName: result.rows[0].display_name,
+      bio: result.rows[0].bio,
+      avatarKey: result.rows[0].avatar_key,
+      isPublic: result.rows[0].is_public,
+      joinedAt: result.rows[0].created_at
+    }
+  });
+});
+
+app.get("/api/users/:username/profile", async (request, reply) => {
+  const parsed = z.string().min(3).max(20).regex(/^[a-zA-Z0-9_]+$/)
+    .safeParse((request.params as { username?: string }).username);
+  if (!parsed.success) return reply.code(404).send({ error: "No se encontró ese perfil." });
+  const result = await pool.query(
+    `SELECT u.username, p.display_name, p.bio, p.avatar_key, p.is_public, p.created_at
+       FROM joynexa.users u
+       JOIN joynexa.profiles p ON p.user_id = u.id
+      WHERE LOWER(u.username) = LOWER($1) AND u.status = 'active' AND p.is_public = TRUE
+      LIMIT 1`,
+    [parsed.data]
+  );
+  if (!result.rowCount) return reply.code(404).send({ error: "Este perfil no existe o es privado." });
+  return reply.send({ profile: profilePayload(result.rows[0]) });
 });
 
 app.get("/api/admin/setup-status", async (_request, reply) => {
