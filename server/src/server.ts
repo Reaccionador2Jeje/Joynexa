@@ -152,7 +152,7 @@ app.register(cookie);
 app.register(cors, {
   origin: FRONTEND_ORIGINS,
   credentials: true,
-  methods: ["GET", "POST", "OPTIONS"],
+  methods: ["GET", "POST", "DELETE", "OPTIONS"],
   allowedHeaders: ["content-type", "x-admin-setup-key"]
 });
 app.register(rateLimit, {
@@ -239,7 +239,7 @@ app.post("/api/login", {
 
   const token = newSessionToken();
   await pool.query(
-    "INSERT INTO joynexa.sessions (token_hash, user_id, expires_at) VALUES ($1, $2, NOW() + ($3 * INTERVAL '1 second'))",
+    "INSERT INTO joynexa.sessions (token_hash, user_id, expires_at, user_agent) VALUES ($1, $2, NOW() + ($3 * INTERVAL '1 second'), $4)",
     [hashToken(token), user.id, SESSION_TTL_SECONDS, requestUserAgent(request)]
   );
   setSessionCookie(reply, token);
