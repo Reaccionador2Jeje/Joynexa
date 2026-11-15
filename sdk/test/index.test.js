@@ -41,6 +41,7 @@ test("awards through the server endpoint with the private key", async () => {
     }
   });
 
+  assert.equal(client.apiKey, undefined);
   const result = await client.awardAchievement({ userId, code: "first_win" });
   assert.deepEqual(result, { awarded: true, duplicate: false });
   assert.equal(request.url, "https://joynexa.example/api/sdk/games/demo-game/achievements/first_win");
