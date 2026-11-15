@@ -11,3 +11,6 @@ database_id = "e57dcdd4-69b5-4bce-8a5a-d705c44b2a91"
 directory = "./public"
 binding = "ASSETS"
 run_worker_first = ["/api/*"]
+
+[vars]
+ACCOUNTS_API_URL = "https://joynexa-accounts.onrender.com"
