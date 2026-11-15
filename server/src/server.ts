@@ -12,7 +12,7 @@ import { z } from "zod";
 const { Pool } = pg;
 const PORT = Number(process.env.PORT ?? 3001);
 const NODE_ENV = process.env.NODE_ENV ?? "development";
-const FRONTEND_ORIGINS = (process.env.FRONTEND_ORIGIN ?? "http://localhost:8788")
+const FRONTEND_ORIGINS = (process.env.FRONTEND_ORIGIN ?? "http://localhost:8787")
   .split(",").map((value) => value.trim()).filter(Boolean);
 const SESSION_TTL_SECONDS = Math.min(
   Math.max(Number(process.env.SESSION_TTL_SECONDS ?? 1_209_600), 300),
@@ -44,7 +44,6 @@ const credentialsSchema = z.object({
 });
 
 type PublicUser = { id: string; username: string; role: string };
-type AuthenticatedRequest = FastifyRequest & { user?: PublicUser };
 
 function hashToken(token: string): string {
   return createHash("sha256").update(token).digest("hex");
