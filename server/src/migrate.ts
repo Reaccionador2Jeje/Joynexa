@@ -20,7 +20,7 @@ try {
 
   const directory = resolve(process.cwd(), "migrations");
   const migrations = (await readdir(directory))
-    .filter((name) => /^\\d+_[a-z0-9_-]+\\.sql$/i.test(name))
+    .filter((name) => /^\d+_[a-z0-9_-]+\.sql$/i.test(name))
     .sort();
 
   for (const migrationName of migrations) {
