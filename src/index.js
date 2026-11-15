@@ -130,6 +130,23 @@ async function handle(request,env) {
   const user=await currentUser(request,env); return json({user:user||null},200,headers);
  }
 
+
+ if(request.method==="GET"&&/^\\/api\\/users\\/[a-zA-Z0-9_]{3,20}\\/games$/i.test(path)) {
+  const username=path.split("/")[3];
+  if(!env.ACCOUNTS_API_URL) return json({error:"Los perfiles públicos no están disponibles."},503,headers);
+  let profileResponse;
+  try {
+   profileResponse=await fetch(new URL("/api/users/"+encodeURIComponent(username)+"/profile",env.ACCOUNTS_API_URL),{headers:{accept:"application/json"}});
+  } catch {
+   return json({error:"No se pudo comprobar la privacidad del perfil."},503,headers);
+  }
+  if(profileResponse.status===404) return json({error:"Este perfil no existe o es privado."},404,headers);
+  if(!profileResponse.ok) return json({error:"No se pudo comprobar la privacidad del perfil."},503,headers);
+  const result=await env.DB.prepare(
+   "SELECT slug,title,description,category,launch_url,thumbnail_url FROM games WHERE developer_name=? AND status='approved' ORDER BY created_at DESC LIMIT 50"
+  ).bind(username).all();
+  return json({games:result.results||[]},200,headers);
+ }
  if(path==="/api/my-games"&&request.method==="GET") {
   const user=await currentUser(request,env);
   if(!user) return json({error:"Inicia sesión para consultar tus envíos."},401,headers);
