@@ -75,3 +75,9 @@ dialog .outline{margin-top:8px}
 .favorite-item b{font-size:10px}
 .favorite-item small{margin-top:3px;color:#9299b3;font-size:9px}
 .favorite-item a{font-size:10px;color:#a99aff;text-decoration:none;white-space:nowrap}
+
+
+/* Joynexa Achievements */
+.achievement-total{display:inline-flex;align-items:center;margin:8px 0 12px;padding:8px 13px;border:1px solid rgba(151,119,255,.35);border-radius:12px;color:#c9b9ff;font-weight:800;background:rgba(116,83,220,.10)}
+.achievement-item{align-items:center}
+.achievement-points{white-space:nowrap;color:#bca6ff;font-size:.82rem;font-weight:800}
