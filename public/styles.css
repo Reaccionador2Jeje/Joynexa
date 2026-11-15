@@ -38,3 +38,19 @@ dialog .outline{margin-top:8px}
 .public-username{color:#a99aff!important;font-size:11px!important}
 .public-bio{min-height:24px;overflow-wrap:anywhere}
 .public-profile-note{font-size:9px!important;color:#7f89a5!important}
+
+/* Joynexa developer submission history */
+.my-games{margin-top:18px;padding-top:15px;border-top:1px solid #ffffff18;text-align:left}
+.my-games-heading{display:flex;align-items:center;justify-content:space-between;gap:10px}
+.my-games-heading h3{margin:6px 0 0;font:600 17px "Space Grotesk",sans-serif}
+.my-games-list{display:grid;gap:8px;margin-top:12px}
+.my-game-item{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:10px;background:#090d20;border:1px solid #ffffff15;border-radius:9px}
+.my-game-info{min-width:0}
+.my-game-info b,.my-game-info small{display:block}
+.my-game-info b{font-size:10px;overflow-wrap:anywhere}
+.my-game-info small{font-size:9px;color:#8991ad;margin-top:4px}
+.submission-status{flex-shrink:0;padding:5px 8px;border-radius:99px;background:#ffffff12;color:#cbd0e4;font-size:9px}
+.status-pending{background:#e6b65c1c;color:#f3d38b}
+.status-approved{background:#65d6ad1c;color:#91e7c4}
+.status-rejected{background:#e879791c;color:#f3a2a2}
+#my-games-message{font-size:10px;color:#ffb3b3}
