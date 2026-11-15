@@ -129,6 +129,15 @@ async function handle(request,env) {
  if(path==="/api/me"&&request.method==="GET") {
   const user=await currentUser(request,env); return json({user:user||null},200,headers);
  }
+
+ if(path==="/api/my-games"&&request.method==="GET") {
+  const user=await currentUser(request,env);
+  if(!user) return json({error:"Inicia sesión para consultar tus envíos."},401,headers);
+  const result=await env.DB.prepare(
+   "SELECT id,title,description,category,status,created_at,updated_at FROM games WHERE developer_name=? ORDER BY created_at DESC LIMIT 50"
+  ).bind(user.username).all();
+  return json({games:result.results||[]},200,headers);
+ }
  if(path==="/api/submit-game"&&request.method==="POST") {
   const user=await currentUser(request,env); if(!user) return json({error:"Inicia sesión para enviar un juego."},401,headers);
   const body=await request.json().catch(()=>null),title=String(body?.title||"").trim(),description=String(body?.description||"").trim(),category=String(body?.category||"other").trim().toLowerCase(),launchUrl=String(body?.launchUrl||"").trim();
