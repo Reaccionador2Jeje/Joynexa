@@ -152,7 +152,7 @@ async function handle(request,env) {
   const user=await currentUser(request,env);
   if(!user) return json({error:"Inicia sesión para consultar tus favoritos."},401,headers);
   const result=await env.DB.prepare(
-   "SELECT g.slug,g.title,g.category,g.launch_url FROM favorites f JOIN games g ON g.id=f.game_id WHERE f.user_id=? AND g.status='approved' ORDER BY f.created_at DESC LIMIT 100"
+   "SELECT g.slug,g.title,g.category,g.launch_url FROM joynexa_favorites f JOIN games g ON g.id=f.game_id WHERE f.user_id=? AND g.status='approved' ORDER BY f.created_at DESC LIMIT 100"
   ).bind(user.id).all();
   return json({games:result.results||[]},200,headers);
  }
@@ -163,10 +163,10 @@ async function handle(request,env) {
   const game=await env.DB.prepare("SELECT id FROM games WHERE slug=? AND status='approved' LIMIT 1").bind(slug).first();
   if(!game) return json({error:"No se encontró ese juego publicado."},404,headers);
   if(request.method==="POST") {
-   await env.DB.prepare("INSERT OR IGNORE INTO favorites (user_id,game_id) VALUES (?,?)").bind(user.id,game.id).run();
+   await env.DB.prepare("INSERT OR IGNORE INTO joynexa_favorites (user_id,game_id) VALUES (?,?)").bind(user.id,game.id).run();
    return json({ok:true,favorite:true},200,headers);
   }
-  await env.DB.prepare("DELETE FROM favorites WHERE user_id=? AND game_id=?").bind(user.id,game.id).run();
+  await env.DB.prepare("DELETE FROM joynexa_favorites WHERE user_id=? AND game_id=?").bind(user.id,game.id).run();
   return json({ok:true,favorite:false},200,headers);
  }
  if(path==="/api/my-games"&&request.method==="GET") {
