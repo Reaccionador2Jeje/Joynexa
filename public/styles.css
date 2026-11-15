@@ -54,3 +54,12 @@ dialog .outline{margin-top:8px}
 .status-approved{background:#65d6ad1c;color:#91e7c4}
 .status-rejected{background:#e879791c;color:#f3a2a2}
 #my-games-message{font-size:10px;color:#ffb3b3}
+
+.public-games-title{margin:18px 0 8px;font:600 13px "Space Grotesk",sans-serif;text-align:left}
+.public-games{display:grid;gap:7px;text-align:left}
+.public-games>p{font-size:10px;color:#9299b3}
+.public-game{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:10px;border:1px solid #ffffff16;border-radius:9px;background:#090d20}
+.public-game b,.public-game small{display:block}
+.public-game b{font-size:10px}
+.public-game small{margin-top:3px;color:#9299b3;font-size:9px}
+.public-game a{font-size:10px;color:#a99aff;text-decoration:none;white-space:nowrap}
