@@ -110,6 +110,13 @@ async function openPublicProfile(username){
   document.getElementById("public-display-name").textContent=p.displayName;
   document.getElementById("public-username").textContent="@"+p.username;
   document.getElementById("public-bio").textContent=p.bio||"Este jugador aún no ha escrito una biografía.";
+  const gamesBox=document.getElementById("public-games");
+  gamesBox.innerHTML='<p>Buscando juegos…</p>';
+  try{
+   const gamesData=await api("/users/"+encodeURIComponent(username)+"/games");
+   if(!gamesData.games?.length){gamesBox.innerHTML='<p>Este creador aún no tiene juegos publicados.</p>';}
+   else gamesBox.innerHTML=gamesData.games.map(game=>'<article class="public-game"><div><b>'+escapeHtml(game.title)+'</b><small>'+escapeHtml(game.category)+'</small></div><a href="'+safeUrl(game.launch_url)+'" target="_blank" rel="noopener noreferrer">Jugar ↗</a></article>').join("");
+  }catch{gamesBox.innerHTML='<p>No se pudieron cargar los juegos publicados.</p>';}
   message.textContent="";
  }catch(error){
   document.getElementById("public-display-name").textContent="Perfil no disponible";
