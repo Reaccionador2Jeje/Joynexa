@@ -79,7 +79,7 @@ async function proxyAccounts(request,env) {
 async function handle(request,env) {
  const url=new URL(request.url),path=url.pathname,origin=request.headers.get("origin"),headers=corsHeaders(origin,env.APP_ORIGIN);
  if(request.method==="OPTIONS") return new Response(null,{status:204,headers:{...headers,"access-control-allow-methods":"GET,POST,DELETE,OPTIONS","access-control-allow-headers":"content-type,x-admin-setup-key"}});
- const accountProxyPaths=new Set(["/api/register","/api/login","/api/logout","/api/me","/api/admin/setup-status","/api/admin/bootstrap","/api/sessions"]);
+ const accountProxyPaths=new Set(["/api/register","/api/login","/api/logout","/api/me","/api/admin/setup-status","/api/admin/bootstrap","/api/sessions","/api/profile/me"]);
  if(accountProxyPaths.has(path)||/^\/api\/sessions\/[0-9a-f-]{36}$/i.test(path)) {
   const proxied=await proxyAccounts(request,env);
   if(proxied) return proxied;
