@@ -1,7 +1,8 @@
 CREATE TABLE IF NOT EXISTS users (
-  id UUID PRIMARY KEY,
+  id TEXT PRIMARY KEY,
   username VARCHAR(20) NOT NULL,
   password_hash TEXT NOT NULL,
+  password_salt TEXT,
   role VARCHAR(16) NOT NULL DEFAULT 'player'
     CHECK (role IN ('player', 'admin', 'developer', 'moderator')),
   status VARCHAR(16) NOT NULL DEFAULT 'active'
@@ -14,7 +15,7 @@ CREATE UNIQUE INDEX IF NOT EXISTS users_username_ci_idx
 
 CREATE TABLE IF NOT EXISTS sessions (
   token_hash CHAR(64) PRIMARY KEY,
-  user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  user_id TEXT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
   expires_at TIMESTAMPTZ NOT NULL,
   created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
