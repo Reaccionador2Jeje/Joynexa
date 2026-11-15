@@ -151,7 +151,7 @@ async function handle(request,env) {
   const user=await currentUser(request,env);
   if(!user) return json({error:"Inicia sesión para consultar tus envíos."},401,headers);
   const result=await env.DB.prepare(
-   "SELECT id,title,description,category,status,created_at,updated_at FROM games WHERE developer_name=? ORDER BY created_at DESC LIMIT 50"
+   "SELECT id,title,description,category,status,created_at FROM games WHERE developer_name=? ORDER BY created_at DESC LIMIT 50"
   ).bind(user.username).all();
   return json({games:result.results||[]},200,headers);
  }
