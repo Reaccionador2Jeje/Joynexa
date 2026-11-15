@@ -81,3 +81,17 @@ dialog .outline{margin-top:8px}
 .achievement-total{display:inline-flex;align-items:center;margin:8px 0 12px;padding:8px 13px;border:1px solid rgba(151,119,255,.35);border-radius:12px;color:#c9b9ff;font-weight:800;background:rgba(116,83,220,.10)}
 .achievement-item{align-items:center}
 .achievement-points{white-space:nowrap;color:#bca6ff;font-size:.82rem;font-weight:800}
+
+/* Quality-first catalog and pagination */
+.tier-filters{display:flex;gap:8px;flex-wrap:wrap;margin:0 0 12px}
+.tier-filters button,.catalog-pagination button{border:1px solid #ffffff2a;background:#ffffff08;color:#c8cbe0;border-radius:999px;padding:9px 14px;font-size:12px;font-weight:700;cursor:pointer}
+.tier-filters button.chosen{background:linear-gradient(110deg,#9b83ff,#6ce1e4);color:#0b1020;border-color:transparent}
+.filters{display:flex;gap:7px;flex-wrap:wrap}
+.filters button{white-space:nowrap}
+.cover-simulation{background:radial-gradient(circle at 25% 20%,#4b9b87,#1c3546 70%)}
+.cover-racing{background:radial-gradient(circle at 70% 25%,#d99a55,#3b254c 70%)}
+.cover-sandbox{background:radial-gradient(circle at 30% 20%,#8b9b60,#27334a 72%)}
+.featured-game .cover{border:1px solid #8e8bff44}
+.catalog-pagination{display:flex;align-items:center;justify-content:center;gap:14px;margin:24px auto 8px;color:#aeb3c9;font-size:12px}
+.catalog-pagination button:disabled{opacity:.35;cursor:not-allowed}
+@media(max-width:600px){.tier-filters button,.filters button{font-size:11px;padding:8px 10px}.catalog-pagination{gap:8px}}
