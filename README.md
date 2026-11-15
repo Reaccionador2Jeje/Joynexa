@@ -231,3 +231,7 @@ GitHub Actions comprueba sintaxis JavaScript, tipos TypeScript, compilación de 
 Joynexa prioriza accesibilidad, apertura y libertad digital. Los juegos enviados permanecen pendientes hasta superar la revisión.
 
 Desarrollado por **AtDev**.
+
+## Walletie ecosystem credits
+
+Walletie is planned for optional virtual rewards and items. Joynexa ID and existing XP are not connected to Walletie yet; an identity bridge is required first. See [Walletie integration roadmap](docs/WALLETIE_INTEGRATION.md).
