@@ -127,4 +127,4 @@ async function handle(request,env) {
  }
  return env.ASSETS.fetch(request);
 }
-export default {async fetch(request,env) { try { return await handle(request,env); } catch { return json({error:"Error interno del servicio."},500); } }};
+export default {async fetch(request,env) { try { return await handle(request,env); } catch (error) { console.error("[Joynexa] Request failed:", new URL(request.url).pathname, error?.stack || error); return json({error:"Error interno del servicio.",requestId:crypto.randomUUID()},500); } }};
