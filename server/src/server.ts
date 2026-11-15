@@ -82,8 +82,8 @@ async function findUserFromSession(request: FastifyRequest): Promise<PublicUser 
 
   const result = await pool.query<PublicUser>(
     `SELECT u.id, u.username, u.role
-       FROM sessions s
-       JOIN users u ON u.id = s.user_id
+       FROM joynexa.sessions s
+       JOIN joynexa.users u ON u.id = s.user_id
       WHERE s.token_hash = $1
         AND s.expires_at > NOW()
         AND u.status = 'active'
@@ -120,7 +120,7 @@ async function verifyPassword(user: StoredUser, password: string): Promise<boole
     parallelism: 1
   });
   await pool.query(
-    "UPDATE users SET password_hash = $1, password_salt = NULL WHERE id = $2 AND password_hash = $3",
+    "UPDATE joynexa.users SET password_hash = $1, password_salt = NULL WHERE id = $2 AND password_hash = $3",
     [upgraded, user.id, user.password_hash]
   );
   return true;
@@ -189,13 +189,13 @@ app.post("/api/register", {
   try {
     await client.query("BEGIN");
     const created = await client.query<PublicUser>(
-      `INSERT INTO users (id, username, password_hash)
+      `INSERT INTO joynexa.users (id, username, password_hash)
        VALUES ($1, $2, $3)
        RETURNING id, username, role`,
       [id, username, passwordHash]
     );
     await client.query(
-      "INSERT INTO sessions (token_hash, user_id, expires_at) VALUES ($1, $2, NOW() + ($3 * INTERVAL '1 second'))",
+      "INSERT INTO joynexa.sessions (token_hash, user_id, expires_at) VALUES ($1, $2, NOW() + ($3 * INTERVAL '1 second'))",
       [hashToken(token), id, SESSION_TTL_SECONDS]
     );
     await client.query("COMMIT");
@@ -234,7 +234,7 @@ app.post("/api/login", {
 
   const token = newSessionToken();
   await pool.query(
-    "INSERT INTO sessions (token_hash, user_id, expires_at) VALUES ($1, $2, NOW() + ($3 * INTERVAL '1 second'))",
+    "INSERT INTO joynexa.sessions (token_hash, user_id, expires_at) VALUES ($1, $2, NOW() + ($3 * INTERVAL '1 second'))",
     [hashToken(token), user.id, SESSION_TTL_SECONDS]
   );
   setSessionCookie(reply, token);
@@ -246,7 +246,7 @@ app.post("/api/login", {
 app.post("/api/logout", async (request, reply) => {
   const token = request.cookies[COOKIE_NAME];
   if (token) {
-    await pool.query("DELETE FROM sessions WHERE token_hash = $1", [hashToken(token)]);
+    await pool.query("DELETE FROM joynexa.sessions WHERE token_hash = $1", [hashToken(token)]);
   }
   clearSessionCookie(reply);
   return reply.send({ ok: true });
@@ -259,7 +259,7 @@ app.get("/api/me", async (request, reply) => {
 
 app.get("/api/admin/setup-status", async (_request, reply) => {
   const result = await pool.query<{ total: string }>(
-    "SELECT COUNT(*)::text AS total FROM users WHERE role = 'admin' AND status = 'active'"
+    "SELECT COUNT(*)::text AS total FROM joynexa.users WHERE role = 'admin' AND status = 'active'"
   );
   return reply.send({
     setupAvailable: Number(result.rows[0]?.total ?? 0) === 0 && adminSetupKey.length >= 32
@@ -284,14 +284,14 @@ app.post("/api/admin/bootstrap", {
     await client.query("BEGIN");
     await client.query("SELECT pg_advisory_xact_lock(74190211)");
     const admins = await client.query(
-      "SELECT id FROM users WHERE role = 'admin' AND status = 'active' LIMIT 1"
+      "SELECT id FROM joynexa.users WHERE role = 'admin' AND status = 'active' LIMIT 1"
     );
     if (admins.rowCount) {
       await client.query("ROLLBACK");
       return reply.code(409).send({ error: "La configuración inicial ya fue utilizada." });
     }
     const result = await client.query(
-      "UPDATE users SET role = 'admin' WHERE id = $1 AND role = 'player' AND status = 'active'",
+      "UPDATE joynexa.users SET role = 'admin' WHERE id = $1 AND role = 'player' AND status = 'active'",
       [user.id]
     );
     if (result.rowCount !== 1) {
