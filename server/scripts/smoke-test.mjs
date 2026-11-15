@@ -108,6 +108,19 @@ try {
   const hiddenProfile = await call("/api/users/" + username + "/profile");
   assert.equal(hiddenProfile.response.status, 404);
 
+
+  const rejectedContactProfile = await call("/api/profile/me", {
+    method: "PUT",
+    body: {
+      displayName: "Joynexa Tester",
+      bio: "Contact me at tester@example.com",
+      avatarKey: "star",
+      isPublic: true
+    },
+    cookie: login.cookie
+  });
+  assert.equal(rejectedContactProfile.response.status, 400);
+
   const publishedProfile = await call("/api/profile/me", {
     method: "PUT",
     body: {
