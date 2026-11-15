@@ -148,6 +148,61 @@ async function handle(request,env) {
   return json({games:result.results||[]},200,headers);
  }
 
+
+ // Joynexa Achievements: universal IDs are stored as text (not FK to legacy D1 users).
+ if(path==="/api/achievements/me"&&request.method==="GET") {
+  const user=await currentUser(request,env);
+  if(!user) return json({error:"Inicia sesión para consultar tus logros."},401,headers);
+  const result=await env.DB.prepare(
+   "SELECT a.code,a.title,a.description,a.points,a.earned_at,g.slug AS game_slug,g.title AS game_title FROM joynexa_user_achievements ua JOIN joynexa_achievement_defs a ON a.id=ua.achievement_id JOIN games g ON g.id=ua.game_id WHERE ua.user_id=? AND g.status='approved' ORDER BY ua.earned_at DESC LIMIT 200"
+  ).bind(user.id).all();
+  const total=(result.results||[]).reduce((sum,item)=>sum+Number(item.points||0),0);
+  return json({achievements:result.results||[],totalPoints:total},200,headers);
+ }
+ if(/^\/api\/developer\/games\/[a-z0-9-]{1,80}\/achievements$/i.test(path)&&request.method==="POST") {
+  const user=await currentUser(request,env);
+  if(!user) return json({error:"Inicia sesión como desarrollador."},401,headers);
+  const slug=path.split("/")[4];
+  const game=await env.DB.prepare("SELECT id FROM games WHERE slug=? AND developer_name=? AND status='approved' LIMIT 1").bind(slug,user.username).first();
+  if(!game) return json({error:"Solo puedes configurar logros de tus juegos aprobados."},404,headers);
+  const body=await request.json().catch(()=>null);
+  const code=String(body?.code||"").trim().toLowerCase();
+  const title=String(body?.title||"").trim();
+  const description=String(body?.description||"").trim();
+  const points=Number(body?.points??10);
+  if(!/^[a-z0-9_-]{2,40}$/.test(code)||title.length<2||title.length>60||description.length>180||!Number.isInteger(points)||points<0||points>1000)
+   return json({error:"Datos inválidos. Usa un código de 2-40 caracteres y puntos entre 0 y 1000."},400,headers);
+  const id=randomId(16);
+  await env.DB.prepare("INSERT INTO joynexa_achievement_defs (id,game_id,code,title,description,points) VALUES (?,?,?,?,?,?) ON CONFLICT(game_id,code) DO UPDATE SET title=excluded.title,description=excluded.description,points=excluded.points")
+   .bind(id,game.id,code,title,description,points).run();
+  return json({ok:true,code},201,headers);
+ }
+ if(/^\/api\/developer\/games\/[a-z0-9-]{1,80}\/sdk-key$/i.test(path)&&request.method==="POST") {
+  const user=await currentUser(request,env);
+  if(!user) return json({error:"Inicia sesión como desarrollador."},401,headers);
+  const slug=path.split("/")[4];
+  const game=await env.DB.prepare("SELECT id FROM games WHERE slug=? AND developer_name=? AND status='approved' LIMIT 1").bind(slug,user.username).first();
+  if(!game) return json({error:"Solo puedes generar claves para tus juegos aprobados."},404,headers);
+  const token="jn_game_"+randomId(32);
+  await env.DB.prepare("UPDATE joynexa_game_keys SET revoked_at=datetime('now') WHERE game_id=? AND revoked_at IS NULL").bind(game.id).run();
+  await env.DB.prepare("INSERT INTO joynexa_game_keys (id,game_id,owner_id,token_hash) VALUES (?,?,?,?)").bind(randomId(16),game.id,user.id,await digest(token)).run();
+  return json({ok:true,token,warning:"Esta clave se muestra una sola vez. Guárdala en el backend privado de tu juego; nunca la incluyas en HTML, JavaScript del navegador o repositorios públicos."},201,headers);
+ }
+ if(/^\/api\/sdk\/games\/[a-z0-9-]{1,80}\/achievements\/[a-z0-9_-]{2,40}$/i.test(path)&&request.method==="POST") {
+  const slug=path.split("/")[4],code=path.split("/")[6];
+  const auth=request.headers.get("authorization")||"";
+  const token=auth.startsWith("Bearer ")?auth.slice(7):"";
+  if(!token.startsWith("jn_game_")||token.length>100) return json({error:"Credencial de juego no válida."},401,headers);
+  const key=await env.DB.prepare("SELECT k.game_id FROM joynexa_game_keys k JOIN games g ON g.id=k.game_id WHERE k.token_hash=? AND k.revoked_at IS NULL AND g.slug=? AND g.status='approved' LIMIT 1").bind(await digest(token),slug).first();
+  if(!key) return json({error:"Credencial revocada o juego no disponible."},401,headers);
+  const body=await request.json().catch(()=>null),userId=String(body?.userId||"");
+  if(!/^[a-f0-9]{32}$/i.test(userId)) return json({error:"Se requiere un Joynexa ID válido."},400,headers);
+  const definition=await env.DB.prepare("SELECT id FROM joynexa_achievement_defs WHERE game_id=? AND code=?").bind(key.game_id,code).first();
+  if(!definition) return json({error:"Ese logro no está registrado para el juego."},404,headers);
+  const inserted=await env.DB.prepare("INSERT OR IGNORE INTO joynexa_user_achievements (user_id,game_id,achievement_id) VALUES (?,?,?)").bind(userId,key.game_id,definition.id).run();
+  return json({ok:true,awarded:Number(inserted.meta?.changes||0)>0,duplicate:Number(inserted.meta?.changes||0)===0},200,headers);
+ }
+
  if(path==="/api/favorites"&&request.method==="GET") {
   const user=await currentUser(request,env);
   if(!user) return json({error:"Inicia sesión para consultar tus favoritos."},401,headers);
