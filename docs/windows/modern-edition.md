@@ -35,6 +35,18 @@ The Lenovo ThinkPad Edge E430 in this repository is not an official Windows 11 t
 4. Establish an auditable, reversible configuration before implementing settings changes.
 5. Test on officially eligible physical hardware and a virtual machine before release.
 
+## Build planning
+
+The [Modern Build Planner](modern-build-planner.md) generates a JSON implementation plan for either Windows Home or Pro from the checked-in profile. It can run on Linux or Windows with Python's standard library:
+
+```bash
+python3 tools/windows/joynexa-modern-build-planner.py --check
+python3 tools/windows/joynexa-modern-build-planner.py --self-test
+python3 tools/windows/joynexa-modern-build-planner.py --edition Pro --output build/joynexa-modern-pro-plan.json
+```
+
+The planner is intentionally non-destructive: it does not download or alter Windows media, install drivers, activate Windows, or change device settings. CI validates the profile and tests plan generation for both Home and Pro. A generated plan is not an installer, an ISO, or evidence of hardware compatibility.
+
 ## Driver strategy
 
 - WinPE: inject only exact, signed, architecture-compatible drivers demonstrated to be required for setup, especially storage or USB paths.
