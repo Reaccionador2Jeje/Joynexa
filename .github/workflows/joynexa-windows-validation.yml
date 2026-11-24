@@ -1,0 +1,32 @@
+name: Joynexa Windows validation
+
+on:
+  push:
+    paths:
+      - "docs/windows/**"
+      - "tools/linux/**"
+      - "tools/validate-editions.py"
+      - ".github/workflows/joynexa-windows-validation.yml"
+  pull_request:
+    paths:
+      - "docs/windows/**"
+      - "tools/linux/**"
+      - "tools/validate-editions.py"
+      - ".github/workflows/joynexa-windows-validation.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+      - name: Validate edition manifest
+        run: python3 tools/validate-editions.py
+      - name: Check Linux audit script syntax
+        run: bash -n tools/linux/joynexa-audit.sh
+      - name: Check JSON syntax
+        run: python3 -m json.tool docs/windows/editions.json > /dev/null
