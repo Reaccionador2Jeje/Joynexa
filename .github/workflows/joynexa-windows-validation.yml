@@ -7,6 +7,7 @@ on:
       - "tools/linux/**"
       - "tools/windows/**"
       - "tools/validate-editions.py"
+      - "tools/validate-hardware-report.py"
       - ".github/workflows/joynexa-windows-validation.yml"
   pull_request:
     paths:
@@ -36,8 +37,13 @@ jobs:
       - name: Validate edition manifest
         run: python tools/validate-editions.py
 
-      - name: Compile Python validator
-        run: python -m py_compile tools/validate-editions.py
+      - name: Compile Python tools
+        run: python -m py_compile tools/validate-editions.py tools/linux/joynexa-audit.py tools/validate-hardware-report.py
+
+      - name: Generate and validate privacy-safe hardware report
+        run: |
+          python tools/linux/joynexa-audit.py > "$RUNNER_TEMP/joynexa-hardware-report.json"
+          python tools/validate-hardware-report.py "$RUNNER_TEMP/joynexa-hardware-report.json"
 
       - name: Check Linux audit script syntax
         run: bash -n tools/linux/joynexa-audit.sh
