@@ -70,6 +70,9 @@ Each edition inherits the requirements and lifecycle of its exact Windows base. 
 - [x] Define Joynexa Modern's initial Windows 11 26H2 x64 base and security boundaries.
 - [x] Add a read-only Windows readiness inventory for Modern.
 - [x] Add a safe, non-destructive Modern Build Planner with Home/Pro plan generation and CI self-tests.
+- [x] Add a strict Modern driver catalog with hardware-ID, build-range, SHA-256 metadata, and approval gates.
+- [x] Add a read-only Windows Authenticode catalog-signature verifier and CI checks.
+- [ ] Populate the driver catalog only with OEM packages whose hashes, signatures, and hardware tests are independently verified.
 - [ ] Build and test the first Modern prototype on officially eligible hardware.
 - [ ] Add release metadata, checksums, and download listing to the Workers site.
 
