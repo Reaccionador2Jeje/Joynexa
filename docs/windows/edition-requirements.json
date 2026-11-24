@@ -1,0 +1,100 @@
+{
+  "schema_version": 1,
+  "product": "Joynexa Windows",
+  "policy": "Each edition inherits the official requirements and lifecycle of its exact Windows base. Unknown is never a pass.",
+  "official_baselines": {
+    "windows_11": {
+      "sources": [
+        "https://learn.microsoft.com/en-gb/windows/whats-new/windows-11-requirements",
+        "https://learn.microsoft.com/en-us/windows-hardware/design/minimum/supported/windows-11-supported-intel-processors"
+      ],
+      "processor": {
+        "minimum_clock_ghz": 1,
+        "minimum_cores": 2,
+        "architecture": "compatible_64_bit",
+        "supported_processor_list_required": true
+      },
+      "memory_gb_minimum": 4,
+      "storage_gb_minimum": 64,
+      "graphics": {
+        "directx": "12_or_later",
+        "driver": "WDDM_2.0"
+      },
+      "firmware": {
+        "mode": "UEFI",
+        "secure_boot_capable": true
+      },
+      "tpm": "2.0",
+      "display": {
+        "resolution": "720p",
+        "minimum_diagonal_inches": 9
+      }
+    }
+  },
+  "editions": [
+    {
+      "id": "core",
+      "name": "Joynexa Core",
+      "focus": "Everyday use",
+      "inherits_windows_base_requirements": true,
+      "additional_requirements_status": "not_yet_defined"
+    },
+    {
+      "id": "play",
+      "name": "Joynexa Play",
+      "focus": "Gaming",
+      "inherits_windows_base_requirements": true,
+      "additional_requirements_status": "per_game_validation_required"
+    },
+    {
+      "id": "productivity",
+      "name": "Joynexa Productivity",
+      "focus": "Study and development",
+      "inherits_windows_base_requirements": true,
+      "additional_requirements_status": "toolchain_validation_required"
+    },
+    {
+      "id": "modern",
+      "name": "Joynexa Modern",
+      "focus": "Newer supported PCs",
+      "inherits_windows_base_requirements": true,
+      "additional_requirements_status": "modern_driver_validation_required"
+    },
+    {
+      "id": "retro",
+      "name": "Joynexa Retro",
+      "focus": "Older PCs with a supported Windows base",
+      "inherits_windows_base_requirements": true,
+      "additional_requirements_status": "hardware_and_driver_validation_required"
+    },
+    {
+      "id": "legacy",
+      "name": "Joynexa Legacy",
+      "focus": "Historical preservation",
+      "inherits_windows_base_requirements": true,
+      "additional_requirements_status": "preservation_only_unless_current_support_is_proven"
+    }
+  ],
+  "reference_device_assessment": {
+    "device": "Lenovo ThinkPad Edge E430",
+    "cpu": "Intel Core i5-2520M",
+    "windows_11": {
+      "processor": "unsupported",
+      "memory": "below_minimum",
+      "storage_capacity": "capacity_appears_sufficient_free_space_unknown",
+      "graphics": "unknown",
+      "firmware": "unknown",
+      "secure_boot": "unknown",
+      "tpm": "unknown",
+      "overall": "not_officially_eligible_based_on_processor"
+    }
+  },
+  "status_values": [
+    "unknown",
+    "meets_minimum",
+    "below_minimum",
+    "unsupported",
+    "tested_pass",
+    "tested_fail"
+  ]
+}
