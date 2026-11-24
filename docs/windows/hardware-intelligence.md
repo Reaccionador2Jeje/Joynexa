@@ -6,18 +6,18 @@ Hardware Intelligence is the inventory foundation for edition compatibility deci
 
 On the reference ThinkPad Edge E430 running Debian/NEXORA OS:
 
-\`\`\`bash
+```bash
 python3 tools/linux/joynexa-audit.py > joynexa-hardware-report.json
 python3 tools/validate-hardware-report.py joynexa-hardware-report.json
-\`\`\`
+```
 
-The collector uses Python's standard library and optional system utilities such as \`lscpu\`, \`lsblk\`, \`lspci\`, and \`mokutil\`. Missing utilities or unavailable firmware fields are reported as unknown or omitted rather than guessed.
+The collector uses Python's standard library and optional system utilities such as `lscpu`, `lsblk`, `lspci`, and `mokutil`. Missing utilities or unavailable firmware fields are reported as unknown or omitted rather than guessed.
 
 The existing human-readable audit remains available:
 
-\`\`\`bash
+```bash
 bash tools/linux/joynexa-audit.sh
-\`\`\`
+```
 
 ## Report contents
 
@@ -27,7 +27,7 @@ bash tools/linux/joynexa-audit.sh
 - Storage device model, capacity, type, and rotational indicator.
 - Graphics and network PCI device descriptions.
 - System and motherboard vendor/model plus BIOS version/date when exposed by firmware.
-- UEFI/legacy boot indication and Secure Boot state when \`mokutil\` is available.
+- UEFI/legacy boot indication and Secure Boot state when `mokutil` is available.
 
 ## Privacy
 
@@ -45,20 +45,21 @@ Inventory is evidence, not a compatibility verdict. Joynexa must not mark an edi
 
 Unknown values stay unknown. No unsupported CPU, TPM, Secure Boot, or installer checks are bypassed. The Legacy edition may document preservation options separately, but it must not be presented as a supported modern Windows installation.
 
+See the [Edition Requirements Matrix](edition-requirements-matrix.md) for the current Windows 11 baseline and the [E430 reference profile](reference-device-e430.md) for collected evidence.
+
 ## CI behavior
 
 GitHub Actions runs the collector on a temporary hosted Ubuntu runner and validates the JSON structure and privacy exclusions. That verifies the tool itself; it does **not** inventory the maintainer's ThinkPad. The reference-device report must be collected locally on the E430.
 
 ## Current reference-device status
 
-- Device: Lenovo ThinkPad Edge E430.
-- CPU family: Intel Core i5; exact model not yet recorded.
-- Hardware inventory: pending local collection.
-- Windows edition compatibility: not yet established.
+- Device: Lenovo ThinkPad Edge E430 (firmware product identifier 32543QS).
+- CPU: Intel Core i5-2520M @ 2.50 GHz, 2 cores / 4 logical processors.
+- RAM: 3,686,035,456 bytes (~3.43 GiB reported).
+- Main disk: 500 GB mechanical HDD.
+- Windows 11 CPU eligibility: unsupported by Microsoft's supported Intel processor list.
+- Windows 11 RAM: below the 4 GB minimum based on reported total memory.
+- Firmware, Secure Boot, TPM 2.0, and graphics driver capabilities: unknown or not verified.
+- Windows edition compatibility: not established; the device is not an official Windows 11 target.
 
-
-## First reference-device inventory
-
-The first local report from the Lenovo ThinkPad Edge E430 was collected on 2026-11-24. It identifies a Lenovo 32543QS system, 4 logical CPUs, approximately 3.43 GiB reported RAM, a 500 GB ST500LT012-1DG142 drive, Intel 2nd Generation integrated graphics, Broadcom BCM4313 Wi-Fi, Realtek gigabit Ethernet, and BIOS H0ET30WW (1.12). The exact CPU model, rotational storage flag, boot mode certainty, and Secure Boot state remain unresolved. See [the reference-device profile](reference-device-e430.md).
-
-The inventory collector now falls back to `/proc/cpuinfo` when localized `lscpu` output does not expose the expected English CPU labels, and checks sysfs for a missing rotational flag. Run `git pull` and recollect locally to verify whether those fields can be resolved on the reference machine.
+The local inventory was collected on 2026-11-24. See [the full reference-device profile](reference-device-e430.md).
