@@ -1,0 +1,53 @@
+{
+  "product": "Joynexa Windows",
+  "status": "prototype",
+  "referenceDevice": "Lenovo ThinkPad Edge E430 (Intel Core i5; exact SKU to be recorded)",
+  "editions": [
+    {
+      "id": "core",
+      "name": "Joynexa Core",
+      "focus": "Lightweight everyday Windows",
+      "releaseStatus": "planned"
+    },
+    {
+      "id": "play",
+      "name": "Joynexa Play",
+      "focus": "Gaming and responsiveness",
+      "releaseStatus": "planned"
+    },
+    {
+      "id": "productivity",
+      "name": "Joynexa Productivity",
+      "focus": "Study, development, and work",
+      "releaseStatus": "planned"
+    },
+    {
+      "id": "modern",
+      "name": "Joynexa Modern",
+      "focus": "Newer supported PC hardware",
+      "releaseStatus": "planned"
+    },
+    {
+      "id": "retro",
+      "name": "Joynexa Retro",
+      "focus": "Older PC support and compatible lightweight environments",
+      "releaseStatus": "planned"
+    },
+    {
+      "id": "legacy",
+      "name": "Joynexa Legacy",
+      "focus": "Historical hardware preservation and legacy compatibility",
+      "releaseStatus": "planned"
+    }
+  ],
+  "distribution": {
+    "repository": "GitHub Releases",
+    "website": "Joynexa Cloudflare Workers download page",
+    "requirements": [
+      "Publish only tested artifacts",
+      "Include SHA-256 checksums",
+      "Document architecture and requirements",
+      "Include release notes and recovery instructions"
+    ]
+  }
+}
