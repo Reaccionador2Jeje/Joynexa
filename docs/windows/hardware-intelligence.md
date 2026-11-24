@@ -55,3 +55,10 @@ GitHub Actions runs the collector on a temporary hosted Ubuntu runner and valida
 - CPU family: Intel Core i5; exact model not yet recorded.
 - Hardware inventory: pending local collection.
 - Windows edition compatibility: not yet established.
+
+
+## First reference-device inventory
+
+The first local report from the Lenovo ThinkPad Edge E430 was collected on 2026-11-24. It identifies a Lenovo 32543QS system, 4 logical CPUs, approximately 3.43 GiB reported RAM, a 500 GB ST500LT012-1DG142 drive, Intel 2nd Generation integrated graphics, Broadcom BCM4313 Wi-Fi, Realtek gigabit Ethernet, and BIOS H0ET30WW (1.12). The exact CPU model, rotational storage flag, boot mode certainty, and Secure Boot state remain unresolved. See [the reference-device profile](reference-device-e430.md).
+
+The inventory collector now falls back to `/proc/cpuinfo` when localized `lscpu` output does not expose the expected English CPU labels, and checks sysfs for a missing rotational flag. Run `git pull` and recollect locally to verify whether those fields can be resolved on the reference machine.
