@@ -1,16 +1,18 @@
-name: Joynexa Windows validation
+name: Joynexa cross-platform validation
 
 on:
   push:
     paths:
       - "docs/windows/**"
       - "tools/linux/**"
+      - "tools/windows/**"
       - "tools/validate-editions.py"
       - ".github/workflows/joynexa-windows-validation.yml"
   pull_request:
     paths:
       - "docs/windows/**"
       - "tools/linux/**"
+      - "tools/windows/**"
       - "tools/validate-editions.py"
       - ".github/workflows/joynexa-windows-validation.yml"
   workflow_dispatch:
@@ -18,15 +20,77 @@ on:
 permissions:
   contents: read
 
+concurrency:
+  group: joynexa-validation-\${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
-  validate:
+  linux-validation:
+    name: Linux validation
     runs-on: ubuntu-latest
     steps:
       - name: Check out repository
         uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.x"
+
       - name: Validate edition manifest
-        run: python3 tools/validate-editions.py
+        run: python tools/validate-editions.py
+
+      - name: Compile Python validator
+        run: python -m py_compile tools/validate-editions.py
+
       - name: Check Linux audit script syntax
         run: bash -n tools/linux/joynexa-audit.sh
+
       - name: Check JSON syntax
-        run: python3 -m json.tool docs/windows/editions.json > /dev/null
+        run: python -m json.tool docs/windows/editions.json > /dev/null
+
+  windows-validation:
+    name: Windows PowerShell validation
+    runs-on: windows-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Parse PowerShell script
+        shell: pwsh
+        run: |
+          $path = "tools/windows/Joynexa-Core.ps1"
+          $tokens = $null
+          $errors = $null
+          [System.Management.Automation.Language.Parser]::ParseFile(
+            (Join-Path $PWD $path),
+            [ref]$tokens,
+            [ref]$errors
+          ) | Out-Null
+
+          if ($errors.Count -gt 0) {
+            $errors | ForEach-Object { Write-Error $_.Message }
+            exit 1
+          }
+
+          Write-Host "PowerShell syntax is valid."
+
+      - name: Run PSScriptAnalyzer
+        shell: pwsh
+        run: |
+          Set-PSRepository -Name PSGallery -InstallationPolicy Trusted
+          Install-Module -Name PSScriptAnalyzer -Scope CurrentUser -Force
+          $results = Invoke-ScriptAnalyzer -Path "tools/windows/Joynexa-Core.ps1" -Severity Error
+          if ($results) {
+            $results | Format-Table -AutoSize | Out-String | Write-Host
+            throw "PSScriptAnalyzer reported errors."
+          }
+          Write-Host "PSScriptAnalyzer found no errors."
+
+      - name: Run read-only Windows audit
+        shell: powershell
+        run: |
+          & ".\tools\windows\Joynexa-Core.ps1" -Mode Audit
+          if ($LASTEXITCODE -and $LASTEXITCODE -ne 0) {
+            throw "Joynexa Core Audit failed."
+          }
