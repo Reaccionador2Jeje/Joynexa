@@ -1,0 +1,48 @@
+{
+  "schema_version": 1,
+  "edition": {
+    "id": "modern",
+    "name": "Joynexa Modern",
+    "status": "development",
+    "purpose": "Current Windows experience for officially supported newer PCs"
+  },
+  "base": {
+    "product": "Windows 11",
+    "version": "26H2",
+    "architecture": "x64",
+    "servicing_channel": "General Availability Channel",
+    "owner_selectable_editions": [
+      "Home",
+      "Pro"
+    ],
+    "media_source": "official_microsoft_media_supplied_by_user",
+    "redistribution_of_windows_media": false,
+    "support_lifecycle_source": "https://learn.microsoft.com/en-us/lifecycle/products/windows-11-home-and-pro",
+    "release_health_source": "https://learn.microsoft.com/en-us/windows/release-health/windows11-release-information"
+  },
+  "inherited_requirements": "official_windows_11_26h2_requirements",
+  "security_and_servicing": {
+    "windows_update": "enabled",
+    "microsoft_defender": "enabled",
+    "firewall": "enabled",
+    "uac": "enabled",
+    "recovery": "preserved",
+    "driver_signature_enforcement": "enabled",
+    "plug_and_play": "enabled"
+  },
+  "driver_policy": {
+    "winpe": "inject_only_exact_signed_drivers_proven_required_for_setup",
+    "installed_windows": "windows_pnp_windows_update_and_curated_signed_oem_inf_packages",
+    "allow_unsigned": false,
+    "disable_security_to_install": false,
+    "hardware_id_matching_required": true,
+    "package_hash_and_signature_record_required": true
+  },
+  "joynexa_requirements_status": "not_yet_defined_pending_tests",
+  "release_status": "not_released",
+  "reference_device_exclusion": {
+    "device": "Lenovo ThinkPad Edge E430",
+    "reason": "Intel Core i5-2520M is not on Microsoft's supported Windows 11 processor list; reported RAM is below 4 GB minimum",
+    "official_windows_11_target": false
+  }
+}
