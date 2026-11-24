@@ -149,7 +149,7 @@ def self_test() -> None:
             "vendor": "Example OEM",
             "device": "Example Storage Controller",
             "hardware_ids": [r"PCI\VEN_1234&DEV_ABCD"],
-            "compatibility": {"architecture": "x64", "minimum_build": 26000, "maximum_build": 26999},
+            "compatibility": {"architecture": "x64", "minimum_build": 1, "maximum_build": 99999},
             "package_source": "https://vendor.example/driver-package",
             "catalog_file": "example.cat",
             "package_files": [{"path": "example.cat", "sha256": "a" * 64}],
