@@ -31,29 +31,38 @@ No edition is considered released until a build has been tested, its requirement
 4. Never promise a universal RAM footprint or performance gain without measurements.
 5. Publish architecture, minimum requirements, known issues, SHA-256 checksums, and rollback instructions for every release.
 6. Separate supported Windows builds from DOS, emulator, preservation, and other historical-hardware projects.
+7. Treat official OS requirements and Joynexa recommendations as separate facts; unknown hardware values never count as a pass.
 
 ## First reference device
 
-**Lenovo ThinkPad Edge E430 — Intel Core i5**
+**Lenovo ThinkPad Edge E430 — Intel Core i5-2520M**
 
-The E430 is the first reference device for Joynexa Windows development. Exact processor, RAM, storage, firmware mode, graphics, and Windows compatibility must be recorded before choosing a base image or publishing requirements.
+The first local inventory is recorded in [the E430 hardware profile](reference-device-e430.md). The processor is not on Microsoft's supported Windows 11 Intel processor list, and reported RAM is below the Windows 11 minimum. Other Windows 11 requirements remain partly unknown. This device is not an official Windows 11 target.
+
+## Requirements
+
+The [Edition Requirements Matrix](edition-requirements-matrix.md) documents the Windows 11 baseline, the six editions' inheritance policy, and the first reference-device assessment. Its structured companion is [edition-requirements.json](edition-requirements.json).
+
+Each edition inherits the requirements and lifecycle of its exact Windows base. Edition branding cannot make an unsupported processor, firmware configuration, or driver stack officially supported.
 
 ## Initial roadmap
 
 - [x] Define the six official editions.
 - [x] Establish the universal-but-hardware-specific compatibility policy.
 - [x] Identify the ThinkPad Edge E430 as the first reference device.
-- [x] Collect the first local E430 hardware inventory; exact CPU SKU and firmware security state remain unknown.
+- [x] Collect the first local E430 hardware inventory.
 - [x] Add a read-only Debian/Linux hardware audit for maintainers.
 - [x] Add structured JSON hardware inventory and privacy validation.
-- [x] Record the first ThinkPad E430 hardware report in `docs/windows/reference-device-e430.md`.
+- [x] Record the first ThinkPad E430 hardware report and confirmed CPU/storage details.
 - [x] Improve CPU identity and storage rotational-state fallbacks in the Linux collector.
 - [x] Add edition-manifest validation and GitHub Actions checks.
+- [x] Create the first official Windows requirements matrix and structured baseline.
+- [ ] Define Joynexa minimum/recommended specifications for each edition based on a selected Windows base and measured tests.
 - [ ] Create a safe, reversible optimization profile.
 - [ ] Measure baseline and optimized boot time, idle memory, and responsiveness.
-- [ ] Build and test the first Core/Modern prototype.
+- [ ] Build and test the first Core/Modern prototype on officially eligible hardware.
 - [ ] Add release metadata, checksums, and download listing to the Workers site.
 
 ## Status
 
-**Development tooling — early prototype.** Debian/Linux text and JSON audit tooling, privacy validation, cross-platform repository checks, and the first local ThinkPad E430 inventory are available. Exact CPU SKU and Windows compatibility remain unverified. The Windows profile remains untested on a Windows installation; no bootable installer or downloadable ISO has been built.
+**Development tooling — early prototype.** Debian/Linux text and JSON audit tooling, privacy validation, cross-platform repository checks, the first local ThinkPad E430 inventory, and an initial Windows 11 requirements matrix are available. The E430 is not officially eligible for Windows 11 based on its CPU. No Windows profile has been validated on a Windows installation; no bootable installer or downloadable ISO has been built.
