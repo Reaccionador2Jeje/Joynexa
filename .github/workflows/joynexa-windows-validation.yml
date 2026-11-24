@@ -37,8 +37,16 @@ jobs:
         run: python tools/validate-editions.py
       - name: Validate requirements matrix
         run: python tools/validate-requirements.py
+      - name: Validate Modern build planner
+        run: |
+          python tools/windows/joynexa-modern-build-planner.py --check
+          python tools/windows/joynexa-modern-build-planner.py --self-test
+          python tools/windows/joynexa-modern-build-planner.py --edition Home --output "$RUNNER_TEMP/joynexa-modern-home-plan.json"
+          python tools/windows/joynexa-modern-build-planner.py --edition Pro --output "$RUNNER_TEMP/joynexa-modern-pro-plan.json"
+          python -m json.tool "$RUNNER_TEMP/joynexa-modern-home-plan.json" > /dev/null
+          python -m json.tool "$RUNNER_TEMP/joynexa-modern-pro-plan.json" > /dev/null
       - name: Compile Python tools
-        run: python -m py_compile tools/validate-editions.py tools/linux/joynexa-audit.py tools/validate-hardware-report.py tools/validate-requirements.py
+        run: python -m py_compile tools/validate-editions.py tools/linux/joynexa-audit.py tools/validate-hardware-report.py tools/validate-requirements.py tools/windows/joynexa-modern-build-planner.py
       - name: Generate and validate privacy-safe hardware report
         run: |
           python tools/linux/joynexa-audit.py > "$RUNNER_TEMP/joynexa-hardware-report.json"
