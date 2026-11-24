@@ -35,7 +35,7 @@ No edition is considered released until a build has been tested, its requirement
 
 ## Active development: Joynexa Modern
 
-Joynexa Modern is the first active edition. Its initial base is Windows 11 26H2 x64, using official Microsoft media supplied by the device owner. See [Modern edition specification](modern-edition.md) and [Modern profile](modern-profile.json). The first read-only Windows readiness inventory is `tools/windows/Test-JoynexaModernReadiness.ps1`. It does not bypass or certify Windows requirements.
+Joynexa Modern is the first active edition. Its initial base is Windows 11 26H2 x64, using official Microsoft media supplied by the device owner. See [Modern edition specification](modern-edition.md), [Modern profile](modern-profile.json), and [Modern Build Planner](modern-build-planner.md). The read-only Windows readiness inventory is `tools/windows/Test-JoynexaModernReadiness.ps1`; the Linux/Windows-compatible planning tool is `tools/windows/joynexa-modern-build-planner.py`. Neither bypasses or certifies Windows requirements. The planner creates a JSON plan only; it does not build or modify installation media.
 
 ## First reference device
 
@@ -69,9 +69,10 @@ Each edition inherits the requirements and lifecycle of its exact Windows base. 
 - [ ] Measure baseline and optimized boot time, idle memory, and responsiveness.
 - [x] Define Joynexa Modern's initial Windows 11 26H2 x64 base and security boundaries.
 - [x] Add a read-only Windows readiness inventory for Modern.
+- [x] Add a safe, non-destructive Modern Build Planner with Home/Pro plan generation and CI self-tests.
 - [ ] Build and test the first Modern prototype on officially eligible hardware.
 - [ ] Add release metadata, checksums, and download listing to the Workers site.
 
 ## Status
 
-**Development tooling — early prototype.** Debian/Linux text and JSON audit tooling, privacy validation, cross-platform repository checks, the first local ThinkPad E430 inventory, an initial Windows 11 requirements matrix, a matrix validator, and a local signed-driver staging script are available. The E430 is not officially eligible for Windows 11 based on its CPU. No Windows profile has been validated on a Windows installation; no bootable installer or downloadable ISO has been built.
+**Development tooling — early prototype.** Debian/Linux text and JSON audit tooling, privacy validation, cross-platform repository checks, the first local ThinkPad E430 inventory, an initial Windows 11 requirements matrix, a matrix validator, the Modern Build Planner, and a local signed-driver staging script are available. The E430 is not officially eligible for Windows 11 based on its CPU. No Windows profile has been validated on a Windows installation; no bootable installer or downloadable ISO has been built.
