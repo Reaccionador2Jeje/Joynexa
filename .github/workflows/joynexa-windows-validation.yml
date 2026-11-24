@@ -45,8 +45,12 @@ jobs:
           python tools/windows/joynexa-modern-build-planner.py --edition Pro --output "$RUNNER_TEMP/joynexa-modern-pro-plan.json"
           python -m json.tool "$RUNNER_TEMP/joynexa-modern-home-plan.json" > /dev/null
           python -m json.tool "$RUNNER_TEMP/joynexa-modern-pro-plan.json" > /dev/null
+      - name: Validate Modern driver catalog
+        run: |
+          python tools/windows/joynexa-driver-catalog.py --check
+          python tools/windows/joynexa-driver-catalog.py --self-test
       - name: Compile Python tools
-        run: python -m py_compile tools/validate-editions.py tools/linux/joynexa-audit.py tools/validate-hardware-report.py tools/validate-requirements.py tools/windows/joynexa-modern-build-planner.py
+        run: python -m py_compile tools/validate-editions.py tools/linux/joynexa-audit.py tools/validate-hardware-report.py tools/validate-requirements.py tools/windows/joynexa-modern-build-planner.py tools/windows/joynexa-driver-catalog.py
       - name: Generate and validate privacy-safe hardware report
         run: |
           python tools/linux/joynexa-audit.py > "$RUNNER_TEMP/joynexa-hardware-report.json"
@@ -67,7 +71,7 @@ jobs:
       - name: Parse PowerShell scripts
         shell: powershell
         run: |
-          $paths = @("tools/windows/Joynexa-Core.ps1", "tools/windows/Install-JoynexaDrivers.ps1", "tools/windows/Test-JoynexaModernReadiness.ps1")
+          $paths = @("tools/windows/Joynexa-Core.ps1", "tools/windows/Install-JoynexaDrivers.ps1", "tools/windows/Test-JoynexaModernReadiness.ps1", "tools/windows/Test-JoynexaDriverCatalogSignature.ps1")
           foreach ($path in $paths) {
             $tokens = $null
             $errors = $null
