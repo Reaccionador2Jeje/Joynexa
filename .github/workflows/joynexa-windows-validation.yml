@@ -8,6 +8,7 @@ on:
       - "tools/windows/**"
       - "tools/validate-editions.py"
       - "tools/validate-hardware-report.py"
+      - "tools/validate-requirements.py"
       - ".github/workflows/joynexa-windows-validation.yml"
   pull_request:
     paths:
@@ -15,6 +16,8 @@ on:
       - "tools/linux/**"
       - "tools/windows/**"
       - "tools/validate-editions.py"
+      - "tools/validate-hardware-report.py"
+      - "tools/validate-requirements.py"
       - ".github/workflows/joynexa-windows-validation.yml"
   workflow_dispatch:
 
@@ -37,8 +40,11 @@ jobs:
       - name: Validate edition manifest
         run: python tools/validate-editions.py
 
+      - name: Validate requirements matrix
+        run: python tools/validate-requirements.py
+
       - name: Compile Python tools
-        run: python -m py_compile tools/validate-editions.py tools/linux/joynexa-audit.py tools/validate-hardware-report.py
+        run: python -m py_compile tools/validate-editions.py tools/linux/joynexa-audit.py tools/validate-hardware-report.py tools/validate-requirements.py
 
       - name: Generate and validate privacy-safe hardware report
         run: |
@@ -49,7 +55,9 @@ jobs:
         run: bash -n tools/linux/joynexa-audit.sh
 
       - name: Check JSON syntax
-        run: python -m json.tool docs/windows/editions.json > /dev/null
+        run: |
+          python -m json.tool docs/windows/editions.json > /dev/null
+          python -m json.tool docs/windows/edition-requirements.json > /dev/null
 
   windows-validation:
     name: Windows PowerShell validation
@@ -58,23 +66,27 @@ jobs:
       - name: Check out repository
         uses: actions/checkout@v4
 
-      - name: Parse PowerShell script
+      - name: Parse PowerShell scripts
         shell: powershell
         run: |
-          $path = "tools/windows/Joynexa-Core.ps1"
-          $tokens = $null
-          $errors = $null
-          [System.Management.Automation.Language.Parser]::ParseFile(
-            (Join-Path $PWD $path),
-            [ref]$tokens,
-            [ref]$errors
-          ) | Out-Null
+          $paths = @(
+            "tools/windows/Joynexa-Core.ps1",
+            "tools/windows/Install-JoynexaDrivers.ps1"
+          )
+          foreach ($path in $paths) {
+            $tokens = $null
+            $errors = $null
+            [System.Management.Automation.Language.Parser]::ParseFile(
+              (Join-Path $PWD $path),
+              [ref]$tokens,
+              [ref]$errors
+            ) | Out-Null
 
-          if ($errors.Count -gt 0) {
-            $errors | ForEach-Object { Write-Error $_.Message }
-            exit 1
+            if ($errors.Count -gt 0) {
+              $errors | ForEach-Object { Write-Error $_.Message }
+              exit 1
+            }
           }
-
           Write-Host "PowerShell syntax is valid."
 
       - name: Run PSScriptAnalyzer
@@ -82,10 +94,16 @@ jobs:
         run: |
           Set-PSRepository -Name PSGallery -InstallationPolicy Trusted
           Install-Module -Name PSScriptAnalyzer -Scope CurrentUser -Force
-          $results = Invoke-ScriptAnalyzer -Path "tools/windows/Joynexa-Core.ps1" -Severity Error
-          if ($results) {
-            $results | Format-Table -AutoSize | Out-String | Write-Host
-            throw "PSScriptAnalyzer reported errors."
+          $paths = @(
+            "tools/windows/Joynexa-Core.ps1",
+            "tools/windows/Install-JoynexaDrivers.ps1"
+          )
+          foreach ($path in $paths) {
+            $results = Invoke-ScriptAnalyzer -Path $path -Severity Error
+            if ($results) {
+              $results | Format-Table -AutoSize | Out-String | Write-Host
+              throw "PSScriptAnalyzer reported errors in $path."
+            }
           }
           Write-Host "PSScriptAnalyzer found no errors."
 
