@@ -1,12 +1,12 @@
 {
   "product": "Joynexa Windows",
   "status": "prototype",
-  "referenceDevice": "Lenovo ThinkPad Edge E430 (Intel Core i5; exact SKU to be recorded)",
+  "referenceDevice": "Lenovo ThinkPad Edge E430 (Intel Core i5-2520M; not an official Windows 11 target)",
   "editions": [
     {
       "id": "core",
       "name": "Joynexa Core",
-      "focus": "Lightweight everyday Windows",
+      "focus": "Lean everyday Windows",
       "releaseStatus": "planned"
     },
     {
@@ -24,8 +24,9 @@
     {
       "id": "modern",
       "name": "Joynexa Modern",
-      "focus": "Newer supported PC hardware",
-      "releaseStatus": "planned"
+      "focus": "Windows 11 26H2 x64 for officially supported newer PCs",
+      "windowsBase": "Windows 11 26H2 x64",
+      "releaseStatus": "development"
     },
     {
       "id": "retro",
