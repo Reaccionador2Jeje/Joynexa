@@ -86,7 +86,13 @@ function Set-UserPreference([string]$Path, [string]$Name, [string]$Value) {
     if (-not (Test-Path $registryPath)) {
         New-Item -Path $registryPath -Force | Out-Null
     }
-    New-ItemProperty -Path $registryPath -Name $Name -PropertyType DWord -Value ([int]$Value) -Force | Out-Null
+    if ($Name -eq 'MinAnimate') {
+        # MinAnimate is a REG_SZ value in Windows, not a DWORD.
+        New-ItemProperty -Path $registryPath -Name $Name -PropertyType String -Value $Value -Force | Out-Null
+    }
+    else {
+        New-ItemProperty -Path $registryPath -Name $Name -PropertyType DWord -Value ([int]$Value) -Force | Out-Null
+    }
 }
 
 switch ($Mode) {
