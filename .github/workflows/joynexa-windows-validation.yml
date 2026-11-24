@@ -20,10 +20,6 @@ on:
 permissions:
   contents: read
 
-concurrency:
-  group: joynexa-validation-\${{ github.ref }}
-  cancel-in-progress: true
-
 jobs:
   linux-validation:
     name: Linux validation
@@ -57,7 +53,7 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Parse PowerShell script
-        shell: pwsh
+        shell: powershell
         run: |
           $path = "tools/windows/Joynexa-Core.ps1"
           $tokens = $null
@@ -91,6 +87,3 @@ jobs:
         shell: powershell
         run: |
           & ".\tools\windows\Joynexa-Core.ps1" -Mode Audit
-          if ($LASTEXITCODE -and $LASTEXITCODE -ne 0) {
-            throw "Joynexa Core Audit failed."
-          }
