@@ -35,7 +35,7 @@ No edition is considered released until a build has been tested, its requirement
 
 ## Active development: Joynexa Modern
 
-Joynexa Modern is the first active edition. Its initial base is Windows 11 26H2 x64, using official Microsoft media supplied by the device owner. See [Modern edition specification](modern-edition.md), [Modern profile](modern-profile.json), and [Modern Build Planner](modern-build-planner.md). The read-only Windows readiness inventory is `tools/windows/Test-JoynexaModernReadiness.ps1`; the Linux/Windows-compatible planning tool is `tools/windows/joynexa-modern-build-planner.py`. Neither bypasses or certifies Windows requirements. The planner creates a JSON plan only; it does not build or modify installation media.
+Joynexa Modern is the first active edition. Its initial base is Windows 11 26H2 x64, using official Microsoft media supplied by the device owner. See [Modern edition specification](modern-edition.md), [Modern profile](modern-profile.json), and [Modern Build Planner](modern-build-planner.md). The read-only Windows readiness inventory is `tools/windows/Test-JoynexaModernReadiness.ps1`; the Linux/Windows-compatible planning tool is `tools/windows/joynexa-modern-build-planner.py`. Neither bypasses or certifies Windows requirements. The planner creates a JSON plan only; it does not build or modify installation media. Driver catalog validation and hash checks are provided by `tools/windows/joynexa-driver-catalog.py`; the read-only Windows catalog signature check is `tools/windows/Test-JoynexaDriverCatalogSignature.ps1`. See [Modern Driver Intelligence](modern-driver-intelligence.md) and the [driver catalog](modern-driver-catalog.json).
 
 ## First reference device
 
