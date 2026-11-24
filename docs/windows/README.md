@@ -11,7 +11,7 @@ Joynexa Windows is AtDev's hardware-conscious Windows customization project: a l
 | **Core** | Lean everyday Windows configuration with optional, reversible tuning. |
 | **Play** | Gaming-oriented configuration focused on responsiveness without disabling security essentials. |
 | **Productivity** | Study, development, and work tools with a practical, uncluttered setup. |
-| **Modern** | Primary track for newer supported PCs and current Windows bases. |
+| **Modern** | First active edition: Windows 11 26H2 x64 for officially supported newer PCs. |
 | **Retro** | Carefully scoped support and tools for older PCs that can run a supported Windows base. |
 | **Legacy** | Historical hardware documentation, preservation tools, and compatible legacy environments. Not necessarily a Windows image for every machine. |
 
@@ -32,6 +32,10 @@ No edition is considered released until a build has been tested, its requirement
 5. Publish architecture, minimum requirements, known issues, SHA-256 checksums, and rollback instructions for every release.
 6. Separate supported Windows builds from DOS, emulator, preservation, and other historical-hardware projects.
 7. Treat official OS requirements and Joynexa recommendations as separate facts; unknown hardware values never count as a pass.
+
+## Active development: Joynexa Modern
+
+Joynexa Modern is the first active edition. Its initial base is Windows 11 26H2 x64, using official Microsoft media supplied by the device owner. See [Modern edition specification](modern-edition.md) and [Modern profile](modern-profile.json). The first read-only Windows readiness inventory is `tools/windows/Test-JoynexaModernReadiness.ps1`. It does not bypass or certify Windows requirements.
 
 ## First reference device
 
@@ -63,7 +67,9 @@ Each edition inherits the requirements and lifecycle of its exact Windows base. 
 - [ ] Build the WinPE driver injection and hardware-ID matching pipeline; validate OEM packages and test setup media.
 - [ ] Create a safe, reversible optimization profile.
 - [ ] Measure baseline and optimized boot time, idle memory, and responsiveness.
-- [ ] Build and test the first Core/Modern prototype on officially eligible hardware.
+- [x] Define Joynexa Modern's initial Windows 11 26H2 x64 base and security boundaries.
+- [x] Add a read-only Windows readiness inventory for Modern.
+- [ ] Build and test the first Modern prototype on officially eligible hardware.
 - [ ] Add release metadata, checksums, and download listing to the Workers site.
 
 ## Status
