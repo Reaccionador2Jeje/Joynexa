@@ -43,9 +43,11 @@ The E430 is the first reference device for Joynexa Windows development. Exact pr
 - [x] Define the six official editions.
 - [x] Establish the universal-but-hardware-specific compatibility policy.
 - [x] Identify the ThinkPad Edge E430 as the first reference device.
-- [ ] Inventory the E430 hardware and current operating system (local collection still required).
+- [x] Collect the first local E430 hardware inventory; exact CPU SKU and firmware security state remain unknown.
 - [x] Add a read-only Debian/Linux hardware audit for maintainers.
 - [x] Add structured JSON hardware inventory and privacy validation.
+- [x] Record the first ThinkPad E430 hardware report in `docs/windows/reference-device-e430.md`.
+- [x] Improve CPU identity and storage rotational-state fallbacks in the Linux collector.
 - [x] Add edition-manifest validation and GitHub Actions checks.
 - [ ] Create a safe, reversible optimization profile.
 - [ ] Measure baseline and optimized boot time, idle memory, and responsiveness.
@@ -54,4 +56,4 @@ The E430 is the first reference device for Joynexa Windows development. Exact pr
 
 ## Status
 
-**Development tooling — early prototype.** Debian/Linux text and JSON audit tooling, privacy validation, and cross-platform repository checks are available. The Windows profile remains untested on a Windows installation; no bootable installer or downloadable ISO has been built.
+**Development tooling — early prototype.** Debian/Linux text and JSON audit tooling, privacy validation, cross-platform repository checks, and the first local ThinkPad E430 inventory are available. Exact CPU SKU and Windows compatibility remain unverified. The Windows profile remains untested on a Windows installation; no bootable installer or downloadable ISO has been built.
