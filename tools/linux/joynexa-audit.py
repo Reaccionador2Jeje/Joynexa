@@ -49,6 +49,23 @@ def lscpu_values() -> dict[str, str]:
     return values
 
 
+def cpu_fallback_values() -> dict[str, str | None]:
+    """Read CPU identity from /proc/cpuinfo when lscpu labels are localized."""
+    text = read_text("/proc/cpuinfo") or ""
+    values: dict[str, str | None] = {"model": None, "vendor": None}
+    for line in text.splitlines():
+        if ":" not in line:
+            continue
+        key, value = (part.strip() for part in line.split(":", 1))
+        if key == "model name" and not values["model"]:
+            values["model"] = value
+        elif key == "vendor_id" and not values["vendor"]:
+            values["vendor"] = value
+        if values["model"] and values["vendor"]:
+            break
+    return values
+
+
 def memory_values() -> dict[str, int | None]:
     values: dict[str, int | None] = {"total_bytes": None, "available_bytes": None}
     for line in (read_text("/proc/meminfo") or "").splitlines():
@@ -66,17 +83,25 @@ def storage_devices() -> list[dict[str, Any]]:
         devices = json.loads(raw).get("blockdevices", [])
     except (json.JSONDecodeError, AttributeError):
         return []
-    return [
-        {
-            "device": item.get("name"),
+    result = []
+    for item in devices:
+        if not isinstance(item, dict):
+            continue
+        name = item.get("name")
+        rota = item.get("rota")
+        rotational = bool(int(rota)) if str(rota).isdigit() else None
+        if rotational is None and name:
+            sys_value = read_text(f"/sys/block/{name}/queue/rotational")
+            if sys_value in {"0", "1"}:
+                rotational = sys_value == "1"
+        result.append({
+            "device": name,
             "size_bytes": int(item["size"]) if str(item.get("size", "")).isdigit() else None,
             "type": item.get("type"),
-            "rotational": bool(int(item["rota"])) if str(item.get("rota", "")).isdigit() else None,
+            "rotational": rotational,
             "model": item.get("model"),
-        }
-        for item in devices
-        if isinstance(item, dict)
-    ]
+        })
+    return result
 
 
 def pci_devices() -> list[dict[str, str]]:
@@ -103,6 +128,7 @@ def secure_boot_state() -> str:
 
 def main() -> None:
     cpu = lscpu_values()
+    cpu_fallback = cpu_fallback_values()
     os_name, os_version = os_release()
     report = {
         "schema_version": 1,
@@ -114,8 +140,8 @@ def main() -> None:
             "architecture": platform.machine(),
         },
         "cpu": {
-            "model": cpu.get("Model name"),
-            "vendor": cpu.get("Vendor ID"),
+            "model": cpu.get("Model name") or cpu_fallback["model"],
+            "vendor": cpu.get("Vendor ID") or cpu_fallback["vendor"],
             "logical_cpus": int(cpu["CPU(s)"]) if cpu.get("CPU(s)", "").isdigit() else None,
             "cores_per_socket": int(cpu["Core(s) per socket"]) if cpu.get("Core(s) per socket", "").isdigit() else None,
             "sockets": int(cpu["Socket(s)"]) if cpu.get("Socket(s)", "").isdigit() else None,
