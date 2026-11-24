@@ -56,9 +56,10 @@
     {
       "id": "modern",
       "name": "Joynexa Modern",
-      "focus": "Newer supported PCs",
+      "focus": "Windows 11 26H2 x64 for officially supported newer PCs",
       "inherits_windows_base_requirements": true,
-      "additional_requirements_status": "modern_driver_validation_required"
+      "additional_requirements_status": "not_yet_defined_pending_tests",
+      "windows_base": "windows_11_26h2_x64"
     },
     {
       "id": "retro",
