@@ -62,6 +62,7 @@ jobs:
           python -m json.tool docs/windows/editions.json > /dev/null
           python -m json.tool docs/windows/edition-requirements.json > /dev/null
           python -m json.tool docs/windows/modern-profile.json > /dev/null
+          python -m json.tool docs/windows/modern-driver-catalog.json > /dev/null
 
   windows-validation:
     name: Windows PowerShell validation
@@ -84,7 +85,7 @@ jobs:
         run: |
           Set-PSRepository -Name PSGallery -InstallationPolicy Trusted
           Install-Module -Name PSScriptAnalyzer -Scope CurrentUser -Force
-          $paths = @("tools/windows/Joynexa-Core.ps1", "tools/windows/Install-JoynexaDrivers.ps1", "tools/windows/Test-JoynexaModernReadiness.ps1")
+          $paths = @("tools/windows/Joynexa-Core.ps1", "tools/windows/Install-JoynexaDrivers.ps1", "tools/windows/Test-JoynexaModernReadiness.ps1", "tools/windows/Test-JoynexaDriverCatalogSignature.ps1")
           foreach ($path in $paths) {
             $results = Invoke-ScriptAnalyzer -Path $path -Severity Error
             if ($results) { $results | Format-Table -AutoSize | Out-String | Write-Host; throw "PSScriptAnalyzer reported errors in $path." }
