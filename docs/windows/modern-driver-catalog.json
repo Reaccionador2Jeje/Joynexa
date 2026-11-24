@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "catalog_id": "joynexa-modern-drivers",
+  "status": "curated_catalog_in_development",
+  "target": {
+    "windows_product": "Windows 11",
+    "windows_version": "26H2",
+    "architecture": "x64"
+  },
+  "entries": []
+}
