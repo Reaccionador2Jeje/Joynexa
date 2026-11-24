@@ -41,7 +41,7 @@ The first local inventory is recorded in [the E430 hardware profile](reference-d
 
 ## Requirements
 
-The [Edition Requirements Matrix](edition-requirements-matrix.md) documents the Windows 11 baseline, the six editions' inheritance policy, and the first reference-device assessment. Its structured companion is [edition-requirements.json](edition-requirements.json).
+The [Edition Requirements Matrix](edition-requirements-matrix.md) documents the Windows 11 baseline, the six editions' inheritance policy, and the first reference-device assessment. Its structured companion is [edition-requirements.json](edition-requirements.json). The matrix is checked automatically by `tools/validate-requirements.py` in CI.
 
 Each edition inherits the requirements and lifecycle of its exact Windows base. Edition branding cannot make an unsupported processor, firmware configuration, or driver stack officially supported.
 
@@ -57,7 +57,10 @@ Each edition inherits the requirements and lifecycle of its exact Windows base. 
 - [x] Improve CPU identity and storage rotational-state fallbacks in the Linux collector.
 - [x] Add edition-manifest validation and GitHub Actions checks.
 - [x] Create the first official Windows requirements matrix and structured baseline.
+- [x] Add automated requirements-matrix validation to CI.
+- [x] Define separate WinPE and installed-Windows driver handling; add a signed local INF staging script.
 - [ ] Define Joynexa minimum/recommended specifications for each edition based on a selected Windows base and measured tests.
+- [ ] Build the WinPE driver injection and hardware-ID matching pipeline; validate OEM packages and test setup media.
 - [ ] Create a safe, reversible optimization profile.
 - [ ] Measure baseline and optimized boot time, idle memory, and responsiveness.
 - [ ] Build and test the first Core/Modern prototype on officially eligible hardware.
@@ -65,4 +68,4 @@ Each edition inherits the requirements and lifecycle of its exact Windows base. 
 
 ## Status
 
-**Development tooling — early prototype.** Debian/Linux text and JSON audit tooling, privacy validation, cross-platform repository checks, the first local ThinkPad E430 inventory, and an initial Windows 11 requirements matrix are available. The E430 is not officially eligible for Windows 11 based on its CPU. No Windows profile has been validated on a Windows installation; no bootable installer or downloadable ISO has been built.
+**Development tooling — early prototype.** Debian/Linux text and JSON audit tooling, privacy validation, cross-platform repository checks, the first local ThinkPad E430 inventory, an initial Windows 11 requirements matrix, a matrix validator, and a local signed-driver staging script are available. The E430 is not officially eligible for Windows 11 based on its CPU. No Windows profile has been validated on a Windows installation; no bootable installer or downloadable ISO has been built.
