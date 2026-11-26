@@ -1,14 +1,6 @@
 name: Deploy Joynexa Website
 
 on:
-  push:
-    branches:
-      - main
-    paths:
-      - "public/**"
-      - "src/**"
-      - "wrangler.toml"
-      - ".github/workflows/deploy-joynexa.yml"
   workflow_dispatch:
 
 permissions:
