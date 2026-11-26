@@ -1,0 +1,42 @@
+name: Joynexa Windows Release
+on:
+  push:
+    tags:
+      - "windows-v*"
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  package:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.x"
+      - name: Validate and build six edition setup kits
+        run: |
+          python tools/windows/joynexa-setup-engine.py --check
+          python tools/windows/joynexa-setup-engine.py --self-test
+          mkdir -p dist/windows
+          for edition in core play productivity modern retro legacy; do
+            python tools/windows/joynexa-setup-engine.py --edition "$edition" --output "dist/windows/joynexa-$edition-setup.zip"
+          done
+      - name: Generate SHA-256 checksums
+        run: |
+          cd dist/windows
+          sha256sum *.zip > SHA256SUMS
+      - name: Publish Joynexa Windows release
+        if: startsWith(github.ref, 'refs/tags/windows-v')
+        uses: softprops/action-gh-release@v2
+        with:
+          name: Joynexa Windows ${{ github.ref_name }}
+          body: |
+            Joynexa Windows setup and personalization kits.
+
+            These ZIP files do not contain Windows installation media, a Windows license, or an ISO.
+            Obtain Windows installation media directly from Microsoft and follow its license and hardware requirements.
+            Verify downloaded files with SHA256SUMS before use.
+          files: |
+            dist/windows/*.zip
+            dist/windows/SHA256SUMS
