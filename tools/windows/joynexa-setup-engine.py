@@ -57,8 +57,8 @@ try {
 
 $personalization = 'HKCU:\Software\Microsoft\Windows\CurrentVersion\Themes\Personalize'
 New-Item -Path $personalization -Force | Out-Null
-Set-ItemProperty -Path $personalization -Name SystemUsesLightTheme -Type DWord -Value 0
-Set-ItemProperty -Path $personalization -Name AppsUseLightTheme -Type DWord -Value 0
+New-ItemProperty -Path $personalization -Name SystemUsesLightTheme -PropertyType DWord -Value 0 -Force | Out-Null
+New-ItemProperty -Path $personalization -Name AppsUseLightTheme -PropertyType DWord -Value 0 -Force | Out-Null
 $desktop = 'HKCU:\Control Panel\Desktop'
 Set-ItemProperty -Path $desktop -Name Wallpaper -Value $wallpaper
 Set-ItemProperty -Path $desktop -Name WallpaperStyle -Value '10'
@@ -129,6 +129,7 @@ def self_test(profiles: dict) -> None:
   assert parsed.find(tag("settings")) is not None
   assert parsed.find(f".//{tag('OOBE')}") is None
   assert "SystemParametersInfo" in FIRST_BOOT and "HKCU:" in FIRST_BOOT
+  assert "New-ItemProperty" in FIRST_BOOT and "Set-ItemProperty -Path $personalization -Name SystemUsesLightTheme -Type" not in FIRST_BOOT
   forbidden=("BypassTPMCheck","BypassSecureBootCheck","SkipMachineOOBE","SkipUserOOBE","AutoLogon","ProductKey")
   assert not any(x.lower() in xml.decode().lower()+FIRST_BOOT.lower() for x in forbidden)
   with tempfile.TemporaryDirectory() as td:
