@@ -22,11 +22,11 @@ python3 tools/windows/joynexa-metadata-packager.py \
   --output build/packages/joynexa-core-metadata.zip
 ```
 
-The packager fails closed unless all selected components are marked
-`verified` and every safety assertion is explicitly false. Since current
-edition components are still planned, the initial workflow artifacts are
-expected to be blocked until real implementations and tests exist. This is
-intentional: planned components must not be presented as finished software.
+The packager accepts planning declarations but fails closed unless every safety
+assertion is explicitly false. Packages can therefore be generated while
+components remain planned, but they are metadata only and cannot be mistaken
+for finished software. A future installer/build pipeline must require verified
+components and its own tests.
 
 No Windows payload is downloaded, redistributed, activated, or modified.
 Future ISO work must consume a properly licensed source supplied by the user,
