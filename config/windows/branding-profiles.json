@@ -1,0 +1,71 @@
+{
+  "schema_version": 1,
+  "product": "Joynexa",
+  "engine_id": "joynexa-branding-engine",
+  "asset_policy": "Original, independently generated SVG assets only. No Windows system resources are replaced.",
+  "shared": {
+    "wordmark": "JOYNEXA",
+    "tagline": "Windows, shaped around you.",
+    "canvas": {
+      "width": 1920,
+      "height": 1080
+    },
+    "font_family": "Segoe UI, Arial, sans-serif"
+  },
+  "editions": {
+    "core": {
+      "name": "Joynexa Core",
+      "accent": "#28A6A1",
+      "background": "#101B2B",
+      "surface": "#1A2A40",
+      "foreground": "#F3F7FA",
+      "muted": "#A8B8C8",
+      "motif": "calm"
+    },
+    "play": {
+      "name": "Joynexa Play",
+      "accent": "#FF6B35",
+      "background": "#171321",
+      "surface": "#292039",
+      "foreground": "#FFF7F2",
+      "muted": "#C0B3CB",
+      "motif": "energy"
+    },
+    "productivity": {
+      "name": "Joynexa Productivity",
+      "accent": "#4D8DFF",
+      "background": "#101A2B",
+      "surface": "#1B2B43",
+      "foreground": "#F4F7FF",
+      "muted": "#AABBD5",
+      "motif": "focus"
+    },
+    "modern": {
+      "name": "Joynexa Modern",
+      "accent": "#7B72F2",
+      "background": "#111426",
+      "surface": "#222744",
+      "foreground": "#F7F6FF",
+      "muted": "#B8B8D4",
+      "motif": "orbit"
+    },
+    "retro": {
+      "name": "Joynexa Retro",
+      "accent": "#D6A84B",
+      "background": "#211C18",
+      "surface": "#393027",
+      "foreground": "#FFF5DF",
+      "muted": "#C7B99D",
+      "motif": "heritage"
+    },
+    "legacy": {
+      "name": "Joynexa Legacy",
+      "accent": "#8EAA9A",
+      "background": "#18201D",
+      "surface": "#29352F",
+      "foreground": "#F0F5F1",
+      "muted": "#B4C3B9",
+      "motif": "archive"
+    }
+  }
+}
