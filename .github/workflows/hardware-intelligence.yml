@@ -1,0 +1,55 @@
+name: Joynexa Hardware Intelligence
+
+on:
+  push:
+    paths:
+      - "tools/windows/**"
+      - "docs/windows/modern-driver-catalog.json"
+      - ".github/workflows/hardware-intelligence.yml"
+  pull_request:
+    paths:
+      - "tools/windows/**"
+      - "docs/windows/modern-driver-catalog.json"
+      - ".github/workflows/hardware-intelligence.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  linux-validation:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.x"
+      - name: Compile Python tools
+        run: python -m py_compile tools/windows/joynexa-driver-catalog.py tools/windows/joynexa-hardware-compatibility.py
+      - name: Validate driver catalog
+        run: |
+          python tools/windows/joynexa-driver-catalog.py --check
+          python tools/windows/joynexa-driver-catalog.py --self-test
+      - name: Test hardware compatibility analyzer
+        run: python tools/windows/joynexa-hardware-compatibility.py --self-test
+
+  windows-inventory-smoke-test:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Export temporary runner inventory
+        shell: pwsh
+        run: |
+          ./tools/windows/Export-JoynexaHardwareInventory.ps1 -OutputPath ./joynexa-ci-inventory.json
+          if (-not (Test-Path ./joynexa-ci-inventory.json)) { throw "Inventory file was not created" }
+      - name: Validate inventory contract
+        shell: pwsh
+        run: |
+          $data = Get-Content ./joynexa-ci-inventory.json -Raw | ConvertFrom-Json
+          if ($data.schema_version -ne 1) { throw "Invalid inventory schema" }
+          if ($data.inventory_id -ne "joynexa-windows-hardware-inventory") { throw "Invalid inventory ID" }
+          if ($data.privacy.serial_numbers_collected -ne $false) { throw "Serial number privacy contract failed" }
+          if ($data.privacy.network_addresses_collected -ne $false) { throw "Network address privacy contract failed" }
+          if ($data.privacy.driver_packages_modified -ne $false) { throw "Read-only contract failed" }
+          if ($null -eq $data.devices) { throw "Device list missing" }
+          Write-Host ("Inventory contract OK; devices: {0}" -f @($data.devices).Count)
