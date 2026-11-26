@@ -91,7 +91,7 @@ def analyze(inventory: dict[str, Any], catalog: dict[str, Any]) -> dict[str, Any
             else:
                 state = "candidate_not_installable"
             details.append({
-                "catalog_entry_id": entry.get("id), "matched_hardware_id": hwid,
+                "catalog_entry_id": entry.get("id"), "matched_hardware_id": hwid,
                 "vendor": entry.get("vendor"), "device": entry.get("device"),
                 "approval_state": state, "signature_status": signature.get("status", "pending"),
                 "hardware_test_status": test
@@ -131,7 +131,7 @@ def self_test() -> None:
     inventory = {"schema_version": 1, "inventory_id": "joynexa-windows-hardware-inventory",
         "operating_system": {"caption": "Microsoft Windows 11 Pro", "build_number": "26100", "architecture": "64-bit"},
         "devices": [
-            {"name": "NIC", "hardware_ids": [r"PCI\\VEN_1234&DEV_ABCD"]},
+            {"name": "NIC", "hardware_ids": [r"PCI\VEN_1234&DEV_ABCD"]},
             {"name": "Unknown", "hardware_ids": [r"PCI\\VEN_9999&DEV_0001"]},
             {"name": "No IDs", "hardware_ids": []}
         ]}
@@ -164,7 +164,7 @@ def main() -> int:
         if args.self_test: self_test()
         if args.inventory:
             report = analyze(read_json(args.inventory), read_json(args.catalog))
-            rendered = json.dumps(report, indent=2, ensure_ascii=False) + "\\n"
+            rendered = json.dumps(report, indent=2, ensure_ascii=False) + "\n"
             if args.output:
                 args.output.write_text(rendered, encoding="utf-8")
                 print(f"Compatibility report written: {args.output}")
