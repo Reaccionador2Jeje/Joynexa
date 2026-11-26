@@ -106,7 +106,7 @@ try {
     if (-not $AuditOnly) {
         if (Test-Path -LiteralPath $outPath) { Stop-Build 'Output directory already exists; choose a new empty destination.' }
         New-Item -ItemType Directory -Path $outPath -Force | Out-Null
-        Copy-Item -Path (Join-Path $root '*') -Destination $outPath -Recurse -Force
+        Get-ChildItem -LiteralPath $root -Force | Copy-Item -Destination $outPath -Recurse -Force
         $report.staged = $true
     }
 
