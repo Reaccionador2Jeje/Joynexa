@@ -1,0 +1,55 @@
+name: Joynexa Windows Engineering
+
+on:
+  push:
+    paths:
+      - "tools/windows/**"
+      - "tools/validate-requirements.py"
+      - "docs/windows/edition-requirements.json"
+      - "config/windows/**"
+      - ".github/workflows/windows-engineering.yml"
+  pull_request:
+    paths:
+      - "tools/windows/**"
+      - "tools/validate-requirements.py"
+      - "docs/windows/edition-requirements.json"
+      - "config/windows/**"
+      - ".github/workflows/windows-engineering.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.x"
+      - name: Compile Windows engineering tools
+        run: python -m py_compile tools/windows/*.py tools/validate-requirements.py
+      - name: Validate requirements matrix
+        run: python tools/validate-requirements.py
+      - name: Validate edition engine
+        run: |
+          python tools/windows/joynexa-edition-engine.py --check
+          python tools/windows/joynexa-edition-engine.py --self-test
+      - name: Validate hardware catalog and analyzer
+        run: |
+          python tools/windows/joynexa-driver-catalog.py --check
+          python tools/windows/joynexa-driver-catalog.py --self-test
+          python tools/windows/joynexa-hardware-compatibility.py --self-test
+      - name: Generate all edition manifests
+        run: |
+          for edition in core play productivity modern retro legacy; do
+            python tools/windows/joynexa-edition-engine.py --edition "$edition" --base windows_11 --output "build/manifests/$edition.json"
+          done
+      - name: Upload planning manifests
+        uses: actions/upload-artifact@v4
+        with:
+          name: joynexa-edition-manifests
+          path: build/manifests/*.json
+          if-no-files-found: error
+          retention-days: 7
