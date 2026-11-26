@@ -1,4 +1,5 @@
 #requires -Version 7.2
+# Read-only inspection example: .\joynexa-image-builder.ps1 ... -AuditOnly
 [CmdletBinding()]
 param(
     [Parameter(Mandatory=$true)][ValidateScript({Test-Path -LiteralPath $_ -PathType Leaf})][string]$SourceIso,
