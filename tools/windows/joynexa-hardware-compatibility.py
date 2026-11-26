@@ -132,13 +132,13 @@ def self_test() -> None:
         "operating_system": {"caption": "Microsoft Windows 11 Pro", "build_number": "26100", "architecture": "64-bit"},
         "devices": [
             {"name": "NIC", "hardware_ids": [r"PCI\VEN_1234&DEV_ABCD"]},
-            {"name": "Unknown", "hardware_ids": [r"PCI\\VEN_9999&DEV_0001"]},
+            {"name": "Unknown", "hardware_ids": [r"PCI\VEN_9999&DEV_0001"]},
             {"name": "No IDs", "hardware_ids": []}
         ]}
     catalog = {"schema_version": 1, "catalog_id": "joynexa-modern-drivers",
         "target": {"architecture": "x64"},
         "entries": [{"id": "sample", "vendor": "Example", "device": "NIC",
-        "hardware_ids": [r"PCI\\VEN_1234&DEV_ABCD"], "signature": {"status": "pending"},
+        "hardware_ids": [r"PCI\VEN_1234&DEV_ABCD"], "signature": {"status": "pending"},
         "test_status": "untested", "approval": "candidate",
         "compatibility": {"architecture": "x64", "minimum_build": 22000, "maximum_build": 30000}}]}
     report = analyze(inventory, catalog)
