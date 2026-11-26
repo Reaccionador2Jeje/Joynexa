@@ -29,6 +29,11 @@
           "id": "optional-apps",
           "required": false,
           "status": "planned"
+        },
+        {
+          "id": "joynexa-setup-first-boot",
+          "required": true,
+          "status": "implemented"
         }
       ]
     },
@@ -61,6 +66,11 @@
           "id": "game-launcher",
           "required": false,
           "status": "planned"
+        },
+        {
+          "id": "joynexa-setup-first-boot",
+          "required": true,
+          "status": "implemented"
         }
       ]
     },
@@ -93,6 +103,11 @@
           "id": "productivity-tools",
           "required": false,
           "status": "planned"
+        },
+        {
+          "id": "joynexa-setup-first-boot",
+          "required": true,
+          "status": "implemented"
         }
       ]
     },
@@ -126,6 +141,11 @@
           "id": "optional-apps",
           "required": false,
           "status": "planned"
+        },
+        {
+          "id": "joynexa-setup-first-boot",
+          "required": true,
+          "status": "implemented"
         }
       ]
     },
@@ -158,6 +178,11 @@
           "id": "classic-ui-profile",
           "required": false,
           "status": "planned"
+        },
+        {
+          "id": "joynexa-setup-first-boot",
+          "required": true,
+          "status": "implemented"
         }
       ]
     },
