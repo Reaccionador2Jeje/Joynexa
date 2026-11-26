@@ -1,0 +1,79 @@
+{
+  "schema_version": 1,
+  "product": "Joynexa Windows",
+  "engine_id": "joynexa-edition-engine",
+  "status": "planning_only",
+  "policy": "Every edition inherits the selected Windows base requirements. Unknown is never a pass. This engine creates manifests only; it does not build, modify, activate, or install Windows.",
+  "editions": [
+    {
+      "id": "core",
+      "name": "Joynexa Core",
+      "purpose": "Essential everyday Windows experience",
+      "components": [
+        {"id":"base-shell","required":true,"status":"planned"},
+        {"id":"joynexa-branding","required":true,"status":"planned"},
+        {"id":"diagnostics","required":true,"status":"planned"},
+        {"id":"optional-apps","required":false,"status":"planned"}
+      ]
+    },
+    {
+      "id": "play",
+      "name": "Joynexa Play",
+      "purpose": "Gaming-oriented configuration",
+      "components": [
+        {"id":"base-shell","required":true,"status":"planned"},
+        {"id":"joynexa-branding","required":true,"status":"planned"},
+        {"id":"diagnostics","required":true,"status":"planned"},
+        {"id":"gaming-tools","required":false,"status":"planned"},
+        {"id":"game-launcher","required":false,"status":"planned"}
+      ]
+    },
+    {
+      "id": "productivity",
+      "name": "Joynexa Productivity",
+      "purpose": "Study, office, and development configuration",
+      "components": [
+        {"id":"base-shell","required":true,"status":"planned"},
+        {"id":"joynexa-branding","required":true,"status":"planned"},
+        {"id":"diagnostics","required":true,"status":"planned"},
+        {"id":"developer-tools","required":false,"status":"planned"},
+        {"id":"productivity-tools","required":false,"status":"planned"}
+      ]
+    },
+    {
+      "id": "modern",
+      "name": "Joynexa Modern",
+      "purpose": "Windows 11 26H2 x64 for officially supported newer PCs",
+      "windows_base": "windows_11_26h2_x64",
+      "components": [
+        {"id":"base-shell","required":true,"status":"planned"},
+        {"id":"joynexa-branding","required":true,"status":"planned"},
+        {"id":"diagnostics","required":true,"status":"planned"},
+        {"id":"modern-driver-validation","required":true,"status":"planned"},
+        {"id":"optional-apps","required":false,"status":"planned"}
+      ]
+    },
+    {
+      "id": "retro",
+      "name": "Joynexa Retro",
+      "purpose": "Older PCs only when a supported and properly licensed Windows base is established",
+      "components": [
+        {"id":"base-shell","required":true,"status":"planned"},
+        {"id":"joynexa-branding","required":true,"status":"planned"},
+        {"id":"diagnostics","required":true,"status":"planned"},
+        {"id":"legacy-hardware-assessment","required":true,"status":"planned"},
+        {"id":"classic-ui-profile","required":false,"status":"planned"}
+      ]
+    },
+    {
+      "id": "legacy",
+      "name": "Joynexa Legacy",
+      "purpose": "Historical preservation and documentation; not a claim of current security support",
+      "components": [
+        {"id":"preservation-documentation","required":true,"status":"planned"},
+        {"id":"offline-recovery-guides","required":true,"status":"planned"},
+        {"id":"historical-ui-assets","required":false,"status":"planned"}
+      ]
+    }
+  ]
+}
