@@ -43,6 +43,10 @@ jobs:
           python tools/windows/joynexa-hardware-compatibility.py --self-test
       - name: Validate metadata packager
         run: python tools/windows/joynexa-metadata-packager.py --self-test
+      - name: Validate branding engine
+        run: |
+          python tools/windows/joynexa-branding-engine.py --check
+          python tools/windows/joynexa-branding-engine.py --self-test
       - name: Validate image builder safety contract
         run: |
           python tools/windows/validate-image-builder.py
@@ -54,6 +58,19 @@ jobs:
             python tools/windows/joynexa-edition-engine.py --edition "$edition" --base windows_11 --output "build/manifests/$edition.json"
             python tools/windows/joynexa-metadata-packager.py --manifest "build/manifests/$edition.json" --output "build/packages/joynexa-$edition-metadata.zip"
           done
+      - name: Generate six branding packs
+        run: |
+          mkdir -p build/branding
+          for edition in core play productivity modern retro legacy; do
+            python tools/windows/joynexa-branding-engine.py --edition "$edition" --output "build/branding/joynexa-$edition-branding.zip"
+          done
+      - name: Upload branding packs
+        uses: actions/upload-artifact@v4
+        with:
+          name: joynexa-branding-packs
+          path: build/branding/*.zip
+          if-no-files-found: error
+          retention-days: 14
       - name: Upload edition manifests
         uses: actions/upload-artifact@v4
         with:
