@@ -44,7 +44,7 @@
       "id": "modern",
       "name": "Joynexa Modern",
       "purpose": "Windows 11 26H2 x64 for officially supported newer PCs",
-      "windows_base": "windows_11_26h2_x64",
+      "windows_base": "windows_11",
       "components": [
         {"id":"base-shell","required":true,"status":"planned"},
         {"id":"joynexa-branding","required":true,"status":"planned"},
