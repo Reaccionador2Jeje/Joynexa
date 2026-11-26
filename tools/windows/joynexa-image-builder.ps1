@@ -42,13 +42,11 @@ function Invoke-Dism([string[]]$Arguments) {
 $isoPath = (Resolve-Path -LiteralPath $SourceIso).Path
 $manifestPath = (Resolve-Path -LiteralPath $Manifest).Path
 $outPath = [System.IO.Path]::GetFullPath($OutputDirectory)
-if ($outPath.StartsWith($isoPath, [System.StringComparison]::OrdinalIgnoreCase)) {
-    Stop-Build 'Output directory cannot be inside the source ISO file path.'
-}
 if (-not (Get-Command Mount-DiskImage -ErrorAction SilentlyContinue)) { Stop-Build 'Mount-DiskImage is unavailable; run on Windows with the Storage module.' }
 if (-not (Get-Command dism.exe -ErrorAction SilentlyContinue)) { Stop-Build 'DISM is unavailable.' }
 
 $manifestData = Read-Manifest -Path $manifestPath
+if (Test-Path -LiteralPath $outPath) { Stop-Build 'Output directory already exists; choose a new destination.' }
 $actualHash = (Get-FileHash -LiteralPath $isoPath -Algorithm SHA256).Hash
 if ($actualHash -ne $ExpectedSha256.ToUpperInvariant()) {
     Stop-Build "ISO SHA-256 mismatch. Actual: $actualHash. No files were staged."
@@ -104,7 +102,6 @@ try {
     }
 
     if (-not $AuditOnly) {
-        if (Test-Path -LiteralPath $outPath) { Stop-Build 'Output directory already exists; choose a new empty destination.' }
         New-Item -ItemType Directory -Path $outPath -Force | Out-Null
         Get-ChildItem -LiteralPath $root -Force | Copy-Item -Destination $outPath -Recurse -Force
         $report.staged = $true
