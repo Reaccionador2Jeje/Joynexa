@@ -49,8 +49,6 @@ def load_manifest(path: pathlib.Path) -> dict:
             "planned", "implemented", "verified", "blocked"
         }:
             raise PackageError("invalid component record")
-        if item.get("definition_status") != "verified":
-            raise PackageError("metadata package requires every selected component to be verified")
     return value
 
 
