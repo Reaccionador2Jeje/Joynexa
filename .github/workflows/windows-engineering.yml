@@ -5,14 +5,14 @@ on:
     paths:
       - "tools/windows/**"
       - "tools/validate-requirements.py"
-      - "docs/windows/edition-requirements.json"
+      - "docs/windows/**"
       - "config/windows/**"
       - ".github/workflows/windows-engineering.yml"
   pull_request:
     paths:
       - "tools/windows/**"
       - "tools/validate-requirements.py"
-      - "docs/windows/edition-requirements.json"
+      - "docs/windows/**"
       - "config/windows/**"
       - ".github/workflows/windows-engineering.yml"
   workflow_dispatch:
@@ -43,6 +43,10 @@ jobs:
           python tools/windows/joynexa-hardware-compatibility.py --self-test
       - name: Validate metadata packager
         run: python tools/windows/joynexa-metadata-packager.py --self-test
+      - name: Validate image builder safety contract
+        run: |
+          python tools/windows/validate-image-builder.py
+          python tools/windows/validate-image-builder.py --self-test
       - name: Generate edition manifests and metadata packages
         run: |
           mkdir -p build/manifests build/packages
