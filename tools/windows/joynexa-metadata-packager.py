@@ -65,7 +65,7 @@ This archive contains edition metadata only.
 - Requirements bypassed: no
 - Selected components: {len(manifest['components'])}
 
-The component list is empty until implementation and verification are complete.
+Components marked planned are declarations only; no component installer or executable payload is included.
 This package is not bootable and cannot install or activate Windows.
 Use a separately obtained, properly licensed Windows installation source and
 follow its official requirements and lifecycle.
