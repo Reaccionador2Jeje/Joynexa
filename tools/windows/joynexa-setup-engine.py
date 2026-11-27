@@ -6,6 +6,7 @@ import argparse, json, pathlib, sys, tempfile, zipfile, xml.etree.ElementTree as
 ROOT = pathlib.Path(__file__).resolve().parents[2]
 PROFILES = ROOT / "config/windows/branding-profiles.json"
 INSTALLER = ROOT / "tools/windows/payloads/Install-Joynexa.ps1"
+OPTIMIZER = ROOT / "tools/windows/payloads/Optimize-Joynexa.ps1"
 EDITIONS = ("core", "play", "productivity", "modern", "retro", "legacy")
 NS = "urn:schemas-microsoft-com:unattend"
 ET.register_namespace("", NS)
@@ -110,19 +111,20 @@ def build(edition: str, output: pathlib.Path, profiles: dict) -> None:
       z.writestr("unattend.xml",make_unattend())
       z.writestr("Start-JoynexaFirstBoot.ps1",FIRST_BOOT)
       z.write(INSTALLER, "Install-Joynexa.ps1")
+      z.write(OPTIMIZER, "Optimize-Joynexa.ps1")
       z.writestr("README.txt",f"""{item['name']} setup kit
 
 1. Extract this archive.
 2. Use unattend.xml only as an optional Windows Setup answer file. It sets a computer name; Windows OOBE remains interactive.
 3. Complete Windows setup and all account, privacy, and licensing prompts yourself.
-4. After signing in, run Install-Joynexa.ps1 and type YES when prompted. It launches the first-boot personalization for the current user.
+4. After signing in, run Install-Joynexa.ps1 and type YES when prompted. It launches the first-boot personalization for the current user.\n5. Optionally run Optimize-Joynexa.ps1 -Mode Balanced or -Mode Performance. Use -Mode Restore to restore the captured user-interface values.
 
 This is not Windows installation media and contains no Windows payload or license.
 It does not bypass hardware requirements, activate Windows, create accounts, disable security, or alter protected system files.
 """)
     with zipfile.ZipFile(output) as z:
       assert z.testzip() is None
-      assert set(z.namelist())=={"joynexa-setup.json","unattend.xml","Start-JoynexaFirstBoot.ps1","Install-Joynexa.ps1","README.txt"}
+      assert set(z.namelist())=={"joynexa-setup.json","unattend.xml","Start-JoynexaFirstBoot.ps1","Install-Joynexa.ps1","Optimize-Joynexa.ps1","README.txt"}
 
 def self_test(profiles: dict) -> None:
   xml=make_unattend()
@@ -133,6 +135,9 @@ def self_test(profiles: dict) -> None:
   assert "SystemParametersInfo" in FIRST_BOOT and "HKCU:" in FIRST_BOOT
   installer=INSTALLER.read_text(encoding="utf-8")
   assert "Type YES to continue" in installer and "interactive" in installer
+  optimizer=OPTIMIZER.read_text(encoding="utf-8")
+  assert "ValidateSet" in optimizer and "optimization-backup.json" in optimizer
+  assert "HKCU:" in optimizer and "HKLM:" not in optimizer and "Windows Update" in optimizer
   assert "windows_requirements_bypassed" in installer and "current_user" in installer
   assert "New-ItemProperty" in FIRST_BOOT and "Set-ItemProperty -Path $personalization -Name SystemUsesLightTheme -Type" not in FIRST_BOOT
   forbidden=("BypassTPMCheck","BypassSecureBootCheck","SkipMachineOOBE","SkipUserOOBE","AutoLogon","ProductKey")
