@@ -166,12 +166,12 @@ internal sealed class ConsoleForm : Form
             process.Exited += (_, _) =>
             {
                 if (IsDisposed || !IsHandleCreated) return;
-                BeginInvoke(() =>
+                BeginInvoke(new Action(() =>
                 {
                     if (IsDisposed) return;
                     WindowState = FormWindowState.Maximized;
                     Activate();
-                });
+                }));
             };
             WindowState = FormWindowState.Minimized;
         }
