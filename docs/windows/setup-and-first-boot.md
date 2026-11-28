@@ -58,3 +58,28 @@ validates the edition manifest and dispatches an explicit action:
 the presence/status of selected protected services. It does not repair Windows,
 change service startup types, or stop/start services. Reports are diagnostic
 hints, not a guarantee that Windows is healthy.
+
+
+## Graphical installer assistant
+
+Each edition setup kit includes `Start-JoynexaInstallerGUI.ps1`, a Windows
+PowerShell 5.1 WinForms assistant. It identifies the edition embedded in the
+kit, displays a read-only inventory of Windows, CPU, memory, graphics, and
+storage, and asks for confirmation before launching the existing current-user
+personalization installer.
+
+The edition selector is intentionally locked to the edition of the extracted
+kit; it does not silently switch payloads. To use another edition, obtain that
+edition's own setup kit. Hardware information is advisory only and is not a
+Windows compatibility certification. The GUI does not install Windows,
+download images, change activation, create accounts, bypass requirements,
+change services, or weaken security.
+
+Launch it after extracting the kit on Windows:
+
+```powershell
+.\Start-JoynexaInstallerGUI.ps1
+```
+
+The GUI uses Windows Forms and is intended for an interactive Windows desktop;
+it cannot be run as a native GUI on Linux.
