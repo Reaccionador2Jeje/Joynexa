@@ -40,15 +40,27 @@
     <section id="library-view" class="view" aria-label="Game library" hidden>
       <div class="section-heading"><div><p class="eyebrow">YOUR COLLECTION</p><h2>Game library</h2></div><button class="secondary" data-action="add-game">＋ Add a game</button></div>
       <div id="game-grid" class="game-grid"></div>
-      <p class="footnote">This prototype stores game names locally. It does not launch executable files yet.</p>
+      <p class="footnote" id="library-footnote">The native Windows host can register and launch applications selected by you.</p>
     </section>
     <section id="settings-view" class="view" aria-label="Settings" hidden>
       <div class="section-heading"><div><p class="eyebrow">PERSONALIZE YOUR SETUP</p><h2>Settings</h2></div></div>
       <div class="settings-list">
         <article class="setting"><div><strong>Controller status</strong><p id="controller-detail">Connect a USB or Bluetooth controller, then press any button.</p></div><span class="setting-value" id="controller-count">0 connected</span></article>
         <article class="setting"><div><strong>Display mode</strong><p>Designed for fullscreen TV and monitor use.</p></div><button class="secondary" data-action="fullscreen">Toggle fullscreen</button></article>
-        <article class="setting"><div><strong>Interface</strong><p>Lightweight animations for older PCs.</p></div><span class="setting-value">Low impact</span></article>
-        <article class="setting"><div><strong>Prototype version</strong><p>Joynexa Console · AtDev</p></div><span class="setting-value">0.2.0</span></article>
+        <article class="setting"><div><strong>Controller profile</strong><p>Choose a layout preset, then customize the action buttons.</p></div><span class="setting-value" id="profile-summary">Generic / DirectInput</span></article>
+        <article class="setting setting-config">
+          <label for="controller-profile">Controller type</label>
+          <select id="controller-profile"><option value="generic">Generic / DirectInput</option><option value="xbox">Xbox-style</option><option value="playstation">PlayStation-style</option></select>
+          <label for="confirm-button">Confirm button</label>
+          <select id="confirm-button"><option value="0">Button 1 (south)</option><option value="1">Button 2 (east)</option><option value="2">Button 3 (west)</option><option value="3">Button 4 (north)</option></select>
+          <label for="back-button">Back button</label>
+          <select id="back-button"><option value="0">Button 1 (south)</option><option value="1">Button 2 (east)</option><option value="2">Button 3 (west)</option><option value="3">Button 4 (north)</option></select>
+          <label for="ui-scale">TV interface scale</label>
+          <div class="scale-control"><input id="ui-scale" type="range" min="85" max="125" step="5" value="100"><span id="ui-scale-value">100%</span></div>
+          <button class="secondary" id="save-controller-settings" type="button">Save controller setup</button>
+        </article>
+        <article class="setting"><div><strong>Interface performance</strong><p>Reduced motion and lightweight effects for older PCs.</p></div><span class="setting-value">Low impact</span></article>
+        <article class="setting"><div><strong>Prototype version</strong><p>Joynexa Console · AtDev</p></div><span class="setting-value">0.3.0</span></article>
         <article class="setting"><div><strong>Exit console</strong><p>Close the native Joynexa Console host.</p></div><button class="secondary" data-action="exit-console">Exit</button></article>
       </div>
     </section>
