@@ -79,6 +79,9 @@ try {
     $nameMatch = [regex]::Match($indexText, '(?m)^Name\s*:\s*(.+)$')
     $editionName = if ($nameMatch.Success) { $nameMatch.Groups[1].Value.Trim() } else { 'Unknown' }
 
+    $sourceFiles = @(Get-ChildItem -LiteralPath $root -File -Recurse)
+    $sourceBytes = [int64](($sourceFiles | Measure-Object -Property Length -Sum).Sum)
+
     $report = [ordered]@{
         schema_version = 1
         product = 'Joynexa Windows Image Builder'
@@ -91,6 +94,12 @@ try {
         selected_image_name = $editionName
         available_image_indexes = $indexes
         selected_components = @($manifestData.components | ForEach-Object { @{ id=$_.id; status=$_.definition_status } })
+        source_file_count = $sourceFiles.Count
+        source_total_bytes = $sourceBytes
+        staged_file_count = 0
+        staged_total_bytes = 0
+        staged_inventory_sha256 = $null
+        staging_verified = $false
         verified_components_only = ($unverified.Count -eq 0)
         requirements_bypassed = $false
         signature_enforcement_disabled = $false
@@ -105,6 +114,20 @@ try {
     if (-not $AuditOnly) {
         New-Item -ItemType Directory -Path $outPath -Force | Out-Null
         Get-ChildItem -LiteralPath $root -Force | Copy-Item -Destination $outPath -Recurse -Force
+        $stagedFiles = @(Get-ChildItem -LiteralPath $outPath -File -Recurse)
+        $stagedBytes = [int64](($stagedFiles | Measure-Object -Property Length -Sum).Sum)
+        if ($stagedFiles.Count -ne $sourceFiles.Count -or $stagedBytes -ne $sourceBytes) { Stop-Build 'Staged file count or byte total differs from the read-only source. Output is not verified.' }
+        $inventory = @($stagedFiles | ForEach-Object {
+            $relative = $_.FullName.Substring($outPath.TrimEnd('\\').Length).TrimStart('\\')
+            [pscustomobject]@{ path=$relative; size=$_.Length; sha256=(Get-FileHash -LiteralPath $_.FullName -Algorithm SHA256).Hash }
+        } | Sort-Object path)
+        $inventoryJson = $inventory | ConvertTo-Json -Depth 5 -Compress
+        $inventoryPath = Join-Path $outPath 'joynexa-staged-inventory.json'
+        $inventoryJson | Set-Content -LiteralPath $inventoryPath -Encoding utf8
+        $report.staged_file_count = $stagedFiles.Count
+        $report.staged_total_bytes = $stagedBytes
+        $report.staged_inventory_sha256 = (Get-FileHash -LiteralPath $inventoryPath -Algorithm SHA256).Hash
+        $report.staging_verified = $true
         $report.staged = $true
     }
 
