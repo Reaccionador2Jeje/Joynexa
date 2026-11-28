@@ -1,62 +1,13 @@
 (() => {
-  const input = new JoynexaInput.JoynexaInput().start();
-  const status = document.getElementById("status");
-  const devices = document.getElementById("devices");
-  const state = document.getElementById("button-state");
-  const activeCount = document.getElementById("active-count");
-  const touchToggle = document.getElementById("touch-toggle");
-  const touchControls = document.getElementById("touch-controls");
-  const names = JoynexaInput.buttons;
-  function renderDevices() {
-    const pads = input.snapshot().connected;
-    status.textContent = pads.length ? pads.length + " mando(s) conectado(s)" : "Esperando conexión";
-    devices.innerHTML = "";
-    if (!pads.length) {
-      devices.innerHTML = '<p class="muted">No hay mandos detectados. Conecta uno por Bluetooth o USB y pulsa un botón.</p>';
-      return;
-    }
-    pads.forEach((pad) => {
-      const item = document.createElement("article");
-      item.className = "device";
-      const title = document.createElement("b");
-      title.textContent = pad.id || "Mando sin nombre";
-      const detail = document.createElement("small");
-      detail.textContent = "Índice " + pad.index + " · " + (pad.mapping || "mapeo genérico");
-      item.append(title, detail);
-      devices.append(item);
-    });
-  }
-  function renderButtons(snapshot) {
-    state.innerHTML = "";
-    let count = 0;
-    names.forEach((name) => {
-      const active = Boolean(snapshot.buttons[name]);
-      if (active) count++;
-      const chip = document.createElement("span");
-      chip.textContent = name.toUpperCase();
-      chip.classList.toggle("active", active);
-      state.append(chip);
-      document.querySelectorAll('[data-input="' + name + '"]').forEach((button) => button.classList.toggle("active", active));
-    });
-    activeCount.textContent = count + " botones activos";
-    const left = document.getElementById("left-stick");
-    const right = document.getElementById("right-stick");
-    left.style.transform = "translate(" + (snapshot.axes.leftX * 28) + "px," + (snapshot.axes.leftY * 28) + "px)";
-    right.style.transform = "translate(" + (snapshot.axes.rightX * 28) + "px," + (snapshot.axes.rightY * 28) + "px)";
-  }
-  input.addEventListener("frame", (event) => { renderButtons(event.detail); renderDevices(); });
-  input.addEventListener("connect", renderDevices);
-  input.addEventListener("disconnect", renderDevices);
-  document.getElementById("scan").addEventListener("click", renderDevices);
-  touchToggle.addEventListener("change", () => touchControls.classList.toggle("enabled", touchToggle.checked));
-  document.querySelectorAll("[data-touch]").forEach((button) => {
-    const name = button.dataset.touch;
-    const down = (event) => { event.preventDefault(); input.setTouchButton(name, true); button.classList.add("active"); };
-    const up = () => { input.setTouchButton(name, false); button.classList.remove("active"); };
-    button.addEventListener("pointerdown", down);
-    button.addEventListener("pointerup", up);
-    button.addEventListener("pointercancel", up);
-    button.addEventListener("pointerleave", up);
-  });
-  renderDevices();
+  const input=new JoynexaInput.JoynexaInput().start();
+  const $=id=>document.getElementById(id),status=$("status"),devices=$("devices"),state=$("button-state"),activeCount=$("active-count");
+  const names=JoynexaInput.buttons;let lastPad=null;
+  function renderDevices(){const pads=input.snapshot().connected;status.textContent=pads.length?pads.length+" mando(s) conectado(s)":"Esperando conexión";devices.replaceChildren();if(!pads.length){devices.innerHTML='<p class="muted">No hay mandos detectados. Conecta uno por USB o Bluetooth y pulsa un botón.</p>';return;}pads.forEach(pad=>{const item=document.createElement("article"),title=document.createElement("b"),detail=document.createElement("small");item.className="device";title.textContent=pad.id||"Mando sin nombre";detail.textContent="Índice "+pad.index+" · "+(pad.mapping==="standard"?"mapeo estándar": "mapeo genérico")+" · "+pad.buttons+" botones · "+pad.axes+" ejes";item.append(title,detail);devices.append(item);});lastPad=pads[0]?.index??null;}
+  function renderButtons(s){state.replaceChildren();let count=0;names.forEach(name=>{const active=!!s.buttons[name];if(active)count++;const chip=document.createElement("span");chip.textContent=name.toUpperCase();chip.classList.toggle("active",active);state.append(chip);document.querySelectorAll('[data-input="'+name+'"]').forEach(b=>b.classList.toggle("active",active));});activeCount.textContent=count+" botones activos";$("left-stick").style.transform="translate("+(s.axes.leftX*28)+"px,"+(s.axes.leftY*28)+"px)";$("right-stick").style.transform="translate("+(s.axes.rightX*28)+"px,"+(s.axes.rightY*28)+"px)";}
+  input.addEventListener("frame",e=>renderButtons(e.detail));input.addEventListener("connect",renderDevices);input.addEventListener("disconnect",renderDevices);$("scan").addEventListener("click",renderDevices);
+  $("deadzone").addEventListener("input",e=>{$("deadzone-value").textContent=Number(e.target.value).toFixed(2);input.setDeadzone(e.target.value);});
+  $("rumble-test").addEventListener("click",async()=>{const ok=await input.vibrate(180,.45,.7,lastPad);$("rumble-status").textContent=ok?"Vibración enviada al mando compatible.":"Este mando o navegador no ofrece vibración compatible.";});
+  const toggle=$("touch-toggle"),touch=$("touch-controls");toggle.addEventListener("change",()=>touch.classList.toggle("enabled",toggle.checked));
+  document.querySelectorAll("[data-touch]").forEach(button=>{const name=button.dataset.touch,down=e=>{e.preventDefault();input.setTouchButton(name,true);button.classList.add("active");},up=()=>{input.setTouchButton(name,false);button.classList.remove("active");};button.addEventListener("pointerdown",down);button.addEventListener("pointerup",up);button.addEventListener("pointercancel",up);button.addEventListener("lostpointercapture",up);});
+  renderDevices();window.addEventListener("pagehide",()=>input.stop(),{once:true});
 })();
