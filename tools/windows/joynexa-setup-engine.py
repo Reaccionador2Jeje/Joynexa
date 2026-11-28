@@ -10,6 +10,7 @@ OPTIMIZER = ROOT / "tools/windows/payloads/Optimize-Joynexa.ps1"
 HARDWARE_REPORT = ROOT / "tools/windows/payloads/Get-JoynexaHardwareReport.ps1"
 RECOVERY = ROOT / "tools/windows/payloads/Test-JoynexaRecovery.ps1"
 RUNTIME = ROOT / "tools/windows/payloads/Start-JoynexaRuntime.ps1"
+GUI = ROOT / "tools/windows/payloads/Start-JoynexaInstallerGUI.ps1"
 EDITIONS = ("core", "play", "productivity", "modern", "retro", "legacy")
 NS = "urn:schemas-microsoft-com:unattend"
 ET.register_namespace("", NS)
@@ -118,6 +119,7 @@ def build(edition: str, output: pathlib.Path, profiles: dict) -> None:
       z.write(HARDWARE_REPORT, "Get-JoynexaHardwareReport.ps1")
       z.write(RECOVERY, "Test-JoynexaRecovery.ps1")
       z.write(RUNTIME, "Start-JoynexaRuntime.ps1")
+      z.write(GUI, "Start-JoynexaInstallerGUI.ps1")
       z.writestr("README.txt",f"""{item['name']} setup kit
 
 1. Extract this archive.
@@ -130,7 +132,7 @@ It does not bypass hardware requirements, activate Windows, create accounts, dis
 """)
     with zipfile.ZipFile(output) as z:
       assert z.testzip() is None
-      assert set(z.namelist())=={"joynexa-setup.json","unattend.xml","Start-JoynexaFirstBoot.ps1","Install-Joynexa.ps1","Optimize-Joynexa.ps1","Get-JoynexaHardwareReport.ps1","Test-JoynexaRecovery.ps1","Start-JoynexaRuntime.ps1","README.txt"}
+      assert set(z.namelist())=={"joynexa-setup.json","unattend.xml","Start-JoynexaFirstBoot.ps1","Install-Joynexa.ps1","Optimize-Joynexa.ps1","Get-JoynexaHardwareReport.ps1","Test-JoynexaRecovery.ps1","Start-JoynexaRuntime.ps1","Start-JoynexaInstallerGUI.ps1","README.txt"}
 
 def self_test(profiles: dict) -> None:
   xml=make_unattend()
@@ -143,6 +145,10 @@ def self_test(profiles: dict) -> None:
   assert "Type YES to continue" in installer and "interactive" in installer
   recovery=RECOVERY.read_text(encoding="utf-8")
   runtime=RUNTIME.read_text(encoding="utf-8")
+  gui=GUI.read_text(encoding="utf-8")
+  assert "System.Windows.Forms" in gui and "Get-CimInstance" in gui
+  assert "joynexa-setup.json" in gui and "Install-Joynexa.ps1" in gui
+  assert "HKLM:" not in gui and "Set-Service" not in gui and "BypassTPMCheck" not in gui
   assert "ReadOnly=$true" in recovery and "Set-Service" not in recovery and "Stop-Service" not in recovery
   assert "ValidateSet" in runtime and "joynexa-setup.json" in runtime and "HKLM:" not in runtime
   hardware=HARDWARE_REPORT.read_text(encoding="utf-8")
