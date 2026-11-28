@@ -49,3 +49,15 @@ No ISO is generated in this milestone. Future customization must be implemented
 as explicit, independently tested components and must preserve Microsoft's
 licensing, supported hardware requirements, secure boot and driver signature
 enforcement.
+
+
+## Staging integrity report
+
+When verified staging is eventually permitted, the builder inventories every
+source file (including hidden files) before copying. It compares source and
+staged file counts and total byte sizes, then writes
+`joynexa-staged-inventory.json` with relative paths, sizes, and SHA-256 hashes.
+The main audit report records the inventory file hash and whether the staging
+checks passed. This proves the staged inventory was measured; it does not mean
+the files were customized or that a bootable ISO was produced. The PowerShell
+builder still requires a real Windows host and must be runtime-tested there.
