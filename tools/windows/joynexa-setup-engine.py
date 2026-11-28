@@ -125,7 +125,7 @@ def build(edition: str, output: pathlib.Path, profiles: dict) -> None:
 1. Extract this archive.
 2. Use unattend.xml only as an optional Windows Setup answer file. It sets a computer name; Windows OOBE remains interactive.
 3. Complete Windows setup and all account, privacy, and licensing prompts yourself.
-4. After signing in, run Install-Joynexa.ps1 and type YES when prompted. It launches the first-boot personalization for the current user.\n5. Run Get-JoynexaHardwareReport.ps1 to create a read-only hardware inventory JSON.\n6. Use Start-JoynexaRuntime.ps1 -Action Diagnose for hardware and recovery reports.\n7. Use -Action Personalize, -Action Balanced, -Action Performance, or -Action Restore as needed.
+4. After signing in, launch Start-JoynexaInstallerGUI.ps1 for the graphical assistant, or run Install-Joynexa.ps1 and type YES.\\n5. Run Get-JoynexaHardwareReport.ps1 for a read-only JSON hardware inventory.\\n6. Use Start-JoynexaRuntime.ps1 -Action Diagnose for hardware and recovery reports.\\n7. Use -Action Personalize, -Action Balanced, -Action Performance, or -Action Restore as needed.
 
 This is not Windows installation media and contains no Windows payload or license.
 It does not bypass hardware requirements, activate Windows, create accounts, disable security, or alter protected system files.
