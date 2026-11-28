@@ -1,6 +1,5 @@
 (() => {
   const releasesUrl = "https://api.github.com/repos/Reaccionador2Jeje/Joynexa/releases/latest";
-  const releasePage = "https://github.com/Reaccionador2Jeje/Joynexa/releases";
   const targets = {
     windows: { match: /windows|win64|win-x64|setup.*\\.exe|\\.msi$/i, label: "Windows" },
     linux: { match: /linux|appimage|\\.deb$|\\.rpm$/i, label: "Linux" },
