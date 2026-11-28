@@ -155,7 +155,24 @@ internal sealed class ConsoleForm : Form
                 WorkingDirectory = Path.GetDirectoryName(game.ExecutablePath)!,
                 UseShellExecute = false
             };
-            Process.Start(start);
+            var process = Process.Start(start);
+            if (process is null)
+            {
+                _ = PostAsync(new { type = "host-error", message = "Windows did not start the selected application." });
+                return;
+            }
+
+            process.EnableRaisingEvents = true;
+            process.Exited += (_, _) =>
+            {
+                if (IsDisposed || !IsHandleCreated) return;
+                BeginInvoke(() =>
+                {
+                    if (IsDisposed) return;
+                    WindowState = FormWindowState.Maximized;
+                    Activate();
+                });
+            };
             WindowState = FormWindowState.Minimized;
         }
         catch (Exception ex)
