@@ -23,6 +23,14 @@ El frontend conserva las mismas rutas `/api/register`, `/api/login`, `/api/logou
 - First release supports public repositories with `public_repo read:user` scope. GitLab, Codeberg and private-repository support are future integrations.
 - Setup: see [DevGit documentation](docs/JOYNEXA_DEVGIT.md), configure the GitHub OAuth Worker secrets and apply migration `0008_joynexa_devgit.sql`.
 
+## Joynexa Input Hub
+
+- Browser Gamepad API support for standard USB and Bluetooth controllers, including generic gamepads exposed by the operating system.
+- Shared browser input layer at `public/joynexa-input.js`: normalized buttons, analog axes, keyboard fallback, touch-button injection and optional vibration where the browser/controller support it.
+- Controller test page at `/controllers.html` with live connection, button and stick feedback.
+- No controller telemetry is uploaded; input is processed locally in the player's browser.
+- Browser and OS support varies. Generic controllers may expose non-standard button layouts; Joynexa reports the mapping rather than claiming universal hardware compatibility.
+
 ## Joynexa Play integrado
 
 - Reproductor dentro del sitio para juegos externos expresamente habilitados para iframe.
