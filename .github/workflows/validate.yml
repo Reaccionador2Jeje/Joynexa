@@ -19,6 +19,10 @@ jobs:
           node --check public/play.js
           node --check public/admin.js
           node --check public/windows.js
+          node --check public/devgit.js
+          node --check public/joynexa-input.js
+          node --check public/controllers.js
+          node --check public/arcade.js
           node --check src/index.js
 
   accounts-api:
