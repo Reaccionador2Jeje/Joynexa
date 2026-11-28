@@ -44,6 +44,7 @@
     updateProfileLabels();
   }
   const isNativeHost = () => Boolean(window.chrome?.webview || window.joynexaAndroid || window.pywebview?.api);
+  const hostPlatformName = () => window.joynexaAndroid ? "Android" : window.pywebview?.api ? "Linux" : "Windows";
   function postHostMessage(message) {
     if (window.chrome?.webview) { window.chrome.webview.postMessage(message); return; }
     if (window.joynexaAndroid?.postMessage) { window.joynexaAndroid.postMessage(JSON.stringify(message)); return; }
@@ -213,7 +214,7 @@
   window.joynexaHostMessage = raw => {
     let message;
     try { message = typeof raw === "string" ? JSON.parse(raw) : raw; }
-    catch { notify("Could not read a message from the Windows host."); return; }
+    catch { notify("Could not read a message from the native host."); return; }
     if (message.type === "library") {
       nativeGames = Array.isArray(message.games) ? message.games : [];
       const grid = $("#game-grid");
@@ -221,7 +222,7 @@
       if (!nativeGames.length) {
         const empty = document.createElement("div");
         empty.className = "empty-state";
-        empty.innerHTML = "<strong>Your library is waiting.</strong><br>Select Add a game to choose a Windows executable.";
+        empty.innerHTML = "<strong>Your library is waiting.</strong><br>Select Add a game to choose an application.";
         grid.append(empty);
         return;
       }
@@ -231,7 +232,7 @@
         const title = document.createElement("strong");
         title.textContent = game.name;
         const meta = document.createElement("small");
-        meta.textContent = "Registered Windows application";
+        meta.textContent = "Registered " + hostPlatformName() + " application";
         const launch = document.createElement("button");
         launch.type = "button";
         launch.textContent = "Launch game →";
@@ -240,7 +241,7 @@
         grid.append(card);
       });
     } else if (message.type === "host-error") {
-      notify(message.message || "Windows host error.");
+      notify(message.message || "Native host error.");
     }
   };
 
