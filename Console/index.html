@@ -1,0 +1,59 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="theme-color" content="#090d18">
+  <title>Joynexa Console</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div class="ambient ambient-one"></div><div class="ambient ambient-two"></div>
+  <header class="topbar">
+    <a class="brand" href="#" aria-label="Joynexa Console home"><span class="brand-mark">J</span><span>JOYNEXA<small>CONSOLE</small></span></a>
+    <div class="top-status"><span class="status-dot"></span><span id="controller-status">No controller detected</span><span class="clock" id="clock">--:--</span></div>
+  </header>
+  <main>
+    <section class="welcome">
+      <p class="eyebrow">ATDEV PRESENTS · PROTOTYPE 01</p>
+      <h1>Your games.<br><span>Your space.</span></h1>
+      <p class="subheading">A new home for your PC gaming library.</p>
+    </section>
+    <nav class="tabs" aria-label="Main navigation">
+      <button class="tab active" data-view="home">Home</button>
+      <button class="tab" data-view="library">Game library</button>
+      <button class="tab" data-view="settings">Settings</button>
+    </nav>
+    <section id="home-view" class="view active" aria-label="Home">
+      <div class="section-heading"><div><p class="eyebrow">PICK UP AND PLAY</p><h2>Featured</h2></div><span class="muted">Prototype collection</span></div>
+      <div class="featured-card">
+        <div class="feature-art"><div class="orbit orbit-a"></div><div class="orbit orbit-b"></div><div class="feature-symbol">J</div></div>
+        <div class="feature-copy"><span class="pill">WELCOME TO JOYNEXA</span><h3>Make yourself<br>at home.</h3><p>Your console dashboard is ready. Add games to your library to build your collection.</p><button class="primary" data-action="open-library">Open library <span>→</span></button></div>
+      </div>
+      <div class="section-heading compact"><div><p class="eyebrow">QUICK ACCESS</p><h2>Explore</h2></div></div>
+      <div class="quick-grid">
+        <button class="quick-card" data-view="library"><span class="quick-icon">▣</span><strong>Game library</strong><small>Your collection</small></button>
+        <button class="quick-card" data-view="settings"><span class="quick-icon">⚙</span><strong>Controller & settings</strong><small>Configure your setup</small></button>
+        <button class="quick-card" data-action="help"><span class="quick-icon">⌘</span><strong>Controls</strong><small>Keyboard and gamepad</small></button>
+      </div>
+    </section>
+    <section id="library-view" class="view" aria-label="Game library" hidden>
+      <div class="section-heading"><div><p class="eyebrow">YOUR COLLECTION</p><h2>Game library</h2></div><button class="secondary" data-action="add-game">＋ Add a game</button></div>
+      <div id="game-grid" class="game-grid"></div>
+      <p class="footnote">This prototype stores game names locally. It does not launch executable files yet.</p>
+    </section>
+    <section id="settings-view" class="view" aria-label="Settings" hidden>
+      <div class="section-heading"><div><p class="eyebrow">PERSONALIZE YOUR SETUP</p><h2>Settings</h2></div></div>
+      <div class="settings-list">
+        <article class="setting"><div><strong>Controller status</strong><p id="controller-detail">Connect a USB or Bluetooth controller, then press any button.</p></div><span class="setting-value" id="controller-count">0 connected</span></article>
+        <article class="setting"><div><strong>Display mode</strong><p>Designed for fullscreen TV and monitor use.</p></div><button class="secondary" data-action="fullscreen">Toggle fullscreen</button></article>
+        <article class="setting"><div><strong>Interface</strong><p>Lightweight animations for older PCs.</p></div><span class="setting-value">Low impact</span></article>
+        <article class="setting"><div><strong>Prototype version</strong><p>Joynexa Console · AtDev</p></div><span class="setting-value">0.1.0</span></article>
+      </div>
+    </section>
+    <footer><span>JOYNEXA CONSOLE <b>·</b> BUILT BY ATDEV</span><span>↑ ↓ Navigate <b>·</b> Enter Select <b>·</b> Esc Back</span></footer>
+  </main>
+  <div id="toast" role="status" aria-live="polite"></div>
+  <script src="app.js"></script>
+</body>
+</html>
