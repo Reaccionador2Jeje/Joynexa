@@ -20,7 +20,7 @@ Create an environment and launch:
 
 ```bash
 cd Console/LinuxHost
-python3 -m venv .venv
+python3 -m venv --system-site-packages .venv
 . .venv/bin/activate
 pip install -r requirements.txt
 python joynexa_console.py
