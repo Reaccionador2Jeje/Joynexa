@@ -157,12 +157,25 @@ async function handleDevGit(request,env,url,user,headers) {
  }
  const connection=await githubConnection(user,env).catch(()=>null);
  if(!connection)return json({error:"Conecta tu cuenta GitHub primero."},409,headers);
+ if(path==="/api/devgit/repos"&&method==="GET") {
+  const result=await githubApi(connection.token,"/user/repos?visibility=public&affiliation=owner,collaborator,organization_member&sort=updated&per_page=100");
+  return json(result.ok?{repositories:result.data.map(item=>({full_name:item.full_name,description:item.description,default_branch:item.default_branch,private:item.private,html_url:item.html_url,updated_at:item.updated_at}))}:{error:result.data.message||"No se pudieron cargar los repositorios."},result.ok?200:result.status,headers);
+ }
  const prefix="/api/devgit/repos/";
  if(!path.startsWith(prefix))return json({error:"Ruta DevGit no encontrada."},404,headers);
  const rest=path.slice(prefix.length).split("/");
  const owner=decodeURIComponent(rest[0]||""),repo=decodeURIComponent(rest[1]||"");
  if(!validRepoPart(owner)||!validRepoPart(repo))return json({error:"Repositorio no válido."},400,headers);
  const base="/repos/"+encodeURIComponent(owner)+"/"+encodeURIComponent(repo);
+ if(method==="GET"&&rest[2]==="branches") {
+  const result=await githubApi(connection.token,base+"/branches?per_page=100");
+  return json(result.ok?{branches:result.data.map(item=>({name:item.name,sha:item.commit.sha}))}:{error:result.data.message||"No se pudieron cargar las ramas."},result.ok?200:result.status,headers);
+ }
+ if(method==="GET"&&rest[2]==="commits") {
+  const ref=url.searchParams.get("ref")||"main";
+  const result=await githubApi(connection.token,base+"/commits?sha="+encodeURIComponent(ref)+"&per_page=30");
+  return json(result.ok?{commits:result.data.map(item=>({sha:item.sha,message:item.commit.message,author:item.commit.author?.name,date:item.commit.author?.date,url:item.html_url}))}:{error:result.data.message||"No se pudo cargar el historial."},result.ok?200:result.status,headers);
+ }
  if(method==="GET"&&rest[2]==="tree") {
   const ref=url.searchParams.get("ref")||"HEAD";
   const result=await githubApi(connection.token,base+"/git/trees/"+encodeURIComponent(ref)+"?recursive=1");
