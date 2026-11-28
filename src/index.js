@@ -178,7 +178,11 @@ async function handleDevGit(request,env,url,user,headers) {
  }
  if(method==="GET"&&rest[2]==="tree") {
   const ref=url.searchParams.get("ref")||"HEAD";
-  const result=await githubApi(connection.token,base+"/git/trees/"+encodeURIComponent(ref)+"?recursive=1");
+  const branchInfo=await githubApi(connection.token,base+"/branches/"+encodeURIComponent(ref));
+  if(!branchInfo.ok)return json({error:branchInfo.data.message||"No se encontró la rama."},branchInfo.status,headers);
+  const treeSha=branchInfo.data.commit?.commit?.tree?.sha;
+  if(!treeSha)return json({error:"GitHub no devolvió el árbol de esta rama."},502,headers);
+  const result=await githubApi(connection.token,base+"/git/trees/"+treeSha+"?recursive=1");
   return json(result.ok?{tree:result.data.tree||[],sha:result.data.sha,truncated:!!result.data.truncated}:{error:result.data.message||"No se pudo leer el árbol."},result.ok?200:result.status,headers);
  }
  if(method==="GET"&&rest[2]==="file") {
