@@ -43,7 +43,16 @@
     applyScale();
     updateProfileLabels();
   }
-  const nativeHost = Boolean(window.chrome?.webview);
+  const isNativeHost = () => Boolean(window.chrome?.webview || window.joynexaAndroid || window.pywebview?.api);
+  function postHostMessage(message) {
+    if (window.chrome?.webview) { window.chrome.webview.postMessage(message); return; }
+    if (window.joynexaAndroid?.postMessage) { window.joynexaAndroid.postMessage(JSON.stringify(message)); return; }
+    if (window.pywebview?.api?.handle_message) {
+      window.pywebview.api.handle_message(JSON.stringify(message))
+        .then(response => { if (response) window.joynexaHostMessage(response); })
+        .catch(() => notify("The Linux host could not complete that action."));
+    }
+  }
   let nativeGames = [];
   const views = ["home", "library", "settings"];
   let activeView = "home";
@@ -138,7 +147,7 @@
   }
 
   function addGame() {
-    if (nativeHost) { window.chrome.webview.postMessage({type:"pick-game"}); return; }
+    if (isNativeHost()) { postHostMessage({type:"pick-game"}); return; }
     const name = window.prompt("Enter the game title:");
     if (name === null) return;
     const clean = name.trim().slice(0, 80);
@@ -177,7 +186,7 @@
     else if (control.dataset.action === "add-game") addGame();
     else if (control.dataset.action === "fullscreen") activate(control);
     else if (control.dataset.action === "help") activate(control);
-    else if (control.dataset.action === "exit-console" && nativeHost) activate(control);
+    else if (control.dataset.action === "exit-console" && isNativeHost()) activate(control);
   });
 
   document.addEventListener("keydown", event => {
@@ -226,7 +235,7 @@
         const launch = document.createElement("button");
         launch.type = "button";
         launch.textContent = "Launch game →";
-        launch.addEventListener("click", () => window.chrome.webview.postMessage({type:"launch-game", id:game.id}));
+        launch.addEventListener("click", () => postHostMessage({type:"launch-game", id:game.id}));
         card.append(title, meta, launch);
         grid.append(card);
       });
