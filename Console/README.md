@@ -21,6 +21,13 @@ Open `index.html` in a modern browser. For best Gamepad API support, serve this 
 ## Hardware target
 Prototype 01 is designed to be tested on the ThinkPad Edge E430 (Intel Core i5-2520M, 4 GB RAM, 500 GB HDD) connected to a TV by HDMI. Keep visual effects lightweight.
 
+## Controller and TV setup (0.3.0)
+- Xbox-style, PlayStation-style, and generic controller presets.
+- Configurable confirm/back button indices using the standard Gamepad API mapping.
+- Persistent controller preferences in local browser storage.
+- TV interface scale control (85–125%) for different viewing distances.
+- Keyboard and D-pad navigation remain available regardless of selected profile.
+
 ## Current implementation
 - Native Windows host built with .NET 8 Windows Forms and WebView2.
 - Explicit executable selection through the Windows file picker.
@@ -29,6 +36,6 @@ Prototype 01 is designed to be tested on the ThinkPad Edge E430 (Intel Core i5-2
 - Browser Gamepad API and keyboard navigation remain available.
 
 ## Next engineering steps
-1. Add controller mapping profiles and per-game configuration.
+1. Add per-game controller overrides and richer device detection.
 2. Add optional startup integration only after the native host is stable.
 3. Add packaging, signing, and Windows hardware testing.
