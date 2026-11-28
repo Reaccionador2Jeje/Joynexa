@@ -24,6 +24,11 @@ REQUIRED = (
     "requirements_bypassed = $false",
     "signature_enforcement_disabled = $false",
     "iso_created = $false",
+    "staged_inventory_sha256",
+    "staging_verified = $true",
+    "Get-FileHash -LiteralPath $_.FullName -Algorithm SHA256",
+    "source_file_count",
+    "staged_file_count",
 )
 FORBIDDEN = (
     "Set-ExecutionPolicy Unrestricted",
