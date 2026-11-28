@@ -8,6 +8,8 @@ PROFILES = ROOT / "config/windows/branding-profiles.json"
 INSTALLER = ROOT / "tools/windows/payloads/Install-Joynexa.ps1"
 OPTIMIZER = ROOT / "tools/windows/payloads/Optimize-Joynexa.ps1"
 HARDWARE_REPORT = ROOT / "tools/windows/payloads/Get-JoynexaHardwareReport.ps1"
+RECOVERY = ROOT / "tools/windows/payloads/Test-JoynexaRecovery.ps1"
+RUNTIME = ROOT / "tools/windows/payloads/Start-JoynexaRuntime.ps1"
 EDITIONS = ("core", "play", "productivity", "modern", "retro", "legacy")
 NS = "urn:schemas-microsoft-com:unattend"
 ET.register_namespace("", NS)
@@ -114,19 +116,21 @@ def build(edition: str, output: pathlib.Path, profiles: dict) -> None:
       z.write(INSTALLER, "Install-Joynexa.ps1")
       z.write(OPTIMIZER, "Optimize-Joynexa.ps1")
       z.write(HARDWARE_REPORT, "Get-JoynexaHardwareReport.ps1")
+      z.write(RECOVERY, "Test-JoynexaRecovery.ps1")
+      z.write(RUNTIME, "Start-JoynexaRuntime.ps1")
       z.writestr("README.txt",f"""{item['name']} setup kit
 
 1. Extract this archive.
 2. Use unattend.xml only as an optional Windows Setup answer file. It sets a computer name; Windows OOBE remains interactive.
 3. Complete Windows setup and all account, privacy, and licensing prompts yourself.
-4. After signing in, run Install-Joynexa.ps1 and type YES when prompted. It launches the first-boot personalization for the current user.\n5. Run Get-JoynexaHardwareReport.ps1 to create a read-only hardware inventory JSON.\n6. Optionally run Optimize-Joynexa.ps1 -Mode Balanced or -Mode Performance. Use -Mode Restore to restore the captured user-interface values.
+4. After signing in, run Install-Joynexa.ps1 and type YES when prompted. It launches the first-boot personalization for the current user.\n5. Run Get-JoynexaHardwareReport.ps1 to create a read-only hardware inventory JSON.\n6. Use Start-JoynexaRuntime.ps1 -Action Diagnose for hardware and recovery reports.\n7. Use -Action Personalize, -Action Balanced, -Action Performance, or -Action Restore as needed.
 
 This is not Windows installation media and contains no Windows payload or license.
 It does not bypass hardware requirements, activate Windows, create accounts, disable security, or alter protected system files.
 """)
     with zipfile.ZipFile(output) as z:
       assert z.testzip() is None
-      assert set(z.namelist())=={"joynexa-setup.json","unattend.xml","Start-JoynexaFirstBoot.ps1","Install-Joynexa.ps1","Optimize-Joynexa.ps1","Get-JoynexaHardwareReport.ps1","README.txt"}
+      assert set(z.namelist())=={"joynexa-setup.json","unattend.xml","Start-JoynexaFirstBoot.ps1","Install-Joynexa.ps1","Optimize-Joynexa.ps1","Get-JoynexaHardwareReport.ps1","Test-JoynexaRecovery.ps1","Start-JoynexaRuntime.ps1","README.txt"}
 
 def self_test(profiles: dict) -> None:
   xml=make_unattend()
@@ -137,6 +141,10 @@ def self_test(profiles: dict) -> None:
   assert "SystemParametersInfo" in FIRST_BOOT and "HKCU:" in FIRST_BOOT
   installer=INSTALLER.read_text(encoding="utf-8")
   assert "Type YES to continue" in installer and "interactive" in installer
+  recovery=RECOVERY.read_text(encoding="utf-8")
+  runtime=RUNTIME.read_text(encoding="utf-8")
+  assert "ReadOnly=$true" in recovery and "Set-Service" not in recovery and "Stop-Service" not in recovery
+  assert "ValidateSet" in runtime and "joynexa-setup.json" in runtime and "HKLM:" not in runtime
   hardware=HARDWARE_REPORT.read_text(encoding="utf-8")
   assert "Get-CimInstance" in hardware and "ReadOnly = $true" in hardware
   assert "Remove-Item" not in hardware and "Set-Service" not in hardware
