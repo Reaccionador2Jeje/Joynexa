@@ -3,6 +3,46 @@
   const $ = (selector, root = document) => root.querySelector(selector);
   const $$ = (selector, root = document) => [...root.querySelectorAll(selector)];
   const STORAGE_KEY = "joynexa-console-games-v1";
+  const CONTROLLER_KEY = "joynexa-controller-settings-v1";
+  const DEFAULT_CONTROLLER = { profile: "generic", confirm: 0, back: 1, dpad: true, scale: "100" };
+  let controllerConfig = loadControllerConfig();
+
+  function loadControllerConfig() {
+    try { return { ...DEFAULT_CONTROLLER, ...JSON.parse(localStorage.getItem(CONTROLLER_KEY) || "{}") }; }
+    catch { return { ...DEFAULT_CONTROLLER }; }
+  }
+
+  function saveControllerConfig() {
+    const profile = $("#controller-profile").value;
+    const confirm = Number($("#confirm-button").value);
+    const back = Number($("#back-button").value);
+    const scale = $("#ui-scale").value;
+    controllerConfig = { profile, confirm, back, scale, dpad: true };
+    try { localStorage.setItem(CONTROLLER_KEY, JSON.stringify(controllerConfig)); }
+    catch { notify("Could not save controller settings."); return; }
+    applyScale();
+    updateProfileLabels();
+    notify("Controller settings saved.");
+  }
+
+  function applyScale() {
+    document.documentElement.style.setProperty("--ui-scale", controllerConfig.scale || "100");
+    $("#ui-scale-value").textContent = (controllerConfig.scale || "100") + "%";
+  }
+
+  function updateProfileLabels() {
+    const names = { xbox: "Xbox layout", playstation: "PlayStation layout", generic: "Generic / DirectInput" };
+    $("#profile-summary").textContent = names[controllerConfig.profile] || names.generic;
+  }
+
+  function loadControllerSettingsUI() {
+    $("#controller-profile").value = controllerConfig.profile;
+    $("#confirm-button").value = String(controllerConfig.confirm);
+    $("#back-button").value = String(controllerConfig.back);
+    $("#ui-scale").value = controllerConfig.scale || "100";
+    applyScale();
+    updateProfileLabels();
+  }
   const nativeHost = Boolean(window.chrome?.webview);
   let nativeGames = [];
   const views = ["home", "library", "settings"];
@@ -215,6 +255,18 @@
     }
     requestAnimationFrame(pollGamepads);
   }
+
+  $("#save-controller-settings").addEventListener("click", saveControllerConfig);
+  $("#ui-scale").addEventListener("input", event => {
+    $("#ui-scale-value").textContent = event.target.value + "%";
+  });
+  $("#controller-profile").addEventListener("change", event => {
+    const presets = { xbox: [0, 1], playstation: [0, 1], generic: [0, 1] };
+    const [confirm, back] = presets[event.target.value] || presets.generic;
+    $("#confirm-button").value = String(confirm);
+    $("#back-button").value = String(back);
+    updateProfileLabels();
+  });
 
   window.addEventListener("gamepadconnected", updateControllerStatus);
   window.addEventListener("gamepaddisconnected", updateControllerStatus);
