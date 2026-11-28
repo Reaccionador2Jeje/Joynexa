@@ -173,8 +173,8 @@
       else document.exitFullscreen?.();
     } else if (element.dataset.action === "help") {
       notify("D-pad / arrows move · A / Enter selects · B / Esc goes back.");
-    } else if (element.dataset.action === "exit-console" && nativeHost) {
-      window.chrome.webview.postMessage({type:"exit-console"});
+    } else if (element.dataset.action === "exit-console" && isNativeHost()) {
+      postHostMessage({type:"exit-console"});
     } else element.click();
   }
 
@@ -282,10 +282,15 @@
   function updateClock() {
     $("#clock").textContent = new Intl.DateTimeFormat(undefined,{hour:"2-digit",minute:"2-digit"}).format(new Date());
   }
-  if (nativeHost) {
+  if (window.chrome?.webview) {
     window.chrome.webview.addEventListener("message", event => window.joynexaHostMessage(event.data));
-    window.chrome.webview.postMessage({type:"get-library"});
-  } else { renderGames(); }
+    postHostMessage({type:"get-library"});
+  } else if (window.joynexaAndroid || window.pywebview?.api) {
+    postHostMessage({type:"get-library"});
+  } else {
+    renderGames();
+    window.addEventListener("pywebviewready", () => postHostMessage({type:"get-library"}), {once:true});
+  }
   updateControllerStatus();
   updateClock();
   setInterval(updateClock, 30000);
