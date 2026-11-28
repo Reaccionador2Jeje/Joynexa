@@ -21,9 +21,14 @@ Open `index.html` in a modern browser. For best Gamepad API support, serve this 
 ## Hardware target
 Prototype 01 is designed to be tested on the ThinkPad Edge E430 (Intel Core i5-2520M, 4 GB RAM, 500 GB HDD) connected to a TV by HDMI. Keep visual effects lightweight.
 
+## Current implementation
+- Native Windows host built with .NET 8 Windows Forms and WebView2.
+- Explicit executable selection through the Windows file picker.
+- Local game library stored under the current user's LocalAppData.
+- Launches only previously registered executable IDs; no arbitrary shell commands or webpage-supplied paths.
+- Browser Gamepad API and keyboard navigation remain available.
+
 ## Next engineering steps
-1. Add a native Windows shell/launcher host.
-2. Enumerate installed games through explicit, user-approved library paths.
-3. Implement real process launching with argument validation and safe exit handling.
-4. Add controller mapping profiles and per-game configuration.
-5. Add startup integration only after the native host is stable.
+1. Add controller mapping profiles and per-game configuration.
+2. Add optional startup integration only after the native host is stable.
+3. Add packaging, signing, and Windows hardware testing.
