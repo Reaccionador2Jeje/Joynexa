@@ -18,10 +18,12 @@ El frontend conserva las mismas rutas `/api/register`, `/api/login`, `/api/logou
 
 ## Joynexa DevGit
 
-- Integrated GitHub workspace for game developers: repository browsing, branch creation, text-file editing, local diffs, commits, commit history and Pull Requests.
-- GitHub OAuth tokens are stored encrypted server-side; the browser never receives the provider token.
-- First release supports public repositories with `public_repo read:user` scope. GitLab, Codeberg and private-repository support are future integrations.
-- Setup: see [DevGit documentation](docs/JOYNEXA_DEVGIT.md), configure the GitHub OAuth Worker secrets and apply migration `0008_joynexa_devgit.sql`.
+- Independent browser-local Git-style workspace for game developers.
+- Does not require a Joynexa account, GitHub OAuth, personal access tokens, Worker secrets, D1 tables or a server-side GitHub integration.
+- Optional import reads source code from public GitHub repositories only; no account, issue, Pull Request, workflow or repository-management APIs are used.
+- Editing, local branches, commit snapshots and history stay in browser IndexedDB.
+- Exports local diffs and project files. It does not push to remote repositories yet.
+- Architecture and limitations: [DevGit documentation](docs/JOYNEXA_DEVGIT.md).
 
 ## Joynexa Input Hub
 
