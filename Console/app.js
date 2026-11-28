@@ -3,6 +3,8 @@
   const $ = (selector, root = document) => root.querySelector(selector);
   const $$ = (selector, root = document) => [...root.querySelectorAll(selector)];
   const STORAGE_KEY = "joynexa-console-games-v1";
+  const nativeHost = Boolean(window.chrome?.webview);
+  let nativeGames = [];
   const views = ["home", "library", "settings"];
   let activeView = "home";
   let focusedIndex = 0;
@@ -79,7 +81,7 @@
       const title = document.createElement("strong");
       title.textContent = game.name;
       const meta = document.createElement("small");
-      meta.textContent = "Added to your collection";
+      meta.textContent = "Demo entry · browser only";
       const remove = document.createElement("button");
       remove.type = "button";
       remove.textContent = "Remove from library";
@@ -96,6 +98,7 @@
   }
 
   function addGame() {
+    if (nativeHost) { window.chrome.webview.postMessage({type:"pick-game"}); return; }
     const name = window.prompt("Enter the game title:");
     if (name === null) return;
     const clean = name.trim().slice(0, 80);
@@ -154,6 +157,41 @@
     $(".status-dot").classList.toggle("connected", pads.length > 0);
   }
 
+
+  window.joynexaHostMessage = raw => {
+    let message;
+    try { message = typeof raw === "string" ? JSON.parse(raw) : raw; }
+    catch { notify("Could not read a message from the Windows host."); return; }
+    if (message.type === "library") {
+      nativeGames = Array.isArray(message.games) ? message.games : [];
+      const grid = $("#game-grid");
+      grid.replaceChildren();
+      if (!nativeGames.length) {
+        const empty = document.createElement("div");
+        empty.className = "empty-state";
+        empty.innerHTML = "<strong>Your library is waiting.</strong><br>Select Add a game to choose a Windows executable.";
+        grid.append(empty);
+        return;
+      }
+      nativeGames.forEach(game => {
+        const card = document.createElement("article");
+        card.className = "game-card";
+        const title = document.createElement("strong");
+        title.textContent = game.name;
+        const meta = document.createElement("small");
+        meta.textContent = "Registered Windows application";
+        const launch = document.createElement("button");
+        launch.type = "button";
+        launch.textContent = "Launch game →";
+        launch.addEventListener("click", () => window.chrome.webview.postMessage({type:"launch-game", id:game.id}));
+        card.append(title, meta, launch);
+        grid.append(card);
+      });
+    } else if (message.type === "host-error") {
+      notify(message.message || "Windows host error.");
+    }
+  };
+
   function pollGamepads() {
     const pad = connectedPads()[0];
     if (pad) {
@@ -180,7 +218,10 @@
   function updateClock() {
     $("#clock").textContent = new Intl.DateTimeFormat(undefined,{hour:"2-digit",minute:"2-digit"}).format(new Date());
   }
-  renderGames();
+  if (nativeHost) {
+    window.chrome.webview.addEventListener("message", event => window.joynexaHostMessage(event.data));
+    window.chrome.webview.postMessage({type:"get-library"});
+  } else { renderGames(); }
   updateControllerStatus();
   updateClock();
   setInterval(updateClock, 30000);
