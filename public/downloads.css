@@ -1,0 +1,26 @@
+.downloads-page{min-height:100vh;background:radial-gradient(ellipse at 50% 0%,rgba(73,86,190,.2),transparent 45%),#090b18}
+.downloads-wrap{width:min(1120px,calc(100% - 40px));margin:0 auto;padding:86px 0 100px}
+.downloads-hero{max-width:780px;margin:0 auto 54px;text-align:center}
+.downloads-hero .eyebrow{justify-content:center}
+.downloads-hero h1{font:700 clamp(42px,7vw,76px)/1.03 "Space Grotesk",sans-serif;letter-spacing:-.055em;margin:22px 0}
+.downloads-hero h1 span{background:linear-gradient(100deg,#8c91ff,#62d8ee);-webkit-background-clip:text;background-clip:text;color:transparent}
+.downloads-hero>p{max-width:650px;margin:0 auto;color:#aeb8ce;font-size:17px;line-height:1.7}
+.release-line{display:inline-flex;align-items:center;gap:9px;margin-top:25px;color:#c4cce0;font-size:13px}
+.release-dot{width:8px;height:8px;border-radius:50%;background:#70d9ad;box-shadow:0 0 15px #70d9ad}
+.download-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:18px}
+.download-card{display:flex;flex-direction:column;min-height:390px;padding:27px;border:1px solid rgba(150,166,220,.17);border-radius:20px;background:linear-gradient(155deg,rgba(29,39,69,.92),rgba(13,18,35,.96));box-shadow:0 20px 70px rgba(0,0,0,.18)}
+.download-card.featured{border-color:rgba(111,174,255,.55);background:linear-gradient(155deg,rgba(35,48,91,.96),rgba(13,18,35,.98))}
+.platform-icon{display:grid;place-items:center;width:54px;height:54px;border-radius:15px;background:rgba(120,145,255,.13);color:#aab4ff;font-size:28px}
+.platform-kicker{margin:23px 0 6px;color:#8c9ab9;font-size:10px;font-weight:800;letter-spacing:.15em}
+.download-card h2{margin:0;font:700 29px "Space Grotesk",sans-serif;color:#f4f6ff}
+.download-card>p:not(.platform-kicker){color:#aeb8ce;font-size:14px;line-height:1.65;min-height:70px}
+.download-meta{display:flex;justify-content:space-between;gap:10px;padding:14px 0;border-top:1px solid rgba(150,166,220,.14);color:#8492b0;font-size:12px}
+.download-meta b{color:#dfe6ff}
+.download-button{display:flex;justify-content:space-between;align-items:center;margin-top:auto;padding:14px 16px;border-radius:11px;background:linear-gradient(100deg,#747bff,#4abbd6);color:#07101f;text-decoration:none;font-weight:800;font-size:14px}
+.download-button:hover{filter:brightness(1.1);transform:translateY(-1px)}
+.asset-status{display:block;min-height:34px;margin-top:12px;color:#8794b0;font-size:11px;line-height:1.5}
+.download-notice{max-width:800px;margin:35px auto 0;padding:23px 25px;border:1px solid rgba(150,166,220,.15);border-radius:15px;background:rgba(19,26,47,.75)}
+.download-notice strong{color:#e8edff}
+.download-notice p{color:#aeb8ce;font-size:13px;line-height:1.7}
+.download-notice a{color:#83d7ed;font-size:13px;text-decoration:none}
+@media(max-width:850px){.download-grid{grid-template-columns:1fr}.download-card{min-height:unset}.download-card>p:not(.platform-kicker){min-height:unset}.downloads-wrap{padding-top:55px}}
