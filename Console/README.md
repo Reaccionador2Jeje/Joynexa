@@ -1,4 +1,4 @@
-# Joynexa Console — Prototype 01
+# Joynexa Console — Prototype 01 (0.3.0)
 
 A controller-friendly, fullscreen-first launcher prototype for the Joynexa project.
 
@@ -33,6 +33,7 @@ Prototype 01 is designed to be tested on the ThinkPad Edge E430 (Intel Core i5-2
 - Explicit executable selection through the Windows file picker.
 - Local game library stored under the current user's LocalAppData.
 - Launches only previously registered executable IDs; no arbitrary shell commands or webpage-supplied paths.
+- Minimizes the dashboard while a game runs and restores it when that process exits.
 - Browser Gamepad API and keyboard navigation remain available.
 
 ## Next engineering steps
