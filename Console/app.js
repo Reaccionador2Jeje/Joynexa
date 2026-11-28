@@ -137,6 +137,7 @@
     else if (control.dataset.action === "add-game") addGame();
     else if (control.dataset.action === "fullscreen") activate(control);
     else if (control.dataset.action === "help") activate(control);
+    else if (control.dataset.action === "exit-console" && nativeHost) activate(control);
   });
 
   document.addEventListener("keydown", event => {
