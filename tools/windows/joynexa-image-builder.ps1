@@ -79,7 +79,7 @@ try {
     $nameMatch = [regex]::Match($indexText, '(?m)^Name\s*:\s*(.+)$')
     $editionName = if ($nameMatch.Success) { $nameMatch.Groups[1].Value.Trim() } else { 'Unknown' }
 
-    $sourceFiles = @(Get-ChildItem -LiteralPath $root -File -Recurse)
+    $sourceFiles = @(Get-ChildItem -LiteralPath $root -File -Recurse -Force)
     $sourceBytes = [int64](($sourceFiles | Measure-Object -Property Length -Sum).Sum)
 
     $report = [ordered]@{
@@ -118,7 +118,7 @@ try {
         $stagedBytes = [int64](($stagedFiles | Measure-Object -Property Length -Sum).Sum)
         if ($stagedFiles.Count -ne $sourceFiles.Count -or $stagedBytes -ne $sourceBytes) { Stop-Build 'Staged file count or byte total differs from the read-only source. Output is not verified.' }
         $inventory = @($stagedFiles | ForEach-Object {
-            $relative = $_.FullName.Substring($outPath.TrimEnd('\\').Length).TrimStart('\\')
+            $relative = $_.FullName.Substring($outPath.TrimEnd([System.IO.Path]::DirectorySeparatorChar, [System.IO.Path]::AltDirectorySeparatorChar).Length).TrimStart('\\')
             [pscustomobject]@{ path=$relative; size=$_.Length; sha256=(Get-FileHash -LiteralPath $_.FullName -Algorithm SHA256).Hash }
         } | Sort-Object path)
         $inventoryJson = $inventory | ConvertTo-Json -Depth 5 -Compress
