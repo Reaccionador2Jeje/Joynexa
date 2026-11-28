@@ -8,7 +8,10 @@ Joynexa Input Hub provides one browser-side input interface for games that need 
 - Standard Gamepad mapping where the operating system/browser provides it.
 - Keyboard fallback: arrows or WASD for directions, Space/Z for A, X for B, Q/E for shoulder buttons, Enter for Start and Escape for Select.
 - Touch buttons through the same normalized button names.
-- Optional dual-rumble feedback when the browser exposes a compatible vibration actuator.
+- Multiple connected pads can contribute input; the strongest active stick vector is selected to avoid combining noisy axes.
+- Configurable analog deadzone through `setDeadzone(value)`.
+- Optional dual-rumble / pulse feedback when the browser exposes a compatible actuator.
+- Generic mappings fall back to button indexes and can be customized with the `buttonMap` constructor option.
 
 This is browser capability detection, not a guarantee that every controller works on every device. Some low-cost generic pads report vendor-specific layouts or require OS-level pairing. The test page at `/controllers.html` displays the mapping exposed by the browser.
 
@@ -20,6 +23,7 @@ Load the helper before the game script:
 <script src="/joynexa-input.js"></script>
 <script>
   const input = new JoynexaInput.JoynexaInput({ deadzone: 0.18 });
+  input.setDeadzone(0.2); // optional, from 0 to 0.8
   input.addEventListener("button", ({ detail }) => {
     if (detail.name === "a" && detail.pressed) player.jump();
   });
