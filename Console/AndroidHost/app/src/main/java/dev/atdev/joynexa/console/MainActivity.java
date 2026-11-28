@@ -137,11 +137,13 @@ public final class MainActivity extends Activity {
                 sendError("That app is no longer available.");
                 return;
             }
-            try {
-                startActivity(launch);
-            } catch (RuntimeException error) {
-                sendError("Android could not open that app.");
-            }
+            runOnUiThread(() -> {
+                try {
+                    startActivity(launch);
+                } catch (RuntimeException error) {
+                    sendError("Android could not open that app.");
+                }
+            });
             return;
         }
         sendError("That app is not registered in the library.");
