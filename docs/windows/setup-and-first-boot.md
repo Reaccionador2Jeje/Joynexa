@@ -42,3 +42,19 @@ It inventories the Windows version, processor, memory, graphics adapters, and
 storage devices, then writes a JSON report. It does not benchmark, update
 drivers, change settings, or certify Windows compatibility. Use official
 Microsoft and application requirements for compatibility decisions.
+
+
+## Joynexa Runtime and Recovery
+
+The edition kit includes `Start-JoynexaRuntime.ps1`, a small entry point that
+validates the edition manifest and dispatches an explicit action:
+
+- `-Action Diagnose`: creates hardware and read-only recovery reports.
+- `-Action Personalize`: starts the interactive Joynexa first-boot installer.
+- `-Action Balanced` / `-Action Performance`: applies reversible current-user UI preferences.
+- `-Action Restore`: restores the previously captured UI preference values.
+
+`Test-JoynexaRecovery.ps1` records OS identity, system-drive free space, and
+the presence/status of selected protected services. It does not repair Windows,
+change service startup types, or stop/start services. Reports are diagnostic
+hints, not a guarantee that Windows is healthy.
