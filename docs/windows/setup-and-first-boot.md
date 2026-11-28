@@ -27,3 +27,18 @@ python tools/windows/joynexa-setup-engine.py --edition core --output build/joyne
 The first-boot script only changes current-user personalization values and creates a wallpaper under the extracted kit's assets directory. The optimization script only adjusts current-user animation, transparency, and menu-delay preferences; it saves their previous values before applying a profile. It does not modify system files, services, accounts, activation, Windows Update, driver-signature enforcement, or security settings. Review scripts before running them.
 
 This is a setup customization kit, not a bootable installer, Windows image, or independent operating system. Windows remains the underlying OS and its license and support requirements still apply.
+
+
+## Read-only hardware advisor
+
+Every generated edition kit also includes `Get-JoynexaHardwareReport.ps1`.
+Run it from PowerShell after extracting the kit:
+
+```powershell
+.\Get-JoynexaHardwareReport.ps1 -OutputPath .\joynexa-hardware-report.json
+```
+
+It inventories the Windows version, processor, memory, graphics adapters, and
+storage devices, then writes a JSON report. It does not benchmark, update
+drivers, change settings, or certify Windows compatibility. Use official
+Microsoft and application requirements for compatibility decisions.
