@@ -1,9 +1,9 @@
 (() => {
   const releasesUrl = "https://api.github.com/repos/Reaccionador2Jeje/Joynexa/releases/latest";
   const targets = {
-    windows: { match: /windows|win64|win-x64|setup.*\\.exe|\\.msi$/i, label: "Windows" },
-    linux: { match: /linux|appimage|\\.deb$|\\.rpm$/i, label: "Linux" },
-    android: { match: /android|\\.apk$/i, label: "Android" }
+    windows: { match: /windows|win64|win-x64|setup.*\.exe|\.msi$/i, label: "Windows" },
+    linux: { match: /linux|appimage|\.deb$|\.rpm$/i, label: "Linux" },
+    android: { match: /android|\.apk$/i, label: "Android" }
   };
   const setStatus = (platform, text) => {
     const node = document.getElementById("status-" + platform);
