@@ -29,9 +29,16 @@ El frontend conserva las mismas rutas `/api/register`, `/api/login`, `/api/logou
 
 - Browser Gamepad API support for standard USB and Bluetooth controllers, including generic gamepads exposed by the operating system.
 - Shared browser input layer at `public/joynexa-input.js`: normalized buttons, analog axes, keyboard fallback, touch-button injection and optional vibration where the browser/controller support it.
-- Controller test page at `/controllers.html` with live connection, button and stick feedback.
+- Controller test page at `/controllers.html` with live connection, button and stick feedback, deadzone adjustment and vibration test.
+- Multiple connected controllers can contribute input; analog deadzone is configurable.
 - No controller telemetry is uploaded; input is processed locally in the player's browser.
 - Browser and OS support varies. Generic controllers may expose non-standard button layouts; Joynexa reports the mapping rather than claiming universal hardware compatibility.
+
+## Joynexa Arcade Lab
+
+- Minijuegos originales disponibles en `/arcade.html`: Neon Dodge y Star Collector.
+- Controles compartidos: teclado, mando USB/Bluetooth compatible con Gamepad API y botones táctiles.
+- Récords locales por juego guardados en el navegador; no se envían puntuaciones al servidor.
 
 ## Joynexa Play integrado
 
@@ -43,6 +50,8 @@ El frontend conserva las mismas rutas `/api/register`, `/api/login`, `/api/logou
 Revisa [la arquitectura de Joynexa Play](docs/JOYNEXA_PLAY.md).
 
 ## Catálogo gaming
+
+- Joynexa Arcade Lab adds two original, browser-playable mini-games, separate from third-party catalog listings.
 
 - La vista inicial prioriza experiencias completas y deja los minijuegos clásicos en «Todo el catálogo».
 - Catálogo paginado de 36 juegos por página, preparado para miles de registros.
