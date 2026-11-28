@@ -28,8 +28,19 @@ Prototype 01 is designed to be tested on the ThinkPad Edge E430 (Intel Core i5-2
 - TV interface scale control (85–125%) for different viewing distances.
 - Keyboard and D-pad navigation remain available regardless of selected profile.
 
+## Cross-platform hosts
+
+Joynexa Console is being developed for Windows, Linux and Android using the same dashboard:
+- Windows: `WindowsHost/` (.NET 8 + WebView2).
+- Linux: `LinuxHost/` (Python + pywebview).
+- Android: `AndroidHost/` (native WebView + installed-app launcher).
+
+See [PLATFORMS.md](PLATFORMS.md) for the shared host message contract and platform-specific behavior.
+
 ## Current implementation
-- Native Windows host built with .NET 8 Windows Forms and WebView2.
+- Windows native host built with .NET 8 Windows Forms and WebView2.
+- Linux native host built with Python and pywebview; it registers executable files selected by the user.
+- Android native host scaffold built with Java and Android WebView; it registers installed launcher apps.
 - Explicit executable selection through the Windows file picker.
 - Local game library stored under the current user's LocalAppData.
 - Launches only previously registered executable IDs; no arbitrary shell commands or webpage-supplied paths.
