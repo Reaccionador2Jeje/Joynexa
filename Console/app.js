@@ -124,6 +124,8 @@
       else document.exitFullscreen?.();
     } else if (element.dataset.action === "help") {
       notify("D-pad / arrows move · A / Enter selects · B / Esc goes back.");
+    } else if (element.dataset.action === "exit-console" && nativeHost) {
+      window.chrome.webview.postMessage({type:"exit-console"});
     } else element.click();
   }
 
